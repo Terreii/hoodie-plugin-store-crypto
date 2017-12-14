@@ -1,0 +1,28 @@
+{
+  "name": "hoodie-plugin-store-crypto",
+  "version": "1.0.0",
+  "description": "End-to-end crypto plugin for the Hoodie client store.",
+  "main": "index.js",
+  "scripts": {
+    "test": "standard",
+    "start": "hoodie"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Terreii/hoodie-plugin-store-crypto.git"
+  },
+  "keywords": [
+    "hoodie",
+    "plugin"
+  ],
+  "author": "Christopher Astfalk",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/Terreii/hoodie-plugin-store-crypto/issues"
+  },
+  "homepage": "https://github.com/Terreii/hoodie-plugin-store-crypto#readme",
+  "devDependencies": {
+    "hoodie": "^28.2.2",
+    "standard": "^10.0.3"
+  }
+}
