@@ -4,6 +4,8 @@
   "description": "End-to-end crypto plugin for the Hoodie client store.",
   "main": "index.js",
   "scripts": {
+    "update-coc": "weallbehave -o . && git add CODE_OF_CONDUCT.md && git commit -m 'docs(coc): updated CODE_OF_CONDUCT.md'",
+    "update-contrib": "weallcontribute -o . && git add CONTRIBUTING.md && git commit -m 'docs(contributing): updated CONTRIBUTING.md'",
     "test": "standard",
     "start": "hoodie"
   },
@@ -23,6 +25,8 @@
   "homepage": "https://github.com/Terreii/hoodie-plugin-store-crypto#readme",
   "devDependencies": {
     "hoodie": "^28.2.2",
-    "standard": "^10.0.3"
+    "standard": "^10.0.3",
+    "weallbehave": "^1.2.0",
+    "weallcontribute": "^1.0.8"
   }
 }
