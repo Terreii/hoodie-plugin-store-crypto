@@ -29,6 +29,8 @@
   "devDependencies": {
     "hoodie": "^28.2.2",
     "standard": "^10.0.3",
+    "tap-spec": "^4.1.1",
+    "tape": "^4.8.0",
     "weallbehave": "^1.2.0",
     "weallcontribute": "^1.0.8"
   },
