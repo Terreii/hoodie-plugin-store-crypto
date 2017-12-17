@@ -26,7 +26,6 @@ test('encrypt should encrypt a document', function (t) {
     t.deepEqual(encrypted, {
       _id: 'hello',
       _rev: '1-1234567890',
-      _deleted: undefined,
       hoodie: hoodiePart,
       foo: 'bar',
       hello: 'world',

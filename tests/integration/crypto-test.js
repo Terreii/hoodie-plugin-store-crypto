@@ -48,7 +48,6 @@ test('test generating a key and encrypt and decrypt a doc with it', function (t)
     t.deepEqual(decrypted, {
       _id: 'hello',
       _rev: '1-1234567890',
-      _deleted: undefined,
       hoodie: hoodiePart,
       foo: 'bar',
       hello: 'world',
