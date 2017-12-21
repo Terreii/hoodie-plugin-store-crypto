@@ -31,3 +31,29 @@ test('encrypt should encrypt a document', function (t) {
     t.ok(encrypted.nonce.length === 24, 'nonce should have a length of 24')
   })
 })
+
+test('should throw with a TypeError if no key is passed', function (t) {
+  t.plan(1)
+
+  var hoodiePart = {
+    createdAt: Date.now()
+  }
+  var doc = {
+    _id: 'hello',
+    _rev: '1-1234567890',
+    hoodie: hoodiePart,
+    foo: 'bar',
+    hello: 'world',
+    day: 1
+  }
+
+  encrypt(Buffer.from([]), doc)
+
+  .then(function (decrypted) {
+    t.fail('should throw an TypeError')
+  })
+
+  .catch(function (error) {
+    t.is(error.name, 'TypeError')
+  })
+})
