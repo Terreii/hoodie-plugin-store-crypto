@@ -7,6 +7,13 @@ documents.
 
 There is no server side to this plugin!
 
+## Acknowledgments
+This project heavily uses code and is inspired by
+[@calvinmetcalf's crypto-pouch](https://github.com/calvinmetcalf/crypto-pouch)
+and Hoodie's [hoodie-store-client](https://github.com/hoodiehq/hoodie-store-client).
+
+A huge thank you to those projects and their maintainers.
+
 ## Usage
 
 First, install the plugin as dependency of your Hoodie app
