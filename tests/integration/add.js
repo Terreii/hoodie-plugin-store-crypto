@@ -9,7 +9,7 @@ var PouchDB = require('../utils/pouchdb.js')
 var uniqueName = require('../utils/unique-name')
 
 test('adds object to Store', function (t) {
-  t.plan(8)
+  t.plan(9)
 
   var name = uniqueName()
   var store = new Store(name, {
@@ -23,7 +23,9 @@ test('adds object to Store', function (t) {
 
   hoodie.cryptoStore.setPassword('test')
 
-  .then(function () {
+  .then(function (salt) {
+    t.is(salt.length, 32, 'setPassword resolves with salt')
+
     return hoodie.cryptoStore.add({
       foo: 'bar'
     })
