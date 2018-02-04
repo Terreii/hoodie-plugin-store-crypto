@@ -152,10 +152,10 @@ test('adds multiple objects to db', function (t) {
 
     t.ok(objects[2] instanceof Error, 'resolves third with error')
 
-    return store.get([
-      objects[0]._id,
-      objects[1]._id,
-      'foo'
+    return store.find([
+      objects[0],
+      objects[1],
+      {_id: 'foo'}
     ])
   })
 
