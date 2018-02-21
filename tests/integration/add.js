@@ -1,25 +1,13 @@
 'use strict'
 
 var test = require('tape')
-var Store = require('@hoodie/store-client')
 
-var cryptoStore = require('../../')
-
-var PouchDB = require('../utils/pouchdb.js')
-var uniqueName = require('../utils/unique-name')
+var createCryptoStore = require('../utils/createCryptoStore')
 
 test('adds object to Store', function (t) {
   t.plan(9)
 
-  var name = uniqueName()
-  var store = new Store(name, {
-    PouchDB: PouchDB,
-    remote: 'remote-' + name
-  })
-  var hoodie = {
-    store: store
-  }
-  cryptoStore(hoodie)
+  var hoodie = createCryptoStore()
 
   hoodie.cryptoStore.setPassword('test')
 
@@ -37,7 +25,7 @@ test('adds object to Store', function (t) {
     t.ok(object._rev, 'gets a _rev')
     t.ok(object.hoodie, 'resolves with the hoodie object')
 
-    return store.find(object._id)
+    return hoodie.store.find(object._id)
   })
 
   .then(function (res) {
@@ -51,15 +39,7 @@ test('adds object to Store', function (t) {
 test('fails for invalid object', function (t) {
   t.plan(2)
 
-  var name = uniqueName()
-  var store = new Store(name, {
-    PouchDB: PouchDB,
-    remote: 'remote-' + name
-  })
-  var hoodie = {
-    store: store
-  }
-  cryptoStore(hoodie)
+  var hoodie = createCryptoStore()
 
   hoodie.cryptoStore.setPassword('test')
 
@@ -76,15 +56,7 @@ test('fails for invalid object', function (t) {
 test('fails for existing object', function (t) {
   t.plan(2)
 
-  var name = uniqueName()
-  var store = new Store(name, {
-    PouchDB: PouchDB,
-    remote: 'remote-' + name
-  })
-  var hoodie = {
-    store: store
-  }
-  cryptoStore(hoodie)
+  var hoodie = createCryptoStore()
 
   hoodie.cryptoStore.setPassword('test')
 
@@ -111,15 +83,7 @@ test('fails for existing object', function (t) {
 test('adds multiple objects to db', function (t) {
   t.plan(19)
 
-  var name = uniqueName()
-  var store = new Store(name, {
-    PouchDB: PouchDB,
-    remote: 'remote-' + name
-  })
-  var hoodie = {
-    store: store
-  }
-  cryptoStore(hoodie)
+  var hoodie = createCryptoStore()
 
   hoodie.cryptoStore.setPassword('test')
 
@@ -152,7 +116,7 @@ test('adds multiple objects to db', function (t) {
 
     t.ok(objects[2] instanceof Error, 'resolves third with error')
 
-    return store.find([
+    return hoodie.store.find([
       objects[0],
       objects[1],
       {_id: 'foo'}

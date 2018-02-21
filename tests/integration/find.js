@@ -1,25 +1,13 @@
 'use strict'
 
 var test = require('tape')
-var Store = require('@hoodie/store-client')
 
-var cryptoStore = require('../../')
-
-var PouchDB = require('../utils/pouchdb.js')
-var uniqueName = require('../utils/unique-name')
+var createCryptoStore = require('../utils/createCryptoStore')
 
 test('cryptoStore.find(id)', function (t) {
   t.plan(2)
 
-  var name = uniqueName()
-  var store = new Store(name, {
-    PouchDB: PouchDB,
-    remote: 'remote-' + name
-  })
-  var hoodie = {
-    store: store
-  }
-  cryptoStore(hoodie)
+  var hoodie = createCryptoStore()
 
   hoodie.cryptoStore.setPassword('test')
 
@@ -43,15 +31,7 @@ test('cryptoStore.find(id)', function (t) {
 test('cryptoStore.find(object)', function (t) {
   t.plan(2)
 
-  var name = uniqueName()
-  var store = new Store(name, {
-    PouchDB: PouchDB,
-    remote: 'remote-' + name
-  })
-  var hoodie = {
-    store: store
-  }
-  cryptoStore(hoodie)
+  var hoodie = createCryptoStore()
 
   hoodie.cryptoStore.setPassword('test')
 
@@ -75,15 +55,7 @@ test('cryptoStore.find(object)', function (t) {
 test('find unencrypted objects', function (t) {
   t.plan(4)
 
-  var name = uniqueName()
-  var store = new Store(name, {
-    PouchDB: PouchDB,
-    remote: 'remote-' + name
-  })
-  var hoodie = {
-    store: store
-  }
-  cryptoStore(hoodie)
+  var hoodie = createCryptoStore()
 
   hoodie.cryptoStore.setPassword('test')
 
@@ -117,15 +89,7 @@ test('find unencrypted objects', function (t) {
 test('find rejects with hoodie.find error for non-existing', function (t) {
   t.plan(4)
 
-  var name = uniqueName()
-  var store = new Store(name, {
-    PouchDB: PouchDB,
-    remote: 'remote-' + name
-  })
-  var hoodie = {
-    store: store
-  }
-  cryptoStore(hoodie)
+  var hoodie = createCryptoStore()
 
   hoodie.cryptoStore.setPassword('test')
 
@@ -155,15 +119,7 @@ test('find rejects with hoodie.find error for non-existing', function (t) {
 test('cryptoStore.find(array)', function (t) {
   t.plan(6)
 
-  var name = uniqueName()
-  var store = new Store(name, {
-    PouchDB: PouchDB,
-    remote: 'remote-' + name
-  })
-  var hoodie = {
-    store: store
-  }
-  cryptoStore(hoodie)
+  var hoodie = createCryptoStore()
 
   hoodie.cryptoStore.setPassword('test')
 
@@ -201,15 +157,7 @@ test('cryptoStore.find(array)', function (t) {
 test('cryptoStore.find(array) with non-existing', function (t) {
   t.plan(3)
 
-  var name = uniqueName()
-  var store = new Store(name, {
-    PouchDB: PouchDB,
-    remote: 'remote-' + name
-  })
-  var hoodie = {
-    store: store
-  }
-  cryptoStore(hoodie)
+  var hoodie = createCryptoStore()
 
   hoodie.cryptoStore.setPassword('test')
 
