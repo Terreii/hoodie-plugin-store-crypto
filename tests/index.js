@@ -6,3 +6,4 @@ require('./unit/decrypt-test')
 
 require('./integration/crypto-test')
 require('./integration/add')
+require('./integration/find')
