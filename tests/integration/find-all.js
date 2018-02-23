@@ -16,7 +16,13 @@ test('cryptoStore.findAll()', function (t) {
   .then(function (objects) {
     t.same(objects, [], 'resolves empty array')
 
-    return hoodie.cryptoStore.add([{foo: 'bar'}, {foo: 'baz'}])
+    return hoodie.cryptoStore.add([{
+      _id: 'a',
+      foo: 'bar'
+    }, {
+      _id: 'b',
+      foo: 'baz'
+    }])
   })
 
   .then(hoodie.cryptoStore.findAll)
@@ -26,7 +32,10 @@ test('cryptoStore.findAll()', function (t) {
     t.is(objects[0].foo, 'bar', 'decrypt value')
     t.is(objects[1].foo, 'baz', 'decrypt value')
 
-    return hoodie.store.add({foo: 'foo'})
+    return hoodie.store.add({
+      _id: 'c',
+      foo: 'foo'
+    })
   })
 
   .then(hoodie.cryptoStore.findAll)
