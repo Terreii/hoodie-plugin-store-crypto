@@ -50,7 +50,7 @@ test('cryptoStore.findOrAdd(id, object) adds new', function (t) {
 
   .then(function (object) {
     t.is(object._id, 'newId', 'resolves with id')
-    t.is(object.foo, 'baz', 'resolves with new object')
+    t.is(object.foo, 'bar', 'resolves with new object')
 
     return hoodie.store.find(object._id)
   })
@@ -105,7 +105,7 @@ test('cryptoStore.findOrAdd(object) finds existing', function (t) {
   })
 
   .then(function (object) {
-    t.is(object._id, 'encrypted', 'resolves with id')
+    t.is(object._id, 'unencrypted', 'resolves with id')
     t.is(object.foo, 'bar', 'resolves with old object')
   })
 })
@@ -123,7 +123,7 @@ test('cryptoStore.findOrAdd(object) adds new', function (t) {
 
   .then(function (object) {
     t.is(object._id, 'newId', 'resolves with id')
-    t.is(object.foo, 'baz', 'resolves with new object')
+    t.is(object.foo, 'bar', 'resolves with new object')
 
     return hoodie.store.find(object._id)
   })
