@@ -197,7 +197,7 @@ test('cryptoStore.update(array)', function (t) {
 })
 
 test('cryptoStore.update(array) with non-existent and invalid objects', function (t) {
-  t.plan(6)
+  t.plan(8)
 
   var hoodie = createCryptoStore()
 
@@ -236,7 +236,7 @@ test('cryptoStore.update(array) with non-existent and invalid objects', function
 })
 
 test('cryptoStore.update(array, changedProperties)', function (t) {
-  t.plan(8)
+  t.plan(12)
 
   var hoodie = createCryptoStore()
 
@@ -359,6 +359,10 @@ test('cryptoStore.update([objects]) updates updatedAt timestamps', function (t) 
     return new Promise(function (resolve, reject) {
       setTimeout(resolve, 1000)
     })
+  })
+
+  .then(function () {
+    return hoodie.cryptoStore.update(['encrypted', 'unencrypted'], {foo: 'bar'})
   })
 
   hoodie.store.on('update', function (object) {
