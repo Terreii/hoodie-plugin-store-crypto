@@ -5,6 +5,14 @@ var Promise = require('lie')
 
 var createCryptoStore = require('../utils/createCryptoStore')
 
+function checkTime (objectTime) {
+  var now = Date.now()
+  var timeObj = new Date(objectTime)
+  var isoString = timeObj.toISOString()
+  var time = timeObj.getTime()
+  return time <= now && time > (now - 5) && objectTime === isoString
+}
+
 test('cryptoStore.update(id, changedProperties)', function (t) {
   t.plan(10)
 
@@ -336,7 +344,7 @@ test('cryptoStore.update(object) updates updatedAt timestamp', function (t) {
   hoodie.store.on('update', function (object) {
     t.is(object._id, 'shouldHaveTimestamps', 'resolves doc')
     t.is(typeof object.hoodie.deletedAt, 'undefined', 'deletedAt shouldnt be set')
-    t.is(new Date().toISOString(), object.hoodie.updatedAt, 'updatedAt should be the same time as right now')
+    t.ok(checkTime(object.hoodie.updatedAt), 'updatedAt should be the same time as right now')
     t.not(object.hoodie.createdAt, object.hoodie.updatedAt, 'createdAt and updatedAt should not be the same')
   })
 })
@@ -368,7 +376,7 @@ test('cryptoStore.update([objects]) updates updatedAt timestamps', function (t) 
   hoodie.store.on('update', function (object) {
     t.ok(object._id, 'resolves doc')
     t.is(typeof object.hoodie.deletedAt, 'undefined', 'deletedAt shouldnt be set')
-    t.is(new Date().toISOString(), object.hoodie.updatedAt, 'updatedAt should be the same time as right now')
+    t.ok(checkTime(object.hoodie.updatedAt), 'updatedAt should be the same time as right now')
     t.not(object.hoodie.createdAt, object.hoodie.updatedAt, 'createdAt and updatedAt should not be the same')
   })
 })
