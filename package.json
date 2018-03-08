@@ -4,6 +4,7 @@
   "description": "End-to-end crypto plugin for the Hoodie client store.",
   "main": "index.js",
   "directories": {
+    "hoodie": "hoodie",
     "lib": "lib"
   },
   "scripts": {
