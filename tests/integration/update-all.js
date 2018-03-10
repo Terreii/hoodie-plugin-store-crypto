@@ -14,7 +14,7 @@ function checkTime (objectTime) {
 }
 
 test('cryptoStore.updateAll(changedProperties)', function (t) {
-  t.plan(26)
+  t.plan(25)
 
   var hoodie = createCryptoStore()
 
