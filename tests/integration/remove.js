@@ -10,7 +10,7 @@ function checkTime (objectTime) {
   var timeObj = new Date(objectTime)
   var isoString = timeObj.toISOString()
   var time = timeObj.getTime()
-  return time <= now && time > (now - 5) && objectTime === isoString
+  return time <= now && time > (now - 10) && objectTime === isoString
 }
 
 test('removes existing by id', function (t) {
@@ -289,7 +289,7 @@ test('cryptoStore.remove(object) creates deletedAt timestamp', function (t) {
   })
 
   .then(function (object) {
-    t.is(object._id, 'shouldHaveTimestamps', 'resolves doc')
+    t.is(object._id, 'foo', 'resolves doc')
     t.ok(object.hoodie.deletedAt, 'should have deleteAt timestamps')
     t.ok(checkTime(object.hoodie.deletedAt), 'deletedAt should be a valid date of right now')
   })
