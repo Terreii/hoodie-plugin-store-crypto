@@ -4,6 +4,7 @@
   "description": "End-to-end crypto plugin for the Hoodie client store.",
   "main": "index.js",
   "directories": {
+    "hoodie": "hoodie",
     "lib": "lib"
   },
   "scripts": {
@@ -28,16 +29,22 @@
   },
   "homepage": "https://github.com/Terreii/hoodie-plugin-store-crypto#readme",
   "devDependencies": {
-    "hoodie": "^28.2.2",
+    "@hoodie/store-client": "^8.3.0",
+    "hoodie": "^28.2.6",
+    "pouchdb-adapter-memory": "^6.4.3",
+    "pouchdb-core": "^6.4.3",
+    "pouchdb-replication": "^6.4.3",
     "standard": "^10.0.3",
     "tap-spec": "^4.1.1",
-    "tape": "^4.8.0",
+    "tape": "^4.9.0",
     "weallbehave": "^1.2.0",
     "weallcontribute": "^1.0.8"
   },
   "dependencies": {
+    "lie": "^3.3.0",
     "native-crypto": "^1.8.1",
-    "randombytes": "^2.0.5",
-    "uuid": "^3.1.0"
+    "pouchdb-errors": "^6.4.3",
+    "randombytes": "^2.0.6",
+    "uuid": "^3.2.1"
   }
 }
