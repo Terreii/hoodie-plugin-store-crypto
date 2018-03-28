@@ -100,6 +100,7 @@ test('cryptoStore.withIdPrefix("test/").find("foo")', function (t) {
 
   .then(function (object) {
     t.pass('finds doc')
+    t.end()
   })
 
   .catch(t.error)
@@ -125,6 +126,7 @@ test('cryptoStore.withIdPrefix("test/").find("test/foo")', function (t) {
 
   .then(function (object) {
     t.pass('finds doc')
+    t.end()
   })
 
   .catch(t.error)
