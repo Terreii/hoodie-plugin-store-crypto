@@ -22,16 +22,16 @@ test('encrypt should encrypt a document', function (t) {
 
   decrypt(key, doc)
 
-  .then(function (decrypted) {
-    t.deepEqual(decrypted, {
-      _id: 'hello',
-      _rev: '1-1234567890',
-      hoodie: hoodiePart,
-      foo: 'bar',
-      hello: 'world',
-      day: 1
-    }, 'decrypted doc')
-  })
+    .then(function (decrypted) {
+      t.deepEqual(decrypted, {
+        _id: 'hello',
+        _rev: '1-1234567890',
+        hoodie: hoodiePart,
+        foo: 'bar',
+        hello: 'world',
+        day: 1
+      }, 'decrypted doc')
+    })
 })
 
 test('should return a unencrypted document', function (t) {
@@ -48,19 +48,19 @@ test('should return a unencrypted document', function (t) {
 
   decrypt(key, doc)
 
-  .then(function (decrypted) {
-    t.deepEqual(doc, {
-      _id: 'hello',
-      _rev: '1-1234567890',
-      foo: 'bar',
-      hello: 'world',
-      day: 1
+    .then(function (decrypted) {
+      t.deepEqual(doc, {
+        _id: 'hello',
+        _rev: '1-1234567890',
+        foo: 'bar',
+        hello: 'world',
+        day: 1
+      })
     })
-  })
 
-  .catch(function () {
-    t.fail('should return the doc')
-  })
+    .catch(function () {
+      t.fail('should return the doc')
+    })
 })
 
 test('should throw with a TypeError if no key is passed', function (t) {
@@ -80,11 +80,11 @@ test('should throw with a TypeError if no key is passed', function (t) {
 
   decrypt(Buffer.from([]), doc)
 
-  .then(function (decrypted) {
-    t.fail('should throw an TypeError')
-  })
+    .then(function (decrypted) {
+      t.fail('should throw an TypeError')
+    })
 
-  .catch(function (error) {
-    t.is(error.name, 'TypeError')
-  })
+    .catch(function (error) {
+      t.is(error.name, 'TypeError')
+    })
 })
