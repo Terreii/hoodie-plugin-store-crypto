@@ -29,7 +29,6 @@
   },
   "homepage": "https://github.com/Terreii/hoodie-plugin-store-crypto#readme",
   "devDependencies": {
-    "@hoodie/store-client": "^8.3.0",
     "hoodie": "^28.2.6",
     "pouchdb-adapter-memory": "^6.4.3",
     "pouchdb-core": "^6.4.3",
@@ -41,6 +40,7 @@
     "weallcontribute": "^1.0.8"
   },
   "dependencies": {
+    "@hoodie/store-client": "^8.3.0",
     "lie": "^3.3.0",
     "native-crypto": "^1.8.1",
     "pouchdb-errors": "^6.4.3",
