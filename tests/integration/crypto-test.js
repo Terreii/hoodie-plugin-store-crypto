@@ -24,38 +24,38 @@ test('test generating a key and encrypt and decrypt a doc with it', function (t)
 
   createKey(password)
 
-  .then(function (result) {
-    var key = result.key
+    .then(function (result) {
+      var key = result.key
 
-    return encrypt(key, doc, null)
+      return encrypt(key, doc, null)
 
-    .then(function (encrypted) {
-      return {
-        key: key,
-        encrypted: encrypted
-      }
+        .then(function (encrypted) {
+          return {
+            key: key,
+            encrypted: encrypted
+          }
+        })
     })
-  })
 
-  .then(function (result) {
-    var key = result.key
-    var encrypted = result.encrypted
+    .then(function (result) {
+      var key = result.key
+      var encrypted = result.encrypted
 
-    return decrypt(key, encrypted)
-  })
+      return decrypt(key, encrypted)
+    })
 
-  .then(function (decrypted) {
-    t.deepEqual(decrypted, {
-      _id: 'hello',
-      _rev: '1-1234567890',
-      hoodie: hoodiePart,
-      foo: 'bar',
-      hello: 'world',
-      day: 1
-    }, 'decrypted doc')
-  })
+    .then(function (decrypted) {
+      t.deepEqual(decrypted, {
+        _id: 'hello',
+        _rev: '1-1234567890',
+        hoodie: hoodiePart,
+        foo: 'bar',
+        hello: 'world',
+        day: 1
+      }, 'decrypted doc')
+    })
 
-  .catch(function (error) {
-    t.error(error)
-  })
+    .catch(function (error) {
+      t.error(error)
+    })
 })
