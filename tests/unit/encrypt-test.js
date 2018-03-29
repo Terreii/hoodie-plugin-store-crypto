@@ -22,14 +22,14 @@ test('encrypt should encrypt a document', function (t) {
 
   encrypt(key, doc, null)
 
-  .then(function (encrypted) {
-    t.equal(encrypted._id, 'hello', 'unchanged _id')
-    t.equal(encrypted._rev, '1-1234567890', 'unchanged _rev')
-    t.deepEqual(encrypted.hoodie, hoodiePart, 'unchanged hoodie data')
-    t.ok(encrypted.tag.length === 32, 'tag part should have a length of 32')
-    t.ok(encrypted.data.length > 0, 'encrypted data')
-    t.ok(encrypted.nonce.length === 24, 'nonce should have a length of 24')
-  })
+    .then(function (encrypted) {
+      t.equal(encrypted._id, 'hello', 'unchanged _id')
+      t.equal(encrypted._rev, '1-1234567890', 'unchanged _rev')
+      t.deepEqual(encrypted.hoodie, hoodiePart, 'unchanged hoodie data')
+      t.ok(encrypted.tag.length === 32, 'tag part should have a length of 32')
+      t.ok(encrypted.data.length > 0, 'encrypted data')
+      t.ok(encrypted.nonce.length === 24, 'nonce should have a length of 24')
+    })
 })
 
 test('should throw with a TypeError if no key is passed', function (t) {
@@ -49,11 +49,11 @@ test('should throw with a TypeError if no key is passed', function (t) {
 
   encrypt(Buffer.from([]), doc)
 
-  .then(function (decrypted) {
-    t.fail('should throw an TypeError')
-  })
+    .then(function (decrypted) {
+      t.fail('should throw an TypeError')
+    })
 
-  .catch(function (error) {
-    t.is(error.name, 'TypeError')
-  })
+    .catch(function (error) {
+      t.is(error.name, 'TypeError')
+    })
 })
