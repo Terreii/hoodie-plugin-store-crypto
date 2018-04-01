@@ -57,5 +57,5 @@ Then require it and set it up:
 var hoodie = require('@hoodie/client')
 var cryptoStore = require('hoodie-plugin-store-crypto')
 
-cryptoStore(hoodie) // sets up hoodie.eteCrypto
+cryptoStore(hoodie) // sets up hoodie.cryptoStore
 ```
