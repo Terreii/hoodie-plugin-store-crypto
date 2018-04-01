@@ -36,9 +36,9 @@ Then add it to the `hoodie.plugins` array in your app’s `package.json` file.
 }
 ```
 
-You can now start your app with `npm start`. There should now be an `eteCrypto`
+You can now start your app with `npm start`. There should now be an `cryptoStore`
 property on your client `hoodie` instance. You can access it with
-`hoodie.eteCrypto`.
+`hoodie.cryptoStore`.
 
 ### Usage with Browserify or Webpack
 
@@ -55,7 +55,7 @@ Then require it and set it up:
 
 ```javascript
 var hoodie = require('@hoodie/client')
-var eteCrypto = require('hoodie-plugin-store-crypto')
+var cryptoStore = require('hoodie-plugin-store-crypto')
 
-eteCrypto(hoodie) // sets up hoodie.eteCrypto
+cryptoStore(hoodie) // sets up hoodie.eteCrypto
 ```
