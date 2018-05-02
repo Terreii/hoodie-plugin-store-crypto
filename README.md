@@ -1,8 +1,8 @@
 # hoodie-plugin-store-crypto
 > End-to-end crypto plugin for the Hoodie client store.
 
-This [Hoodie](http://hood.ie/) plugin adds methods, to store and read encrypted
-documents in your store, while still being able to store and read unencrypted
+This [Hoodie](http://hood.ie/) plugin adds methods, to add, read and update encrypted
+documents in your store, while still being able to add, read and update unencrypted
 documents.
 
 There is no server side to this plugin!
@@ -16,7 +16,15 @@ A huge thank you to those projects and their maintainers.
 
 ## Usage
 
-First, install the plugin as dependency of your Hoodie app
+There are 2 ways to use this plugin in your app:
+- Use it with the Hoodie Plugin API
+- Use it with a bundler (Webpack or Browserify)
+
+### Usage with the Hoodie Plugin API
+
+This will add the cryptoStore to your `/hoodie/client.js` if you use the `hoodie` package.
+
+First, install the plugin as dependency of your Hoodie app:
 
 ```js
 npm install --save hoodie-plugin-store-crypto
@@ -45,7 +53,7 @@ property on your client `hoodie` instance. You can access it with
 If you are using a client bundler (e.g. [Browserify](http://browserify.org/)
 or [Webpack](https://webpack.js.org)), then you can import it manually.
 
-First, install the plugin as dev-dependency of your Hoodie app
+First, install the plugin as dev-dependency of your Hoodie app:
 
 ```js
 npm install --save-dev hoodie-plugin-store-crypto
@@ -54,8 +62,17 @@ npm install --save-dev hoodie-plugin-store-crypto
 Then require it and set it up:
 
 ```javascript
-var hoodie = require('@hoodie/client')
+var Hoodie = require('@hoodie/client')
+var PouchDB = require('pouchdb')
 var cryptoStore = require('hoodie-plugin-store-crypto')
+
+var hoodie = new Hoodie({ // create an instance of the hoodie-client
+  url: '',
+  PouchDB: PouchDB
+})
 
 cryptoStore(hoodie) // sets up hoodie.cryptoStore
 ```
+
+You only need to do it this way, if you directly require/import the `@hoodie/client`!
+If you get the client with `<script src="/hoodie/client.js"></script>`, then the first way is recommended.
