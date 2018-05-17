@@ -479,7 +479,7 @@ test('cryptoStore.on("change") with adding one and updating it afterwards', func
 
     .then(function () {
       return hoodie.cryptoStore.add({
-        _id: 'test',
+        _id: 'one',
         foo: 'bar'
       })
     })
