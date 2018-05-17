@@ -558,3 +558,25 @@ test('cryptoStore.withIdPrefix("test/").withIdPrefix("onetwo/").add(properties)'
 
     .catch(t.error)
 })
+
+test('cryptoStore.withIdPrefix("test/").on("change", handler) events', function (t) {
+  t.plan(2)
+
+  var hoodie = createCryptoStore()
+  var testStore = hoodie.cryptoStore.withIdPrefix('test/')
+
+  testStore.on('change', function (eventName, object) {
+    t.is(object._id, 'test/foo')
+  })
+
+  testStore.on('add', function (object) {
+    t.is(object._id, 'test/foo')
+  })
+
+  hoodie.cryptoStore.setPassword('test')
+
+    .then(function () {
+      hoodie.cryptoStore.add({_id: 'foo'})
+      testStore.add({_id: 'foo'})
+    })
+})

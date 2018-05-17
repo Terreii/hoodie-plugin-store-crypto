@@ -3,6 +3,7 @@
 var test = require('tape')
 
 var createCryptoStore = require('../utils/createCryptoStore')
+var addCryptoStoreToHoodie = require('../../')
 
 function noop () {}
 
@@ -736,4 +737,45 @@ test('events should emit before methods resolve', function (t) {
     .then(function () {
       t.ok(eventTriggered)
     })
+})
+
+test('cryptoStore should only listen to events, if a handler was added', function (t) {
+  t.plan(16)
+
+  var afterAddingCryptoStore = false
+  var shouldHave = false
+  var hoodie = {
+    store: {
+      on: function (eventName, handler) {
+        t.is(afterAddingCryptoStore, true, "creating cryptoStore doesn't add an handler")
+        t.is(shouldHave, true, 'handler should be added, only if a handler was added to it')
+        t.is(eventName, 'change', 'a change handler was added')
+        t.is(typeof handler, 'function', 'handler should be a function')
+      },
+      off: function (eventName, handler) {
+        t.is(afterAddingCryptoStore, true, "creating cryptoStore doesn't add an handler")
+        t.is(shouldHave, false, 'handler should remove its handler if it has 0 handler')
+        t.is(eventName, 'change', 'a change handler should be removed')
+        t.is(typeof handler, 'function', 'handler should be a function')
+      }
+    }
+  }
+  var handler = function () {}
+
+  addCryptoStoreToHoodie(hoodie)
+  afterAddingCryptoStore = true
+
+  shouldHave = true
+  hoodie.cryptoStore.on('add', handler)
+
+  shouldHave = false
+  hoodie.cryptoStore.off('add', handler)
+
+  var testStore = hoodie.cryptoStore.withIdPrefix('test/')
+
+  shouldHave = true
+  testStore.on('add', handler)
+
+  shouldHave = false
+  testStore.off('add', handler)
 })
