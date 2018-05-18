@@ -43,6 +43,10 @@ test('cryptoStore.updateOrAdd(id, object) updates existing', function (t) {
       t.is(objects[1].foo, undefined, 'stored doc 1 has no foo')
       t.ok(objects[1].data, 'stored doc 1 has encrypted data')
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.updateOrAdd(id, object) adds new if non-existent', function (t) {
@@ -70,6 +74,10 @@ test('cryptoStore.updateOrAdd(id, object) adds new if non-existent', function (t
       t.ok(object.tag, 'has tag')
       t.ok(object.nonce, 'has nonce')
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.updateOrAdd(id) fails with 400 error', function (t) {
@@ -81,6 +89,10 @@ test('cryptoStore.updateOrAdd(id) fails with 400 error', function (t) {
 
     .then(function () {
       return hoodie.cryptoStore.updateOrAdd('id')
+    })
+
+    .then(function () {
+      t.fail("updateOrAdd didn't fail")
     })
 
     .catch(function (error) {
@@ -126,6 +138,10 @@ test('cryptoStore.updateOrAdd(object) updates existing', function (t) {
       t.is(objects[1].foo, undefined, 'stored doc 1 has no foo')
       t.ok(objects[1].data, 'stored doc 1 has encrypted data')
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.updateOrAdd(object) adds new if non-existent', function (t) {
@@ -153,6 +169,10 @@ test('cryptoStore.updateOrAdd(object) adds new if non-existent', function (t) {
       t.ok(object.tag, 'has tag')
       t.ok(object.nonce, 'has nonce')
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.updateOrAdd(object) without object._id fails with 400 error', function (t) {
@@ -164,6 +184,10 @@ test('cryptoStore.updateOrAdd(object) without object._id fails with 400 error', 
 
     .then(function () {
       return hoodie.cryptoStore.updateOrAdd({foo: 'bar'})
+    })
+
+    .then(function () {
+      t.fail("updateOrAdd didn't fail")
     })
 
     .catch(function (error) {
@@ -217,5 +241,9 @@ test('cryptoStore.updateOrAdd(array) updates existing, adds new', function (t) {
 
       t.is(objects[2].foo, undefined, 'stored doc 3 has no foo')
       t.ok(objects[2].data, 'stored doc 3 has encrypted data')
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
