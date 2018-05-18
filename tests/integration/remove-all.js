@@ -10,7 +10,7 @@ function checkTime (objectTime) {
   var timeObj = new Date(objectTime)
   var isoString = timeObj.toISOString()
   var time = timeObj.getTime()
-  return time <= now && time > (now - 20) && objectTime === isoString
+  return time <= now && time > (now - 30) && objectTime === isoString
 }
 
 test('cryptoStore.removeAll()', function (t) {
@@ -49,6 +49,10 @@ test('cryptoStore.removeAll()', function (t) {
 
     .then(function (objects) {
       t.is(objects.length, 0, 'no objects can be found in store')
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -94,6 +98,10 @@ test('cryptoStore.removeAll(filterFunction)', function (t) {
     .then(function (objects) {
       t.is(objects.length, 3, 'does not remove other 3 objects')
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test("cryptoStore.removeAll() doesn't remove _design docs", function (t) {
@@ -123,6 +131,10 @@ test("cryptoStore.removeAll() doesn't remove _design docs", function (t) {
     .then(function (doc) {
       t.is(doc._id, '_design/bar', 'check _design/bar still exists')
       t.isNot(doc._deleted, true, '_design/bar is not deleted')
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -158,5 +170,9 @@ test('cryptoStore.removeAll([objects]) creates deletedAt timestamps', function (
         t.ok(object.hoodie.deletedAt, 'should have deleteAt timestamp')
         t.ok(checkTime(object.hoodie.deletedAt), 'deletedAt should be the same time as right now')
       })
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
