@@ -382,28 +382,31 @@ test('cryptoStore.on("change") with adding one', function (t) {
     })
 })
 
-test('cryptoStore.on("add") should not emit after store.add() promise resolved', function (t) {
-  t.plan(1)
+test(
+  'cryptoStore.on("add") should not emit after cryptoStore.add() promise resolved',
+  function (t) {
+    t.plan(1)
 
-  var hoodie = createCryptoStore()
+    var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+    hoodie.cryptoStore.setPassword('test')
 
-    .then(function () {
-      return hoodie.cryptoStore.add({
-        _id: 'test'
+      .then(function () {
+        return hoodie.cryptoStore.add({
+          _id: 'test'
+        })
       })
-    })
 
-    .then(function () {
-      hoodie.cryptoStore.on('add', t.fail.bind(t, 'should not emit "add" event'))
-      hoodie.cryptoStore.on('update', t.pass.bind(t, 'emits "update" event'))
+      .then(function () {
+        hoodie.cryptoStore.on('add', t.fail.bind(t, 'should not emit "add" event'))
+        hoodie.cryptoStore.on('update', t.pass.bind(t, 'emits "update" event'))
 
-      hoodie.cryptoStore.update({
-        _id: 'test'
+        hoodie.cryptoStore.update({
+          _id: 'test'
+        })
       })
-    })
-})
+  }
+)
 
 test('cryptoStore.on("change") with updating one', function (t) {
   t.plan(3)
@@ -778,4 +781,57 @@ test('cryptoStore should only listen to events, if a handler was added', functio
 
   shouldHave = false
   testStore.off('add', handler)
+})
+
+test('cryptoStore should emit events only for encryped objects', function (t) {
+  t.plan(6)
+
+  var hoodie = createCryptoStore()
+
+  var eventNumber = 0
+
+  hoodie.cryptoStore.on('change', function (eventName, object) {
+    if (eventNumber === 0) {
+      t.is(eventName, 'add', 'event is the add event')
+      t.is(object._id, 'encryped', 'the correct object was added')
+    } else if (eventNumber === 1) {
+      t.is(eventName, 'update', 'event is a update event')
+      t.is(object._id, 'unencryped', 'the unencryped object was encryped')
+    } else if (eventNumber === 2) {
+      t.is(eventName, 'update', 'event is a update event')
+      t.is(object._id, 'encryped', 'the encryped object was updated')
+    }
+
+    eventNumber += 1
+  })
+
+  hoodie.cryptoStore.setPassword('test')
+
+    .then(function () {
+      return hoodie.store.add({
+        _id: 'unencryped',
+        foo: 'bar'
+      })
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.add({
+        _id: 'encryped',
+        foo: 'bar'
+      })
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.update({
+        _id: 'unencryped',
+        foo: 'baz'
+      })
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.update({
+        _id: 'encryped',
+        foo: 'baz'
+      })
+    })
 })
