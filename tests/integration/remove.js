@@ -38,6 +38,10 @@ test('removes existing by id', function (t) {
       return hoodie.cryptoStore.find('foo')
     })
 
+    .then(function () {
+      t.fail("find didn't fail")
+    })
+
     .catch(function (error) {
       t.ok(error instanceof Error, 'rejects error')
     })
@@ -68,6 +72,10 @@ test('removes existing by object', function (t) {
       return hoodie.cryptoStore.find('foo')
     })
 
+    .then(function () {
+      t.fail("find didn't fail")
+    })
+
     .catch(function (error) {
       t.ok(error instanceof Error, 'rejects error')
     })
@@ -92,6 +100,10 @@ test('fails for non-existing', function (t) {
 
     .then(function () {
       return hoodie.cryptoStore.remove({_id: 'foo'})
+    })
+
+    .then(function () {
+      t.fail("find didn't fail")
     })
 
     .catch(function (error) {
@@ -140,6 +152,10 @@ test('cryptoStore.remove(array) removes existing, returns error for non-existing
         'rejects with custom message for unknown'
       )
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.remove([changedObjects]) updates before removing', function (t) {
@@ -183,6 +199,10 @@ test('cryptoStore.remove([changedObjects]) updates before removing', function (t
       t.is(objects[1]._id, 'bar', 'resolves value')
       t.is(objects[1].foo, 'changed', 'check foo is changed')
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.remove(changedObject) updates before removing', function (t) {
@@ -208,6 +228,10 @@ test('cryptoStore.remove(changedObject) updates before removing', function (t) {
       t.is(object.foo, 'changed', 'check foo is changed')
       t.is(object.hoodie.ignore, undefined, 'ignores hoodie property')
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.remove(id, changedProperties) updates before removing', function (t) {
@@ -232,6 +256,10 @@ test('cryptoStore.remove(id, changedProperties) updates before removing', functi
       t.is(object._id, 'foo', 'resolves value')
       t.is(object.foo, 'changed', 'check foo is changed')
       t.is(object.hoodie.ignore, undefined, 'ignores hoodie property')
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -261,6 +289,10 @@ test('cryptoStore.remove(id, changeFunction) updates before removing', function 
       t.is(object._id, 'foo', 'resolves value')
       t.is(object.foo, 'changed', 'check foo is changed')
       t.is(object.hoodie.ignore, undefined, 'ignores hoodie property')
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -292,6 +324,10 @@ test('cryptoStore.remove(object) creates deletedAt timestamp', function (t) {
       t.is(object._id, 'foo', 'resolves doc')
       t.ok(object.hoodie.deletedAt, 'should have deleteAt timestamps')
       t.ok(checkTime(object.hoodie.deletedAt), 'deletedAt should be a valid date of right now')
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -329,5 +365,9 @@ test('cryptoStore.remove([objects]) creates deletedAt timestamps', function (t) 
         t.ok(object.hoodie.deletedAt, 'should have deleteAt timestamp')
         t.ok(checkTime(object.hoodie.deletedAt), 'deletedAt should be a valid date of right now')
       })
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })

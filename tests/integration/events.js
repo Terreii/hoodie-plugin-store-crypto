@@ -48,6 +48,10 @@ test('cryptoStore.on("add") with adding one', function (t) {
         foo: 'bar'
       })
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.on("add") with adding two', function (t) {
@@ -81,6 +85,10 @@ test('cryptoStore.on("add") with adding two', function (t) {
         {foo: 'baz'}
       ])
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test(
@@ -108,6 +116,10 @@ test(
           foo: 'baz'
         })
       })
+
+      .catch(function (err) {
+        t.end(err)
+      })
   }
 )
 
@@ -132,6 +144,10 @@ test('cryptoStore.on("add") with add & update', function (t) {
 
     .then(function () {
       hoodie.cryptoStore.updateOrAdd('test', {nr: 2})
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -158,6 +174,10 @@ test('cryptoStore.on("update") with updating one', function (t) {
         _id: 'test',
         foo: 'bar'
       })
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -199,6 +219,10 @@ test('cryptoStore.on("update") with updating two', function (t) {
         { _id: 'second', foo: 'baz' }
       ])
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.on("update") with add & update', function (t) {
@@ -222,6 +246,10 @@ test('cryptoStore.on("update") with add & update', function (t) {
 
     .then(function () {
       hoodie.cryptoStore.updateOrAdd('test', {nr: 2})
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -262,6 +290,10 @@ test('cryptoStore.on("update") with update all', function (t) {
         bar: 'baz'
       })
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.on("remove") with removing one', function (t) {
@@ -285,6 +317,10 @@ test('cryptoStore.on("remove") with removing one', function (t) {
 
     .then(function () {
       return hoodie.cryptoStore.remove('one')
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -323,6 +359,10 @@ test('cryptoStore.on("remove") with removing two', function (t) {
     .then(function () {
       hoodie.cryptoStore.remove(['one', 'two'])
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.on("remove") with remove all', function (t) {
@@ -360,6 +400,10 @@ test('cryptoStore.on("remove") with remove all', function (t) {
     .then(function () {
       hoodie.cryptoStore.removeAll()
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.on("change") with adding one', function (t) {
@@ -379,6 +423,10 @@ test('cryptoStore.on("change") with adding one', function (t) {
       return hoodie.cryptoStore.add({
         foo: 'bar'
       })
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -404,6 +452,10 @@ test(
         hoodie.cryptoStore.update({
           _id: 'test'
         })
+      })
+
+      .catch(function (err) {
+        t.end(err)
       })
   }
 )
@@ -432,6 +484,10 @@ test('cryptoStore.on("change") with updating one', function (t) {
         _id: 'test',
         foo: 'bar'
       })
+
+        .catch(function (err) {
+          t.end(err)
+        })
     })
 })
 
@@ -456,7 +512,11 @@ test('cryptoStore.on("change") with removing one', function (t) {
         t.is(object.foo, 'bar', 'event passes object')
       })
 
-      hoodie.cryptoStore.remove('test')
+      return hoodie.cryptoStore.remove('test')
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -494,6 +554,10 @@ test('cryptoStore.on("change") with adding one and updating it afterwards', func
         foo: 'baz'
       })
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.off("add") with one add handler', function (t) {
@@ -517,6 +581,10 @@ test('cryptoStore.off("add") with one add handler', function (t) {
       return hoodie.cryptoStore.add({
         foo: 'bar'
       })
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -543,6 +611,10 @@ test('cryptoStore.off("add") with removing one of two add handlers', function (t
       return hoodie.cryptoStore.add({
         foo: 'bar'
       })
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -572,6 +644,10 @@ test('cryptoStore.off("update") with one update handler', function (t) {
     })
 
     .then(hoodie.cryptoStore.update)
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.off("remove") with one remove handler', function (t) {
@@ -600,6 +676,10 @@ test('cryptoStore.off("remove") with one remove handler', function (t) {
     })
 
     .then(hoodie.cryptoStore.remove)
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.one("add") with adding one', function (t) {
@@ -618,6 +698,10 @@ test('cryptoStore.one("add") with adding one', function (t) {
       return hoodie.cryptoStore.add({
         foo: 'bar'
       })
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -641,6 +725,10 @@ test('cryptoStore.one("add") with adding two', function (t) {
         {foo: 'baz'}
       ])
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.one("add") with add & update', function (t) {
@@ -661,6 +749,10 @@ test('cryptoStore.one("add") with add & update', function (t) {
 
     .then(function () {
       hoodie.cryptoStore.updateOrAdd('test', {nr: 2})
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -686,6 +778,10 @@ test('cryptoStore.one("add") with one element added before registering event and
       hoodie.cryptoStore.add({
         foo: 'baz'
       })
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -739,6 +835,10 @@ test('events should emit before methods resolve', function (t) {
 
     .then(function () {
       t.ok(eventTriggered)
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -833,5 +933,9 @@ test('cryptoStore should emit events only for encryped objects', function (t) {
         _id: 'encryped',
         foo: 'baz'
       })
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })

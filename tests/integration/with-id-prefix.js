@@ -55,6 +55,10 @@ test('cryptoStore.withIdPrefix("test/").add(properties)', function (t) {
     .then(function (object) {
       t.ok(/^test\//.test(object._id), 'prefixes id with "test/"')
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.withIdPrefix("test/").add([doc1, doc2])', function (t) {
@@ -77,6 +81,10 @@ test('cryptoStore.withIdPrefix("test/").add([doc1, doc2])', function (t) {
     .then(function (objects) {
       t.ok(/^test\//.test(objects[0]._id), 'prefixes id with "test/"')
       t.ok(/^test\//.test(objects[1]._id), 'prefixes id with "test/"')
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -162,6 +170,10 @@ test('cryptoStore.withIdPrefix("test/").find(["foo", "test/bar"])', function (t)
       t.is(objects[0]._id, 'test/foo', 'finds doc with _id: test/foo')
       t.is(objects[1]._id, 'test/bar', 'finds doc with _id: test/bar')
       t.is(objects[2]._id, 'test/baz', 'finds doc with _id: test/baz')
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -578,5 +590,9 @@ test('cryptoStore.withIdPrefix("test/").on("change", handler) events', function 
     .then(function () {
       hoodie.cryptoStore.add({_id: 'foo'})
       testStore.add({_id: 'foo'})
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })

@@ -1,6 +1,7 @@
 'use strict'
 
 var test = require('tape')
+var Promise = require('lie')
 
 var createCryptoStore = require('../utils/createCryptoStore')
 
@@ -26,6 +27,10 @@ test('cryptoStore.find(id)', function (t) {
       t.is(doc._id, 'foo', 'resolves _id')
       t.is(doc.foo, 'bar', 'resolves value')
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.find(object)', function (t) {
@@ -50,6 +55,10 @@ test('cryptoStore.find(object)', function (t) {
       t.is(doc._id, 'foo', 'resolves _id')
       t.is(doc.bar, 'baz', 'resolves value')
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('find unencrypted objects', function (t) {
@@ -70,19 +79,25 @@ test('find unencrypted objects', function (t) {
     })
 
     .then(function () {
-      hoodie.cryptoStore.find('foo')
+      var first = hoodie.cryptoStore.find('foo')
 
         .then(function (object) {
           t.is(object._id, 'foo', 'resolves id')
           t.is(object.bar, 'baz', 'resolves value')
         })
 
-      hoodie.cryptoStore.find({_id: 'bar'})
+      var second = hoodie.cryptoStore.find({_id: 'bar'})
 
         .then(function (object) {
           t.is(object._id, 'bar', 'resolves id')
           t.is(object.foo, 'baz', 'resolves value')
         })
+
+      return Promise.all([first, second])
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -100,19 +115,25 @@ test('find rejects with hoodie.find error for non-existing', function (t) {
     })
 
     .then(function () {
-      hoodie.cryptoStore.find('foo')
+      var first = hoodie.cryptoStore.find('foo')
 
         .catch(function (err) {
           t.ok(err instanceof Error, 'rejects error')
           t.is(err.status, 404)
         })
 
-      hoodie.cryptoStore.find({_id: 'foo'})
+      var second = hoodie.cryptoStore.find({_id: 'foo'})
 
         .catch(function (err) {
           t.ok(err instanceof Error, 'rejects error')
           t.is(err.status, 404)
         })
+
+      return Promise.all([first, second])
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -152,6 +173,10 @@ test('cryptoStore.find(array)', function (t) {
       t.is(objects[2]._id, 'baz', 'resolves id')
       t.is(objects[2].baz, 'foo', 'resolves value')
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.find(array) with non-existing', function (t) {
@@ -176,6 +201,10 @@ test('cryptoStore.find(array) with non-existing', function (t) {
       t.is(objects[0]._id, 'exists', 'resolves with id for existing')
       t.is(objects[0].value, 2, 'resolves with value for existing')
       t.is(objects[1].status, 404, 'resolves with 404 error for unknown')
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 

@@ -54,8 +54,8 @@ test('cryptoStore.update(id, changedProperties)', function (t) {
       t.ok(object.nonce, 'has nonce')
     })
 
-    .catch(function (error) {
-      console.error(error)
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -68,6 +68,10 @@ test('cryptoStore.update(id)', function (t) {
 
     .then(function () {
       return hoodie.cryptoStore.update('nothinghere')
+    })
+
+    .then(function () {
+      t.fail("update didn't fail")
     })
 
     .catch(function (err) {
@@ -86,6 +90,10 @@ test(
 
       .then(function () {
         return hoodie.cryptoStore.update('unknown', {foo: 'bar'})
+      })
+
+      .then(function () {
+        t.fail("update didn't fail")
       })
 
       .catch(function (err) {
@@ -117,6 +125,10 @@ test('cryptoStore.update(id, updateFunction)', function (t) {
       t.ok(object._id)
       t.ok(/^2-/.test(object._rev))
       t.is(object.foo, 'existsbar', 'resolves properties')
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -159,6 +171,10 @@ test('cryptoStore.update(object)', function (t) {
       t.ok(object.data, 'has encrypted data')
       t.ok(object.tag, 'has tag')
       t.ok(object.nonce, 'has nonce')
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -206,6 +222,10 @@ test('cryptoStore.update(array)', function (t) {
       t.ok(objects[1].tag, 'has tag')
       t.ok(objects[1].nonce, 'has nonce')
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.update(array) with non-existent and invalid objects', function (t) {
@@ -244,6 +264,10 @@ test('cryptoStore.update(array) with non-existent and invalid objects', function
       )
       t.is(objects[2].status, 400)
       t.is(objects[3].status, 404)
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -288,6 +312,10 @@ test('cryptoStore.update(array, changedProperties)', function (t) {
       t.ok(object.tag, 'has tag')
       t.ok(object.nonce, 'has nonce')
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.update(array, updateFunction)', function (t) {
@@ -319,6 +347,10 @@ test('cryptoStore.update(array, updateFunction)', function (t) {
       t.is(objects[1].foo, 'bar')
       t.is(objects[1].bar, 'unencryptedbaz')
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.update(object) updates updatedAt timestamp', function (t) {
@@ -343,6 +375,10 @@ test('cryptoStore.update(object) updates updatedAt timestamp', function (t) {
         _id: 'shouldHaveTimestamps',
         foo: 'bar'
       })
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 
   hoodie.store.on('update', function (object) {
@@ -375,6 +411,10 @@ test('cryptoStore.update([objects]) updates updatedAt timestamps', function (t) 
 
     .then(function () {
       return hoodie.cryptoStore.update(['encrypted', 'unencrypted'], {foo: 'bar'})
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 
   hoodie.store.on('update', function (object) {
@@ -410,6 +450,10 @@ test('cryptoStore.update(object) ignores .hoodie property', function (t) {
       t.is(object.foo, 'bar', 'resolves with properties')
       t.is(object.hoodie.ignore, undefined, 'ignores .hoodie property')
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.update(array)', function (t) {
@@ -442,5 +486,9 @@ test('cryptoStore.update(array)', function (t) {
       t.is(objects[1]._id, '2')
       t.is(objects[1].foo, 'bar')
       t.is(objects[1].bar, 'baz')
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
