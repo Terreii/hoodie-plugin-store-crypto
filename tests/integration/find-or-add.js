@@ -35,6 +35,10 @@ test('cryptoStore.findOrAdd(id, object) finds existing', function (t) {
       t.is(object._id, 'unencrypted', 'resolves with id')
       t.is(object.foo, 'bar', 'resolves with old object')
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.findOrAdd(id, object) adds new', function (t) {
@@ -60,6 +64,10 @@ test('cryptoStore.findOrAdd(id, object) adds new', function (t) {
       t.ok(object.data, 'has encrypted data')
       t.is(object.foo, undefined, 'stored doc has no foo')
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.findOrAdd(id) fails if no object exists', function (t) {
@@ -71,6 +79,10 @@ test('cryptoStore.findOrAdd(id) fails if no object exists', function (t) {
 
     .then(function () {
       return hoodie.cryptoStore.findOrAdd('an-id')
+    })
+
+    .then(function () {
+      t.fail("findOrAdd didn't fail")
     })
 
     .catch(function (err) {
@@ -108,6 +120,10 @@ test('cryptoStore.findOrAdd(object) finds existing', function (t) {
       t.is(object._id, 'unencrypted', 'resolves with id')
       t.is(object.foo, 'bar', 'resolves with old object')
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.findOrAdd(object) adds new', function (t) {
@@ -133,6 +149,10 @@ test('cryptoStore.findOrAdd(object) adds new', function (t) {
       t.ok(object.data, 'has encrypted data')
       t.is(object.foo, undefined, 'stored doc has no foo')
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.findOrAdd(object) fails if object has no id', function (t) {
@@ -144,6 +164,10 @@ test('cryptoStore.findOrAdd(object) fails if object has no id', function (t) {
 
     .then(function () {
       return hoodie.cryptoStore.findOrAdd({foo: 'bar'})
+    })
+
+    .then(function () {
+      t.fail("findOrAdd didn't fail")
     })
 
     .catch(function (err) {
@@ -187,5 +211,9 @@ test('cryptoStore.findOrAdd([object1, object2])', function (t) {
     .then(function (object) {
       t.ok(object.data, 'has encrypted data')
       t.is(object.foo, undefined, 'stored doc has no foo')
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
