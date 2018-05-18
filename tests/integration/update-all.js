@@ -68,6 +68,10 @@ test('cryptoStore.updateAll(changedProperties)', function (t) {
         t.ok(object.nonce, 'has nonce')
       })
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.updateAll(updateFunction)', function (t) {
@@ -122,6 +126,10 @@ test('cryptoStore.updateAll(updateFunction)', function (t) {
         t.ok(object.nonce, 'has nonce')
       })
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('fails cryptoStore.updateAll()', function (t) {
@@ -133,6 +141,10 @@ test('fails cryptoStore.updateAll()', function (t) {
 
     .then(function () {
       return hoodie.cryptoStore.updateAll()
+    })
+
+    .then(function () {
+      t.fail("updateAll didn't fail")
     })
 
     .catch(function (error) {
@@ -153,6 +165,10 @@ test('cryptoStore.updateAll(change) no objects', function (t) {
 
     .then(function (results) {
       t.same(results, [], 'reolves empty array')
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
 
@@ -188,6 +204,10 @@ test('cryptoStore.updateAll() doesnt update design docs', function (t) {
     .then(function (doc) {
       t.isNot(doc.bar, 'bar', 'check _design/bar for mutation')
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('cryptoStore.updateAll([objects]) updates all updatedAt timestamps', function (t) {
@@ -212,6 +232,10 @@ test('cryptoStore.updateAll([objects]) updates all updatedAt timestamps', functi
 
     .then(function () {
       return hoodie.cryptoStore.updateAll({bar: 'foo'})
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 
   hoodie.store.on('update', function (object) {
