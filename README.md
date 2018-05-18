@@ -2,10 +2,26 @@
 > End-to-end crypto plugin for the Hoodie client store.
 
 This [Hoodie](http://hood.ie/) plugin adds methods, to add, read and update encrypted
-documents in your store, while still being able to add, read and update unencrypted
+documents in your users store, while still being able to add, read and update unencrypted
 documents.
 
+It does this by adding an object to your Hoodie-client, with similar methods
+to the client's store. Those methods encrypt and decrypt objects, while using the
+corresponding methods from Hoodie to save them.
+
 There is no server side to this plugin!
+
+## Example
+```js
+hoodie.store.add({foo: 'bar'})
+  .then(function (obj) {console.log(obj)})
+
+hoodie.cryptoStore.setPassword('secret')        // unlock
+  .then(function () {
+    hoodie.cryptoStore.add({foo: 'bar'})        // adds the object encypted
+      .then(function (obj) {console.log(obj)})  // returns it unencrypted!
+  })
+```
 
 ## Acknowledgments
 This project heavily uses code and is inspired by
