@@ -10,7 +10,7 @@ function checkTime (objectTime) {
   var timeObj = new Date(objectTime)
   var isoString = timeObj.toISOString()
   var time = timeObj.getTime()
-  return time <= now && time > (now - 5) && objectTime === isoString
+  return time <= now && time > (now - 10) && objectTime === isoString
 }
 
 test('cryptoStore.removeAll()', function (t) {
