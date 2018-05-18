@@ -53,6 +53,10 @@ test('cryptoStore.update(id, changedProperties)', function (t) {
       t.ok(object.tag, 'has tag')
       t.ok(object.nonce, 'has nonce')
     })
+
+    .catch(function (error) {
+      console.error(error)
+    })
 })
 
 test('cryptoStore.update(id)', function (t) {
