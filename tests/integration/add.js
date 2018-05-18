@@ -34,6 +34,10 @@ test('adds object to Store', function (t) {
       t.ok(res.tag, 'has tag')
       t.ok(res.nonce, 'has nonce')
     })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 test('fails for invalid object', function (t) {
@@ -47,9 +51,14 @@ test('fails for invalid object', function (t) {
       return hoodie.cryptoStore.add()
     })
 
+    .then(function () {
+      t.fail("add didn't fail")
+    })
+
     .catch(function (err) {
       t.ok(err instanceof Error, 'rejects with an error')
       t.is(err.status, 400, 'rejects with error 400')
+      t.end()
     })
 })
 
@@ -74,9 +83,14 @@ test('fails for existing object', function (t) {
       })
     })
 
+    .then(function () {
+      t.fail("add didn't fail")
+    })
+
     .catch(function (err) {
       t.ok(err instanceof Error, 'rejects with an error')
       t.is(err.status, 409, 'rejects with error 409')
+      t.end()
     })
 })
 
@@ -138,5 +152,9 @@ test('adds multiple objects to db', function (t) {
       t.ok(res[2].data, 'third has encrypted data')
       t.ok(res[2].tag, 'third has tag')
       t.ok(res[2].nonce, 'third has nonce')
+    })
+
+    .catch(function (err) {
+      t.end(err)
     })
 })
