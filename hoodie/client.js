@@ -13,5 +13,5 @@ function cryptoStore (hoodie) {
     removeListener: hoodie.store.off
   }
 
-  hoodie.cryptoStore = bindFunctions(hoodie.store, state, null, handler)
+  hoodie.cryptoStore = bindFunctions(hoodie.store, state, null, handler, true)
 }
