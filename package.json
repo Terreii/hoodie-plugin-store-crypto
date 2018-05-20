@@ -43,7 +43,7 @@
   "dependencies": {
     "@hoodie/store-client": "^8.3.0",
     "lie": "^3.3.0",
-    "lodash": "^4.17.5",
+    "lodash": "^4.17.10",
     "native-crypto": "^1.8.1",
     "pouchdb-errors": "^6.4.3",
     "randombytes": "^2.0.6",
