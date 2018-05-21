@@ -1,5 +1,11 @@
 'use strict'
 
+/*
+ * Testing the Event handling.
+ *
+ * Most tests are copied and adjusted from https://github.com/hoodiehq/hoodie-store-client
+ */
+
 var test = require('tape')
 
 var createCryptoStore = require('../utils/createCryptoStore')
