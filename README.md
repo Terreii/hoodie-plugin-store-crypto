@@ -21,7 +21,7 @@ hoodie.store.add({foo: 'bar'})
 
 hoodie.cryptoStore.setPassword('secret')        // unlock
   .then(function () {
-    hoodie.cryptoStore.add({foo: 'bar'})        // adds the object encypted
+    hoodie.cryptoStore.add({foo: 'bar'})        // adds the object encrypted
       .then(function (obj) {console.log(obj)})  // returns it unencrypted!
   })
 ```
@@ -32,6 +32,9 @@ This project heavily uses code and is inspired by
 and Hoodie's [hoodie-store-client](https://github.com/hoodiehq/hoodie-store-client).
 
 A huge thank you to those projects and their maintainers.
+
+- To result the same behaviour, many of the tests in this plugin are adjusted versions of [hoodie-store-client](https://github.com/hoodiehq/hoodie-store-client) tests.
+- The Encryption used here are adjusted versions of [@calvinmetcalf's crypto-pouch's](https://github.com/calvinmetcalf/crypto-pouch) encryption functions.
 
 ## Usage
 
