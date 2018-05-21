@@ -1,3 +1,7 @@
+/*
+ * Copied from https://github.com/hoodiehq/hoodie-store-client
+ */
+
 module.exports = uniqueName
 
 var nr = 0
