@@ -20,7 +20,7 @@ hoodie.store.add({foo: 'bar'})
   .then(function (obj) {console.log(obj)})
 
 hoodie.cryptoStore.setPassword('secret')        // unlock
-  .then(function () {
+  .then(function (salt) {
     hoodie.cryptoStore.add({foo: 'bar'})        // adds the object encrypted
       .then(function (obj) {console.log(obj)})  // returns it unencrypted!
   })
@@ -98,3 +98,94 @@ cryptoStore(hoodie) // sets up hoodie.cryptoStore
 
 You only need to do it this way, if you directly require/import the `@hoodie/client`!
 If you get the client with `<script src="/hoodie/client.js"></script>`, then the first way is recommended.
+
+## API
+
+- cryptoStore (setup function)
+- cryptoStore.add(properties)
+- cryptoStore.add(arrayOfProperties)
+- cryptoStore.find(id)
+- cryptoStore.find(doc)
+- cryptoStore.find(idsOrDocs)
+- cryptoStore.findOrAdd(id, doc)
+- cryptoStore.findOrAdd(doc)
+- cryptoStore.findOrAdd(idsOrDocs)
+- cryptoStore.findAll()
+- cryptoStore.update(id, changedProperties)
+- cryptoStore.update(id, updateFunction)
+- cryptoStore.update(doc)
+- cryptoStore.update(arrayOfDocs)
+- cryptoStore.updateOrAdd(id, doc)
+- cryptoStore.updateOrAdd(doc)
+- cryptoStore.updateOrAdd(arrayOfDocs)
+- cryptoStore.updateAll(changedProperties)
+- cryptoStore.updateAll(updateFunction)
+- cryptoStore.remove(id)
+- cryptoStore.remove(doc)
+- cryptoStore.remove(idsOrDocs)
+- cryptoStore.removeAll()
+- cryptoStore.on()
+- cryptoStore.one()
+- cryptoStore.off()
+- cryptoStore.withIdPrefix
+- cryptoStore.withPassword
+- Events
+
+### cryptoStore (setup function)
+
+### cryptoStore.add(properties)
+
+### cryptoStore.add(arrayOfProperties)
+
+### cryptoStore.find(id)
+
+### cryptoStore.find(doc)
+
+### cryptoStore.find(idsOrDocs)
+
+### cryptoStore.findOrAdd(id, doc)
+
+### cryptoStore.findOrAdd(doc)
+
+### cryptoStore.findOrAdd(idsOrDocs)
+
+### cryptoStore.findAll()
+
+### cryptoStore.update(id, changedProperties)
+
+### cryptoStore.update(id, updateFunction)
+
+### cryptoStore.update(doc)
+
+### cryptoStore.update(arrayOfDocs)
+
+### cryptoStore.updateOrAdd(id, doc)
+
+### cryptoStore.updateOrAdd(doc)
+
+### cryptoStore.updateOrAdd(arrayOfDocs)
+
+### cryptoStore.updateAll(changedProperties)
+
+### cryptoStore.updateAll(updateFunction)
+
+### cryptoStore.remove(id)
+
+### cryptoStore.remove(doc)
+
+### cryptoStore.remove(idsOrDocs)
+
+### cryptoStore.removeAll()
+
+### cryptoStore.on()
+
+### cryptoStore.one()
+
+### cryptoStore.off()
+
+### cryptoStore.withIdPrefix
+
+### cryptoStore.withPassword
+
+### Events
+
