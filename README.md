@@ -135,6 +135,37 @@ If you get the client with `<script src="/hoodie/client.js"></script>`, then the
 
 ### cryptoStore (setup function)
 
+```javascript
+cryptoStore(hoodie)
+```
+
+Argument | Type   | Description | Required
+---------|--------|-------------|----------
+hoodie   | Object | Hoodie client instance | Yes
+
+Returns `undefined`
+
+__Only required if you setup your hoodie-client youself!__
+
+Example
+```javascript
+var Hoodie = require('@hoodie/client')
+var PouchDB = require('pouchdb')
+var cryptoStore = require('hoodie-plugin-store-crypto')
+
+var hoodie = new Hoodie({ // create an instance of the hoodie-client
+  url: '',
+  PouchDB: PouchDB
+})
+
+cryptoStore(hoodie) // sets up hoodie.cryptoStore
+
+hoodie.cryptoStore.setPassword('test')
+  .then(function (salt) {
+    console.log('done')
+  })
+```
+
 ### cryptoStore.setPassword(password)
 
 ### cryptoStore.setPassword(passpord, salt)
