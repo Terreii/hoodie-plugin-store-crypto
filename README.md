@@ -102,6 +102,8 @@ If you get the client with `<script src="/hoodie/client.js"></script>`, then the
 ## API
 
 - [cryptoStore (setup function)](#cryptostore-setup-function)
+- [cryptoStore.setPassword(password)](#cryptostoresetpasswordpassword)
+- [cryptoStore.setPassword(password, salt)](#cryptostoresetpasswordpasspord-salt)
 - [cryptoStore.add(properties)](#cryptostoreaddproperties)
 - [cryptoStore.add(arrayOfProperties)](#cryptostoreaddarrayofproperties)
 - [cryptoStore.find(id)](#cryptostorefindid)
@@ -132,6 +134,10 @@ If you get the client with `<script src="/hoodie/client.js"></script>`, then the
 - [Events](#events)
 
 ### cryptoStore (setup function)
+
+### cryptoStore.setPassword(password)
+
+### cryptoStore.setPassword(passpord, salt)
 
 ### cryptoStore.add(properties)
 
