@@ -246,9 +246,9 @@ cryptoStore.add(properties)
 Argument      | Type   | Description                                     | Required
 --------------|--------|-------------------------------------------------|----------
 `properties`  | Object | properties of document                          | Yes
-properties.id | String | If set, the document will be stored at given id | No
+`properties._id` | String | If set, the document will be stored at given id | No
 
-Resolves with `properties` unencrypted and adds `id` (unless provided). And adds a `hoodie` property with `createdAt` and `updatedAt` properties.
+Resolves with `properties` unencrypted and adds `id` (unless provided). And adds a `hoodie` property with `createdAt` and `updatedAt` properties. It will be encrypted.
 
 ```JSON
 {
@@ -286,7 +286,7 @@ Argument          | Type  | Description      | Required
 ------------------|-------|--------------------------|----------
 `arrayOfProperties` | Array | Array of `properties`, see `cryptoStore.add(properties)`  | Yes
 
-Resolves with an array of `properties` unencrypted in the `arrayOfProperties` and adds `_id` (unless provided). And adds a `hoodie` property with `createdAt` and `updatedAt` properties.
+Resolves with an array of `properties` unencrypted in the `arrayOfProperties` and adds `_id` (unless provided). And adds a `hoodie` property with `createdAt` and `updatedAt` properties. It will be encrypted.
 
 ```JSON
 [
@@ -363,7 +363,7 @@ cryptoStore.find(doc)
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
-`doc`   | Object | Document with `id` property  | Yes
+`doc`   | Object | Document with `_id` property  | Yes
 
 Resolves with `properties` unencrypted. Works on encrypted and unencrypted documents.
 
@@ -440,11 +440,120 @@ hoodie.cryptoStore.find([
 
 ### cryptoStore.findOrAdd(id, doc)
 
+```javascript
+cryptoStore.findOrAdd(id, doc)
+```
+
+Argument| Type  | Description      | Required
+--------|-------|--------------------------|----------
+`id`    | String | Unique id of the document  | Yes
+`doc`   | Object | Document that will be saved if no document with the id exists | Yes
+
+Resolves with `properties` unencrypted. Works on encrypted and unencrypted documents. If doc is added, it will be encrypted and a `hoodie` property with `createdAt` and `updatedAt` properties added.
+
+Rejects with:
+
+Name 	| Description
+------|--------
+Error |	...
+
+Example
+
+```javascript
+hoodie.cryptoStore.findOrAdd('12345678-1234-1234-1234-123456789ABC', doc).then(function (doc) {
+  console.log(doc)
+}).catch(function (error) {
+  console.error(error)
+})
+```
+
 ### cryptoStore.findOrAdd(doc)
+
+```javascript
+cryptoStore.findOrAdd(doc)
+```
+
+Argument| Type  | Description      | Required
+--------|-------|--------------------------|----------
+`doc`   | Object | Document  with `_id` property | Yes
+
+Resolves with `properties` unencrypted. Works on encrypted and unencrypted documents. If doc is added, it will be encrypted and a `hoodie` property with `createdAt` and `updatedAt` properties added.
+
+Rejects with:
+
+Name 	| Description
+------|--------
+Error |	...
+
+Example
+
+```javascript
+hoodie.cryptoStore.findOrAdd(doc).then(function (doc) {
+  console.log(doc)
+}).catch(function (error) {
+  console.error(error)
+})
+```
 
 ### cryptoStore.findOrAdd(idsOrDocs)
 
+```javascript
+cryptoStore.findOrAdd(idsOrDocs)
+```
+
+Argument| Type  | Description      | Required
+--------|-------|--------------------------|----------
+`idsOrDocs` | Array | Array of documents  with `_id` property | Yes
+
+Resolves with array of `properties` unencrypted. Works on encrypted and unencrypted documents. If a doc is added, it will be encrypted and a `hoodie` property with `createdAt` and `updatedAt` properties added.
+
+Rejects with:
+
+Name 	| Description
+------|--------
+Error |	...
+
+Example
+
+```javascript
+hoodie.cryptoStore.findOrAdd([doc]).then(function (docs) {
+  console.log(docs.length) // 2
+}).catch(function (error) {
+  console.error(error)
+})
+```
+
 ### cryptoStore.findAll()
+
+```javascript
+cryptoStore.findAll(filterFunction)
+```
+
+Argument| Type  | Description      | Required
+--------|-------|--------------------------|----------
+`filterFunction` | Function | Function that will be called for every doc with `doc`, `index` and `arrayOfAllDocs`. And returns `true` if `doc` should be returned, `false` if not. | No
+
+Resolves with array of `properties` unencrypted. Works on encrypted and unencrypted documents.
+
+Rejects with:
+
+Name 	| Description
+------|--------
+Error |	...
+
+Example
+
+```javascript
+function filter (doc, index, allDocs) {
+  return index % 2 === 0
+}
+
+hoodie.cryptoStore.findAll(filter).then(function (docs) {
+  console.log(docs.length)
+}).catch(function (error) {
+  console.error(error)
+})
+```
 
 ### cryptoStore.update(id, changedProperties)
 
