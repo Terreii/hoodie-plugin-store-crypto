@@ -35,7 +35,7 @@ and Hoodie's [hoodie-store-client](https://github.com/hoodiehq/hoodie-store-clie
 
 A huge thank you to those projects and their maintainers.
 
-- To result the same behaviour, many of the tests in this plugin are adjusted versions of [hoodie-store-client](https://github.com/hoodiehq/hoodie-store-client) tests.
+- To result the same behavior, many of the tests in this plugin are adjusted versions of [hoodie-store-client](https://github.com/hoodiehq/hoodie-store-client) tests.
 - The Encryption used here are adjusted versions of [@calvinmetcalf's crypto-pouch's](https://github.com/calvinmetcalf/crypto-pouch) encryption functions.
 
 ## Usage
@@ -189,7 +189,7 @@ function signUp (accountProperties, encryptionPW) {
   hoodie.account.signUp(accountProperties)
     .then(function () {
       if (encryptionPW == null) {                  // Use a separate password for encryption or the same
-        encryptionPW = accountProperties.password 
+        encryptionPW = accountProperties.password
       }
       return hoodie.cryptoStore.setPassword(encryptionPW)
         .then(function (salt) {
@@ -227,7 +227,7 @@ function signIn (accountProperties, encryptionPW) {
     })
     .then(function (saltObj) {
       if (encryptionPW == null) {                  // Use a separate password for encryption or the same
-        encryptionPW = accountProperties.password 
+        encryptionPW = accountProperties.password
       }
       return hoodie.cryptoStore.setPassword(encryptionPW, saltObj.salt)
     })
@@ -248,7 +248,7 @@ Argument      | Type   | Description                                     | Requi
 properties    | Object | properties of document                          | Yes
 properties.id | String | If set, the document will be stored at given id | No
 
-Resolves with `properties` and adds `id` (unless provided). And adds a `hoodie` propertie with `createdAt` and `updatedAt` properties.
+Resolves with `properties` and adds `id` (unless provided). And adds a `hoodie` property with `createdAt` and `updatedAt` properties.
 
 ```JSON
 {
@@ -286,7 +286,7 @@ Argument          | Type  | Description      | Required
 ------------------|-------|--------------------------|----------
 arrayOfProperties | Array | Array of `properties`, see `cryptoStore.add(properties)`  | Yes
 
-Resolves with an array of `properties` in the `arrayOfProperties` and adds `_id` (unless provided). And adds a `hoodie` propertie with `createdAt` and `updatedAt` properties.
+Resolves with an array of `properties` in the `arrayOfProperties` and adds `_id` (unless provided). And adds a `hoodie` property with `createdAt` and `updatedAt` properties.
 
 ```JSON
 [
@@ -367,4 +367,3 @@ hoodie.cryptoStore.add([{foo: 'bar'}, {bar: 'baz'}]).then(function (docs) {
 ### cryptoStore.withPassword
 
 ### Events
-
