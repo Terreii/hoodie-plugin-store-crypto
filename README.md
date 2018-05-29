@@ -698,13 +698,177 @@ hoodie.cryptoStore.update([
 
 ### cryptoStore.updateOrAdd(id, doc)
 
+```javascript
+cryptoStore.updateOrAdd(id, doc)
+```
+
+Argument| Type  | Description      | Required
+--------|-------|--------------------------|----------
+`id`    | String | Unique id of the document  | Yes
+`doc`   | Object | Properties that should be changed or added if doc doesn't exist | Yes
+
+Resolves with updated `properties` unencrypted. Updates existing documents and adds nonexistent docs. Works on encrypted and unencrypted documents. If the document was unencrypted it will be encrypted. If the doc is added, it will be encrypted and a `hoodie` property with `createdAt` and `updatedAt` properties added.
+
+Rejects with:
+
+Name 	| Description
+------|--------
+Error |	...
+
+Example
+
+```javascript
+hoodie.cryptoStore.updateOrAdd('12345678-1234-1234-1234-123456789ABC', {foo: 'bar'}).then(function (doc) {
+  console.log(doc)
+}).catch(function (error) {
+  console.error(error)
+})
+```
+
 ### cryptoStore.updateOrAdd(doc)
+
+```javascript
+cryptoStore.updateOrAdd(doc)
+```
+
+Argument| Type  | Description      | Required
+--------|-------|--------------------------|----------
+`doc`   | Object | Properties that should be changed or added with a `_id` property | Yes
+
+Resolves with updated `properties` unencrypted. Updates existing documents and adds nonexistent docs. Works on encrypted and unencrypted documents. If the document was unencrypted it will be encrypted. If the doc is added, it will be encrypted and a `hoodie` property with `createdAt` and `updatedAt` properties added.
+
+Rejects with:
+
+Name 	| Description
+------|--------
+Error |	...
+
+Example
+
+```javascript
+hoodie.cryptoStore.updateOrAdd({
+  _id: '12345678-1234-1234-1234-123456789ABC',
+  foo: 'bar'
+}).then(function (doc) {
+  console.log(doc)
+}).catch(function (error) {
+  console.error(error)
+})
+```
 
 ### cryptoStore.updateOrAdd(arrayOfDocs)
 
+```javascript
+cryptoStore.updateOrAdd(arrayOfDocs)
+```
+
+Argument| Type  | Description      | Required
+--------|-------|--------------------------|----------
+`arrayOfDocs` | Array | Array properties that should be changed or added with a `_id` property | Yes
+
+Resolves with an array of updated `properties` unencrypted. Updates existing documents and adds nonexistent docs. Works on encrypted and unencrypted documents. If the document was unencrypted it will be encrypted. If the doc is added, it will be encrypted and a `hoodie` property with `createdAt` and `updatedAt` properties added.
+
+Rejects with:
+
+Name 	| Description
+------|--------
+Error |	...
+
+Example
+
+```javascript
+hoodie.cryptoStore.updateOrAdd([
+  {
+    _id: '12345678-1234-1234-1234-123456789ABC',
+    foo: 'bar'
+  },
+  otherDoc
+]).then(function (docs) {
+  console.log(docs.length) // 2
+}).catch(function (error) {
+  console.error(error)
+})
+```
+
 ### cryptoStore.updateAll(changedProperties)
 
+```javascript
+cryptoStore.updateAll(changedProperties)
+```
+
+Argument| Type  | Description      | Required
+--------|-------|--------------------------|----------
+`changedProperties` | Object | Properties that should be changed by all documents | Yes
+
+Resolves with updated `properties` unencrypted. Works on encrypted and unencrypted documents. If the document was unencrypted it will be encrypted.
+
+__This updates and encrypts all documents with its idPrefix!__
+
+Rejects with:
+
+Name 	| Description
+------|--------
+Error |	...
+
+Example
+
+```javascript
+// This updates and encrypts all documents in the users store!
+hoodie.cryptoStore.updateAll({foo: 'bar'}).then(function (docs) {
+  console.log(docs) // all docs!
+}).catch(function (error) {
+  console.error(error)
+})
+
+// This updates and encrypts all documents that have an _id that starts with 'foo/'!
+hoodie.cryptoStore.withIdPrefix('foo/').updateAll({foo: 'bar'}).then(function (docs) {
+  console.log(docs) // all docs whose _id starts with 'foo/'!
+}).catch(function (error) {
+  console.error(error)
+})
+```
+
 ### cryptoStore.updateAll(updateFunction)
+
+```javascript
+cryptoStore.updateAll(updateFunction)
+```
+
+Argument| Type  | Description      | Required
+--------|-------|--------------------------|----------
+`updateFunction` | Function | Function that get the document passed and changes the document. | Yes
+
+Resolves with updated `properties` unencrypted. Works on encrypted and unencrypted documents. If the document was unencrypted it will be encrypted.
+
+__This updates and encrypts all documents with its idPrefix!__
+
+Rejects with:
+
+Name 	| Description
+------|--------
+Error |	...
+
+Example
+
+```javascript
+// This updates and encrypts all documents in the users store!
+hoodie.cryptoStore.updateAll(function (doc) {
+  doc.foo = 'bar'
+}).then(function (docs) {
+  console.log(docs) // all docs!
+}).catch(function (error) {
+  console.error(error)
+})
+
+// This updates and encrypts all documents that have an _id that starts with 'foo/'!
+hoodie.cryptoStore.withIdPrefix('foo/').updateAll(function (doc) {
+  doc.foo = 'bar'
+}).then(function (docs) {
+  console.log(docs) // all docs whose _id starts with 'foo/'!
+}).catch(function (error) {
+  console.error(error)
+})
+```
 
 ### cryptoStore.remove(id)
 
