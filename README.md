@@ -1053,9 +1053,98 @@ hoodie.cryptoStore.removeAll(filter).then(function (docs) {
 
 ### cryptoStore.on()
 
+```javascript
+cryptoStore.on(eventName, handler)
+```
+
+Argument| Type  | Description      | Required
+--------|-------|------------------|----------
+`eventName` | String | Event type. One of `add`, `update`, `remove` or `change`. | Yes
+`handler` | Function | Event Handler, that will be called every time that event emits. | Yes
+
+Returns the `cryptoStore`. `hander` will be called with an updated doc. If the event is `change`, than the first argument is a `eventName`.
+
+Rejects with:
+
+Name 	| Description
+------|--------
+Error |	...
+
+Example
+
+```javascript
+function changeHandler (eventName, doc) {
+  console.log(eventName, doc)
+}
+
+hoodie.cryptoStore.on('change', changeHandler)
+  .on('add', function (doc) { // .on returns the cryptoStore
+    console.log('a doc with ' + doc._id + 'was added')
+  })
+```
+
 ### cryptoStore.one()
 
+```javascript
+cryptoStore.one(eventName, handler)
+```
+
+Argument| Type  | Description      | Required
+--------|-------|------------------|----------
+`eventName` | String | Event type. One of `add`, `update`, `remove` or `change`. | Yes
+`handler` | Function | Event Handler, that will be called one time that event emits. | Yes
+
+Returns the `cryptoStore`. `hander` will be called with an updated doc. If the event is `change`, than the first argument is a `eventName`. After that event is emitted, that handler will be removed.
+
+Rejects with:
+
+Name 	| Description
+------|--------
+Error |	...
+
+Example
+
+```javascript
+function changeHandler (eventName, doc) {
+  console.log(eventName, doc)
+}
+
+hoodie.cryptoStore.one('change', changeHandler)
+  .one('add', function (doc) { // .on returns the cryptoStore
+    console.log('a doc with ' + doc._id + 'was added')
+  })
+```
+
 ### cryptoStore.off()
+
+```javascript
+cryptoStore.off(eventName, handler)
+```
+
+Argument| Type  | Description      | Required
+--------|-------|------------------|----------
+`eventName` | String | Event type. One of `add`, `update`, `remove` or `change`. | Yes
+`handler` | Function | Event Handler, that will be removed | Yes
+
+Returns the `cryptoStore`.
+
+Rejects with:
+
+Name 	| Description
+------|--------
+Error |	...
+
+Example
+
+```javascript
+var changeHandler = function (eventName, doc) {
+  console.log(eventName, doc)
+}
+
+hoodie.cryptoStore.on('change', changeHandler)
+
+hoodie.cryptoStore.off('change', changeHandler)
+```
 
 ### cryptoStore.withIdPrefix
 
