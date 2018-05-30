@@ -504,7 +504,7 @@ cryptoStore.findOrAdd(idsOrDocs)
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
-`idsOrDocs` | Array | Array of documents  with `_id` property | Yes
+`idsOrDocs` | Array | Array of documents with `_id` property or ids | Yes
 
 Resolves with array of `properties` unencrypted. Works on encrypted and unencrypted documents. If a doc is added, it will be encrypted and a `hoodie` property with `createdAt` and `updatedAt` properties added.
 
@@ -517,7 +517,10 @@ Error |	...
 Example
 
 ```javascript
-hoodie.cryptoStore.findOrAdd([doc]).then(function (docs) {
+hoodie.cryptoStore.findOrAdd([
+  doc,
+  '12345678-1234-1234-1234-123456789ABC'
+]).then(function (docs) {
   console.log(docs.length) // 2
 }).catch(function (error) {
   console.error(error)
@@ -872,11 +875,181 @@ hoodie.cryptoStore.withIdPrefix('foo/').updateAll(function (doc) {
 
 ### cryptoStore.remove(id)
 
+```javascript
+cryptoStore.remove(id)
+```
+
+Argument| Type  | Description      | Required
+--------|-------|--------------------------|----------
+`id`    | String | Unique id of the document  | Yes
+
+Resolves with `properties` unencrypted. Works on encrypted and unencrypted documents. It set the document to deleted. If the document was unencrypted it will be encrypted. It adds `deletedAt` to the `hoodie` property.
+
+```JSON
+{
+  "_id": "12345678-1234-1234-1234-123456789ABC",
+  "_deleted": true,
+  "foo": "bar",
+  "hoodie": {
+    "createdAt": "2018-05-26T18:38:32.920Z",
+    "updatedAt": "2018-05-30T00:05:46.976Z",
+    "deletedAt": "2018-05-30T00:05:46.976Z"
+  }
+}
+```
+
+Rejects with:
+
+Name 	| Description
+------|--------
+Error |	...
+
+Example
+
+```javascript
+hoodie.cryptoStore.remove('12345678-1234-1234-1234-123456789ABC').then(function (doc) {
+  console.log(doc)
+}).catch(function (error) {
+  console.error(error)
+})
+```
+
 ### cryptoStore.remove(doc)
+
+```javascript
+cryptoStore.remove(doc)
+```
+
+Argument| Type  | Description      | Required
+--------|-------|--------------------------|----------
+`doc`   | Object | Properties that should be changed with a `_id` property | Yes
+
+Resolves with `properties` unencrypted. Works on encrypted and unencrypted documents. It set the document to deleted and updates `properties`. If the document was unencrypted it will be encrypted. It adds `deletedAt` to the `hoodie` property.
+
+```JSON
+{
+  "_id": "12345678-1234-1234-1234-123456789ABC",
+  "_deleted": true,
+  "foo": "bar",
+  "hoodie": {
+    "createdAt": "2018-05-26T18:38:32.920Z",
+    "updatedAt": "2018-05-30T00:05:46.976Z",
+    "deletedAt": "2018-05-30T00:05:46.976Z"
+  }
+}
+```
+
+Rejects with:
+
+Name 	| Description
+------|--------
+Error |	...
+
+Example
+
+```javascript
+hoodie.cryptoStore.remove({
+  _id: '12345678-1234-1234-1234-123456789ABC',
+  foo: 'bar'
+}).then(function (doc) {
+  console.log(doc.foo) // bar
+}).catch(function (error) {
+  console.error(error)
+})
+```
 
 ### cryptoStore.remove(idsOrDocs)
 
+```javascript
+cryptoStore.remove(idsOrDocs)
+```
+
+Argument| Type  | Description      | Required
+--------|-------|--------------------------|----------
+`idsOrDocs`  | Array | Properties that should be changed with a `_id` property or ids | Yes
+
+Resolves with `properties` unencrypted. Works on encrypted and unencrypted documents. It set the document to deleted and updates `properties`. If the document was unencrypted it will be encrypted. It adds `deletedAt` to the `hoodie` property.
+
+```JSON
+[
+  {
+    "_id": "12345678-1234-1234-1234-123456789ABC",
+    "_deleted": true,
+    "foo": "bar",
+    "hoodie": {
+      "createdAt": "2018-05-26T18:38:32.920Z",
+      "updatedAt": "2018-05-30T00:05:46.976Z",
+      "deletedAt": "2018-05-30T00:05:46.976Z"
+    }
+  }
+]
+```
+
+Rejects with:
+
+Name 	| Description
+------|--------
+Error |	...
+
+Example
+
+```javascript
+hoodie.cryptoStore.remove([
+  doc,
+  '12345678-1234-1234-1234-123456789ABC'
+]).then(function (docs) {
+  console.log(docs.length) // 2
+}).catch(function (error) {
+  console.error(error)
+})
+```
+
 ### cryptoStore.removeAll()
+
+```javascript
+cryptoStore.removeAll(updateFunction)
+```
+
+Argument| Type  | Description      | Required
+--------|-------|--------------------------|----------
+`filterFunction` | Function | Function that will be called for every doc with `doc`, `index` and `arrayOfAllDocs`. And returns `true` if `doc` should be returned, `false` if not. | No
+
+Resolves with updated `properties` unencrypted. Works on encrypted and unencrypted documents. If the document was unencrypted it will be encrypted.
+
+```JSON
+[
+  {
+    "_id": "12345678-1234-1234-1234-123456789ABC",
+    "_deleted": true,
+    "foo": "bar",
+    "hoodie": {
+      "createdAt": "2018-05-26T18:38:32.920Z",
+      "updatedAt": "2018-05-30T00:05:46.976Z",
+      "deletedAt": "2018-05-30T00:05:46.976Z"
+    }
+  }
+]
+```
+
+Rejects with:
+
+Name 	| Description
+------|--------
+Error |	...
+
+Example
+
+```javascript
+function filter (doc, index, allDocs) {
+  return index % 2 === 0
+}
+
+hoodie.cryptoStore.removeAll(filter).then(function (docs) {
+  console.log(docs.length)
+}).catch(function (error) {
+  console.error(error)
+})
+```
 
 ### cryptoStore.on()
 
