@@ -1235,7 +1235,7 @@ var result = hoodie.cryptoStore.withPassword('secretPassword')
 
     store.add({foo: 'bar'})
 
-    // you must save the salt! Only with the same salt it is the same password!
+    // you must save the salt! Only with the same salt it is the same encryption!
     hoodie.cryptoStore.findOrAdd({
       _id: 'secondPasswordSalt',
       salt: salt
@@ -1244,3 +1244,10 @@ var result = hoodie.cryptoStore.withPassword('secretPassword')
 ```
 
 ### Events
+
+Event |	Description |	Arguments
+------|-------------|---------
+`add` | Is emitted every time a doc is added/created. | `doc` the added document.
+`update` | Is emitted every time a doc is updated/changed. | `doc` the changed document
+`remove` | Is emitted every time a doc is removed. | `doc` the removed document.
+`change` | Is emitted every time a doc is added, updated or removed. | `event` what did happen? (`add`, `update` or `remove`), `doc` the changed document.
