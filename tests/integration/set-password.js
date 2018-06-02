@@ -77,7 +77,7 @@ test('cryptoStore.setPassword(password, salt) should save the passed salt', func
     })
 })
 
-test('cryptoStore.setPassword(password) should use the save salt', function (t) {
+test('cryptoStore.setPassword(password) should use the saved salt', function (t) {
   t.plan(1)
 
   var hoodie = createCryptoStore()
