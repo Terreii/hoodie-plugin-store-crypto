@@ -35,7 +35,7 @@ test('cryptoStore.changePassword should only exist on the root api', function (t
 test(
   'cryptoStore.changePassword(oldPassword, newPassword) should resolve with the new salt',
   function (t) {
-    t.plan(2)
+    t.plan(3)
 
     var hoodie = createCryptoStore()
 
@@ -48,6 +48,12 @@ test(
       .then(function (salt) {
         t.is(typeof salt, 'string', 'salt is a string')
         t.is(salt.length, 32, 'salt has the correct length')
+
+        return hoodie.store.find('_design/cryptoStore/salt')
+
+          .then(function (saltObj) {
+            t.is(saltObj.salt, salt, 'stored salt was updated')
+          })
       })
 
       .catch(function (err) {
@@ -79,7 +85,7 @@ test(
         var object = results[0]
         var unencrypted = results[1]
 
-        hoodie.cryptoStore.changePassword('test', 'baz')
+        return hoodie.cryptoStore.changePassword('test', 'baz')
 
           .then(function () {
             return hoodie.cryptoStore.update(object)
@@ -94,10 +100,6 @@ test(
             t.notEqual(unencrypted.data, updated.data, 'data did change')
             t.notEqual(unencrypted.tag, updated.tag, 'tag did change')
             t.notEqual(unencrypted.nonce, updated.nonce, 'nonce did change')
-          })
-
-          .catch(function (err) {
-            t.end(err)
           })
       })
 
