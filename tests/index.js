@@ -5,6 +5,7 @@ require('./unit/encrypt-test')
 require('./unit/decrypt-test')
 
 require('./integration/crypto-test')
+require('./integration/set-password')
 require('./integration/add')
 require('./integration/find')
 require('./integration/find-all')
