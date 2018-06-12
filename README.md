@@ -198,6 +198,32 @@ function unlock (cryptoPassword) {
 
 #### Changing the password
 
+You can change the password and salt used for encryption with [`cryptoStore.changePassword(oldPassword, newPassword)`](#cryptostorechangepasswordoldpassword-newpassword).
+This method also updates all documents, that are encrypted with the old password!
+
+It is recommended to sync before the password change! To update all documents.
+
+Example:
+```javascript
+function changePassword (oldPassword, newPassword) {
+  return hoodie.connectionStatus.check() // check if your app is online
+
+    .then(function () {
+      if (hoodie.connectionStatus.ok) { // if your app is online: sync your users store
+        return hoodie.store.sync()
+      }
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.changePassword(oldPassword, newPassword)
+    })
+
+    .then(function (result) {
+      console.log(result.notUpdated) // array of ids of all docs that weren't updated
+    })
+}
+```
+
 ## API
 
 - [cryptoStore (setup function)](#cryptostore-setup-function)
