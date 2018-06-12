@@ -102,6 +102,26 @@ cryptoStore(hoodie) // sets up hoodie.cryptoStore
 You only need to do it this way, if you directly require/import the `@hoodie/client`!
 If you get the client with `<script src="/hoodie/client.js"></script>`, then the first way is recommended.
 
+### Get started
+
+To use the cryptoStore you need to set a password for encryption. This can be your users password to
+your app, or a special password, which they will enter or you generate.
+
+There are 4 use-cases you must implement:
+
+- Sign up / start of using encryption
+- Sign in
+- Open a tap/instance of your web-app if they are already signed in
+- changing the password for encryption
+
+#### Sign up
+
+#### Sign in
+
+#### Open your app while signed in
+
+#### Changing the password
+
 ## API
 
 - [cryptoStore (setup function)](#cryptostore-setup-function)
