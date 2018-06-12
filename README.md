@@ -250,6 +250,21 @@ Argument      | Type   | Description    | Required
 Resolves with a new `salt`. It will update all with `oldPassword` encrypted documents. And encrypt
 them with with the help of the `newPassword`. It also updates the `salt` in `_design/cryptoStore/salt`.
 
+Rejects with:
+
+Name 	| Description
+------|--------
+Error |	...
+
+Example
+```javascript
+hoodie.cryptoStore.changePassword('my-old-password', 'secret').then(function (salt) {
+  console.log('all documents are updated!')
+}).catch(function (error) {
+  console.error(error)
+})
+```
+
 ### cryptoStore.add(properties)
 
 ```javascript
