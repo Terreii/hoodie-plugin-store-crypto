@@ -150,6 +150,7 @@ You must wait for the sync to finish, because the `_design/cryptoStore/salt` obj
 to the latest version to unlock the cryptoStore! __If the salt doc is missing, a new one will be
 created!__ Resulting in a new encryption key!
 
+Example:
 ```javascript
 function signIn (username, password, cryptoPassword) {
   return hoodie.account.signIn({username: username, password: password})
@@ -165,13 +166,35 @@ function signIn (username, password, cryptoPassword) {
       return hoodie.cryptoStore.setPassword(cryptoPassword)
 
         .then(function (salt) {
-          // now do what you do after you did sign up a user.
+          // now do what you do after sign in.
         })
     })
 }
 ```
 
 #### Open your app while signed in
+
+This plugin doesn't save your users password! That results in you having to unlock the cryptoStore
+on every instance/tap of your web-app!
+
+Here you also must wait for syncing to finish! But only if your user is online.
+
+Example:
+```javascript
+function unlock (cryptoPassword) {
+  return hoodie.connectionStatus.check() // check if your app is online
+
+    .then(function () {
+      if (hoodie.connectionStatus.ok) { // if your app is online: sync your users store
+        return hoodie.store.sync()
+      }
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.setPassword(cryptoPassword) // then unlock
+    })
+}
+```
 
 #### Changing the password
 
