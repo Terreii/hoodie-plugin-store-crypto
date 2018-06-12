@@ -247,8 +247,9 @@ Argument      | Type   | Description    | Required
 `oldPassword` | String | The old password, that was used up until now | Yes
 `newPassword` | String | New password, with which the docs will be encrypted | Yes
 
-Resolves with a new `salt`. It will update all with `oldPassword` encrypted documents. And encrypt
-them with with the help of the `newPassword`. It also updates the `salt` in `_design/cryptoStore/salt`.
+Resolves with an object with the new `salt` and an array (`notUpdated`) with the ids of not updated docs.
+It will update all with `oldPassword` encrypted documents. And encrypt them with with the help of
+the `newPassword`. It also updates the `salt` in `_design/cryptoStore/salt`.
 
 Rejects with:
 
@@ -258,8 +259,10 @@ Error |	...
 
 Example
 ```javascript
-hoodie.cryptoStore.changePassword('my-old-password', 'secret').then(function (salt) {
+hoodie.cryptoStore.changePassword('my-old-password', 'secret').then(function (report) {
   console.log('all documents are updated!')
+  console.log(report.salt) // the new salt
+  console.log(report.notUpdated) // array with all ids of encrypted docs that hasn't been updated
 }).catch(function (error) {
   console.error(error)
 })
