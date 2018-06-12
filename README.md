@@ -109,12 +109,35 @@ your app, or a special password, which they will enter or you generate.
 
 There are 4 use-cases you must implement:
 
-- Sign up / start of using encryption
-- Sign in
-- Open a tap/instance of your web-app if they are already signed in
-- changing the password for encryption
+- [Sign up / start of using encryption](#sign-up)
+- [Sign in](#sign-in)
+- [Open a tap/instance of your web-app if they are already signed in](#open-your-app-while-signed-in)
+- [changing the password for encryption](#changing-the-password)
 
 #### Sign up
+
+The first use of the cryptoStore. This is usually in your sign up function, but can also be done if
+you newly added this plugin.
+
+[`cryptoStore.setPassword(password)`](#cryptostoresetpasswordpassword) is used to set the
+encryption password. It will resolve with a `salt`. A salt is a second part of a password.
+`cryptoStore.setPassword(password)` will save the generated salt in `_design/cryptoStore/salt`, and
+use it.
+
+Example:
+```javascript
+function signUp (username, password, cryptoPassword) {
+  return hoodie.account.signUp({username: username, password: password})
+
+    .then(function (accountProperties) {
+      return hoodie.cryptoStore.setPassword(cryptoPassword)
+
+        .then(function (salt) {
+          // now do what you do after you did sign up a user.
+        })
+    })
+}
+```
 
 #### Sign in
 
