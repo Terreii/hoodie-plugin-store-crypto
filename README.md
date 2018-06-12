@@ -107,6 +107,7 @@ If you get the client with `<script src="/hoodie/client.js"></script>`, then the
 - [cryptoStore (setup function)](#cryptostore-setup-function)
 - [cryptoStore.setPassword(password)](#cryptostoresetpasswordpassword)
 - [cryptoStore.setPassword(password, salt)](#cryptostoresetpasswordpassword-salt)
+- [cryptoStore.changePassword(oldPassword, newPassword)](#cryptostorechangepasswordoldpassword-newpassword)
 - [cryptoStore.add(properties)](#cryptostoreaddproperties)
 - [cryptoStore.add(arrayOfProperties)](#cryptostoreaddarrayofproperties)
 - [cryptoStore.find(id)](#cryptostorefindid)
@@ -234,6 +235,20 @@ function signIn (accountProperties, encryptionPW) {
     })
 }
 ```
+
+### cryptoStore.changePassword(oldPassword, newPassword)
+
+```javascript
+cryptoStore.changePassword(oldPassword, newPassword)
+```
+
+Argument      | Type   | Description    | Required
+--------------|--------|----------------|---------
+`oldPassword` | String | The old password, that was used up until now | Yes
+`newPassword` | String | New password, with which the docs will be encrypted | Yes
+
+Resolves with a new `salt`. It will update all with `oldPassword` encrypted documents. And encrypt
+them with with the help of the `newPassword`. It also updates the `salt` in `_design/cryptoStore/salt`.
 
 ### cryptoStore.add(properties)
 
