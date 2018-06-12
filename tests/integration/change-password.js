@@ -1,6 +1,7 @@
 'use strict'
 
 var test = require('tape')
+var Promise = require('lie')
 
 var createCryptoStore = require('../utils/createCryptoStore')
 
@@ -33,9 +34,10 @@ test('cryptoStore.changePassword should only exist on the root api', function (t
 })
 
 test(
-  'cryptoStore.changePassword(oldPassword, newPassword) should resolve with the new salt',
+  'cryptoStore.changePassword(oldPassword, newPassword) should resolve with a report, including' +
+    ' the new salt and an array of not updated ids',
   function (t) {
-    t.plan(3)
+    t.plan(5)
 
     var hoodie = createCryptoStore()
 
@@ -45,14 +47,16 @@ test(
         return hoodie.cryptoStore.changePassword('test', 'foo')
       })
 
-      .then(function (salt) {
-        t.is(typeof salt, 'string', 'salt is a string')
-        t.is(salt.length, 32, 'salt has the correct length')
+      .then(function (report) {
+        t.is(typeof report.salt, 'string', 'salt is a string')
+        t.is(report.salt.length, 32, 'salt has the correct length')
+        t.ok(Array.isArray(report.notUpdated), 'has a array of not updated IDs')
+        t.is(report.notUpdated.length, 0, 'array has a length of 0')
 
         return hoodie.store.find('_design/cryptoStore/salt')
 
           .then(function (saltObj) {
-            t.is(saltObj.salt, salt, 'stored salt was updated')
+            t.is(saltObj.salt, report.salt, 'stored salt was updated')
           })
       })
 
@@ -201,3 +205,56 @@ test(
       })
   }
 )
+
+test('cryptoStore.changePassword() should only update objects that it can decrypt', function (t) {
+  t.plan(7)
+
+  var hoodie = createCryptoStore()
+
+  hoodie.cryptoStore.setPassword('test')
+
+    .then(function () {
+      var adding = hoodie.cryptoStore.add({
+        _id: 'shouldUpdate',
+        test: 'value'
+      })
+
+      var withPassword = hoodie.cryptoStore.withPassword('otherPassword')
+        .then(function (result) {
+          return result.store.add({
+            _id: 'notUpdate',
+            value: 'other'
+          })
+        })
+
+      return Promise.all([adding, withPassword])
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.changePassword('test', 'nextPassword')
+    })
+
+    .then(function (report) {
+      t.is(report.notUpdated.length, 1, 'notUpdated array has a length of 1')
+      t.is(report.notUpdated[0], 'notUpdate', 'notUpdated array has the IDs')
+
+      var updated = hoodie.cryptoStore.find('shouldUpdate')
+
+      var notUpdated = hoodie.store.find('notUpdate')
+
+      return Promise.all([updated, notUpdated])
+    })
+
+    .then(function (docs) {
+      t.is(docs[0]._id, 'shouldUpdate', 'correct id')
+      t.ok(/^2-/.test(docs[0]._rev), 'revision is 2')
+      t.is(docs[0].test, 'value', 'doc can be decrypted')
+
+      t.is(docs[1]._id, 'notUpdate', 'correct id')
+      t.ok(/^1-/.test(docs[1]._rev), 'revision is 1')
+    })
+
+    .catch(function (err) {
+      t.end(err)
+    })
+})

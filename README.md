@@ -229,6 +229,7 @@ function changePassword (oldPassword, newPassword) {
 - [cryptoStore (setup function)](#cryptostore-setup-function)
 - [cryptoStore.setPassword(password)](#cryptostoresetpasswordpassword)
 - [cryptoStore.setPassword(password, salt)](#cryptostoresetpasswordpassword-salt)
+- [cryptoStore.changePassword(oldPassword, newPassword)](#cryptostorechangepasswordoldpassword-newpassword)
 - [cryptoStore.add(properties)](#cryptostoreaddproperties)
 - [cryptoStore.add(arrayOfProperties)](#cryptostoreaddarrayofproperties)
 - [cryptoStore.find(id)](#cryptostorefindid)
@@ -355,6 +356,38 @@ function signIn (accountProperties, encryptionPW) {
       console.log('you did sign in!')
     })
 }
+```
+
+### cryptoStore.changePassword(oldPassword, newPassword)
+
+```javascript
+cryptoStore.changePassword(oldPassword, newPassword)
+```
+
+Argument      | Type   | Description    | Required
+--------------|--------|----------------|---------
+`oldPassword` | String | The old password, that was used up until now | Yes
+`newPassword` | String | New password, with which the docs will be encrypted | Yes
+
+Resolves with an object with the new `salt` and an array (`notUpdated`) with the ids of not updated docs.
+It will update all with `oldPassword` encrypted documents. And encrypt them with with the help of
+the `newPassword`. It also updates the `salt` in `_design/cryptoStore/salt`.
+
+Rejects with:
+
+Name 	| Description
+------|--------
+Error |	...
+
+Example
+```javascript
+hoodie.cryptoStore.changePassword('my-old-password', 'secret').then(function (report) {
+  console.log('all documents are updated!')
+  console.log(report.salt) // the new salt
+  console.log(report.notUpdated) // array with all ids of encrypted docs that hasn't been updated
+}).catch(function (error) {
+  console.error(error)
+})
 ```
 
 ### cryptoStore.add(properties)
