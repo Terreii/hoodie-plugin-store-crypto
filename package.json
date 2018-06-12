@@ -3,10 +3,6 @@
   "version": "1.0.0",
   "description": "End-to-end crypto plugin for the Hoodie client store.",
   "main": "index.js",
-  "directories": {
-    "hoodie": "hoodie",
-    "lib": "lib"
-  },
   "scripts": {
     "update-coc": "weallbehave -o . && git add CODE_OF_CONDUCT.md && git commit -m 'docs(coc): updated CODE_OF_CONDUCT.md'",
     "update-contrib": "weallcontribute -o . && git add CONTRIBUTING.md && git commit -m 'docs(contributing): updated CONTRIBUTING.md'",
@@ -23,12 +19,17 @@
     "hoodie",
     "plugin"
   ],
-  "author": "Christopher Astfalk",
+  "author": "Christopher Astfalk <christopher.astfalk@icloud.com>",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/Terreii/hoodie-plugin-store-crypto/issues"
   },
   "homepage": "https://github.com/Terreii/hoodie-plugin-store-crypto#readme",
+  "files": [
+    "index.js",
+    "hoodie",
+    "lib"
+  ],
   "devDependencies": {
     "hoodie": "^28.2.6",
     "pouchdb-adapter-memory": "^6.4.3",
