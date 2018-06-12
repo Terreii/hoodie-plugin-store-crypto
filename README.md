@@ -102,6 +102,128 @@ cryptoStore(hoodie) // sets up hoodie.cryptoStore
 You only need to do it this way, if you directly require/import the `@hoodie/client`!
 If you get the client with `<script src="/hoodie/client.js"></script>`, then the first way is recommended.
 
+### Get started
+
+To use the cryptoStore you need to set a password for encryption. This can be your users password to
+your app, or a special password, which they will enter or you generate.
+
+There are 4 use-cases you must implement:
+
+- [Sign up / start of using encryption](#sign-up)
+- [Sign in](#sign-in)
+- [Open a tap/instance of your web-app if they are already signed in](#open-your-app-while-signed-in)
+- [changing the password for encryption](#changing-the-password)
+
+#### Sign up
+
+The first use of the cryptoStore. This is usually in your sign up function, but can also be done if
+you newly added this plugin.
+
+[`cryptoStore.setPassword(password)`](#cryptostoresetpasswordpassword) is used to set the
+encryption password. It will resolve with a `salt`. A salt is a second part of a password.
+`cryptoStore.setPassword(password)` will save the generated salt in `_design/cryptoStore/salt`, and
+use it.
+
+Example:
+```javascript
+function signUp (username, password, cryptoPassword) {
+  return hoodie.account.signUp({username: username, password: password})
+
+    .then(function (accountProperties) {
+      return hoodie.cryptoStore.setPassword(cryptoPassword)
+
+        .then(function (salt) {
+          // now do what you do after you did sign up a user.
+        })
+    })
+}
+```
+
+#### Sign in
+
+Every time your user signs in you also need to unlock the cryptoStore.
+
+[`cryptoStore.setPassword(password)`](#cryptostoresetpasswordpassword) is also used for unlocking.
+After sign in you __must wait for the store to sync__ and then unlock the cryptoStore.
+
+You must wait for the sync to finish, because the `_design/cryptoStore/salt` object must be updated
+to the latest version to unlock the cryptoStore! __If the salt doc is missing, a new one will be
+created!__ Resulting in a new encryption key!
+
+Example:
+```javascript
+function signIn (username, password, cryptoPassword) {
+  return hoodie.account.signIn({username: username, password: password})
+
+    .then(function (accountProperties) {
+      return hoodie.store.sync() // wait for syncing to finish!
+        .then(function () {
+          return accountProperties
+        })
+    })
+
+    .then(function (accountProperties) {
+      return hoodie.cryptoStore.setPassword(cryptoPassword)
+
+        .then(function (salt) {
+          // now do what you do after sign in.
+        })
+    })
+}
+```
+
+#### Open your app while signed in
+
+This plugin doesn't save your users password! That results in you having to unlock the cryptoStore
+on every instance/tap of your web-app!
+
+Here you also must wait for syncing to finish! But only if your user is online.
+
+Example:
+```javascript
+function unlock (cryptoPassword) {
+  return hoodie.connectionStatus.check() // check if your app is online
+
+    .then(function () {
+      if (hoodie.connectionStatus.ok) { // if your app is online: sync your users store
+        return hoodie.store.sync()
+      }
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.setPassword(cryptoPassword) // then unlock
+    })
+}
+```
+
+#### Changing the password
+
+You can change the password and salt used for encryption with [`cryptoStore.changePassword(oldPassword, newPassword)`](#cryptostorechangepasswordoldpassword-newpassword).
+This method also updates all documents, that are encrypted with the old password!
+
+It is recommended to sync before the password change! To update all documents.
+
+Example:
+```javascript
+function changePassword (oldPassword, newPassword) {
+  return hoodie.connectionStatus.check() // check if your app is online
+
+    .then(function () {
+      if (hoodie.connectionStatus.ok) { // if your app is online: sync your users store
+        return hoodie.store.sync()
+      }
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.changePassword(oldPassword, newPassword)
+    })
+
+    .then(function (result) {
+      console.log(result.notUpdated) // array of ids of all docs that weren't updated
+    })
+}
+```
+
 ## API
 
 - [cryptoStore (setup function)](#cryptostore-setup-function)
