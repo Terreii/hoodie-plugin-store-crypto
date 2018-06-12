@@ -141,6 +141,36 @@ function signUp (username, password, cryptoPassword) {
 
 #### Sign in
 
+Every time your user signs in you also need to unlock the cryptoStore.
+
+[`cryptoStore.setPassword(password)`](#cryptostoresetpasswordpassword) is also used for unlocking.
+After sign in you __must wait for the store to sync__ and then unlock the cryptoStore.
+
+You must wait for the sync to finish, because the `_design/cryptoStore/salt` object must be updated
+to the latest version to unlock the cryptoStore! __If the salt doc is missing, a new one will be
+created!__ Resulting in a new encryption key!
+
+```javascript
+function signIn (username, password, cryptoPassword) {
+  return hoodie.account.signIn({username: username, password: password})
+
+    .then(function (accountProperties) {
+      return hoodie.store.sync() // wait for syncing to finish!
+        .then(function () {
+          return accountProperties
+        })
+    })
+
+    .then(function (accountProperties) {
+      return hoodie.cryptoStore.setPassword(cryptoPassword)
+
+        .then(function (salt) {
+          // now do what you do after you did sign up a user.
+        })
+    })
+}
+```
+
 #### Open your app while signed in
 
 #### Changing the password
