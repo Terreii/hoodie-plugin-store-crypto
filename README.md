@@ -224,6 +224,17 @@ function changePassword (oldPassword, newPassword) {
 }
 ```
 
+## About the cryptography
+
+This plugin uses the `sha256` algorithm for generating a key from your password. The key is a 32 char Hash. And for encryption and decryption of your docs the `AES-GCM` algorithm is used.
+
+### What is encrypted
+
+Hoodie, CouchDB and PouchDB need `_id`, `_rev` and `_deleted` to function. They and the content of the `hoodie` object, are **not encrypted**!
+Everything else is run through `JSON.stringify` and encrypted.
+
+**_Please be aware, that the `_id` of a doc is not encrypted! Don't store important or personal information in the `_id`!_**
+
 ## API
 
 - [cryptoStore (setup function)](#cryptostore-setup-function)
