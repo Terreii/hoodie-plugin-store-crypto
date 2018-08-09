@@ -262,6 +262,44 @@ function deriveKey (password) {
 }
 ```
 
+### Decrypt a document
+
+```javascript
+var nativeCrypto = require('native-crypto')
+
+var ignore = [
+  '_id',
+  '_rev',
+  '_deleted',
+  'hoodie'
+]
+
+function decryptDoc (key, doc) {
+  var data = Buffer.from(doc.data, 'hex')
+  var tag = Buffer.from(doc.tag, 'hex')
+  var encryptedData = Buffer.concat([data, tag])
+
+  var nonce = Buffer.from(doc.nonce, 'hex')
+  var aad = Buffer.from(doc._id)
+
+  return nativeCrypto.decrypt(key, nonce, encryptedData, aad)
+
+    .then(function (outData) {
+      var out = JSON.parse(outData)
+
+      ignore.forEach(function (key) {
+        var ignoreValue = doc[key]
+
+        if (ignoreValue !== undefined) {
+          out[key] = ignoreValue
+        }
+      })
+
+      return out
+    })
+}
+```
+
 ## API
 
 - [cryptoStore (setup function)](#cryptostore-setup-function)
