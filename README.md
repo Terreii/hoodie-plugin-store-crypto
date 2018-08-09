@@ -226,7 +226,7 @@ function changePassword (oldPassword, newPassword) {
 
 ## About the cryptography
 
-This plugin uses the `sha256` algorithm for generating a key from your password. The key is a 32 char Hash. And for encryption and decryption of your docs the `AES-GCM` algorithm is used.
+This plugin uses the `sha256` and `pbkdf2` algorithm for generating a key from your password. The key is a 32 char Hash. And for encryption and decryption of your docs the `AES-GCM` algorithm is used.
 
 ### What is encrypted
 
@@ -234,6 +234,33 @@ Hoodie, CouchDB and PouchDB need `_id`, `_rev` and `_deleted` to function. They 
 Everything else is run through `JSON.stringify` and encrypted.
 
 **_Please be aware, that the `_id` of a doc is not encrypted! Don't store important or personal information in the `_id`!_**
+
+### Derive key from password and salt
+
+```javascript
+var pbkdf2 = require('native-crypto/pbkdf2')
+var randomBytes = require('randombytes')
+
+function deriveKey (password) {
+  return hoodie.store.find('_design/cryptoStore/salt')
+
+    .then(function (doc) {
+      var digest = 'sha256'
+      var iterations = 100000
+      var salt = doc.salt != null && typeof doc.salt === 'string' && doc.salt.length === 32
+        ? saltArg
+        : randomBytes(16).toString('hex')
+
+      return pbkdf2(password, Buffer.from(salt, 'hex'), iterations, 256 / 8, digest)
+        .then(function (key) {
+          return {
+            key: key,
+            salt: salt
+          }
+        })
+    })
+}
+```
 
 ## API
 
