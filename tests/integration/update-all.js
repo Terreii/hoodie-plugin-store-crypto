@@ -10,14 +10,7 @@ var test = require('tape')
 var Promise = require('lie')
 
 var createCryptoStore = require('../utils/createCryptoStore')
-
-function checkTime (objectTime) {
-  var now = Date.now()
-  var timeObj = new Date(objectTime)
-  var isoString = timeObj.toISOString()
-  var time = timeObj.getTime()
-  return time <= now && time > (now - 10) && objectTime === isoString
-}
+var checkTime = require('../utils/checkTime')
 
 test('cryptoStore.updateAll(changedProperties)', function (t) {
   t.plan(25)
@@ -221,6 +214,8 @@ test('cryptoStore.updateAll([objects]) updates all updatedAt timestamps', functi
 
   var hoodie = createCryptoStore()
 
+  var startTime = null
+
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
@@ -237,6 +232,7 @@ test('cryptoStore.updateAll([objects]) updates all updatedAt timestamps', functi
     })
 
     .then(function () {
+      startTime = new Date()
       return hoodie.cryptoStore.updateAll({bar: 'foo'})
     })
 
@@ -247,7 +243,10 @@ test('cryptoStore.updateAll([objects]) updates all updatedAt timestamps', functi
   hoodie.store.on('update', function (object) {
     t.ok(object._id, 'resolves doc')
     t.is(typeof object.hoodie.deletedAt, 'undefined', 'deletedAt shouldnt be set')
-    t.ok(checkTime(object.hoodie.updatedAt), 'updatedAt should be the same time as right now')
+    t.ok(
+      checkTime(startTime, object.hoodie.updatedAt),
+      'updatedAt should be the same time as right now'
+    )
     t.not(object.hoodie.createdAt, object.hoodie.updatedAt, 'createdAt and updatedAt should not be the same')
   })
 })

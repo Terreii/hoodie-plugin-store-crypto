@@ -10,14 +10,7 @@ var test = require('tape')
 var Promise = require('lie')
 
 var createCryptoStore = require('../utils/createCryptoStore')
-
-function checkTime (objectTime) {
-  var now = Date.now()
-  var timeObj = new Date(objectTime)
-  var isoString = timeObj.toISOString()
-  var time = timeObj.getTime()
-  return time <= now && time > (now - 30) && objectTime === isoString
-}
+var checkTime = require('../utils/checkTime')
 
 test('cryptoStore.removeAll()', function (t) {
   t.plan(6)
@@ -149,6 +142,8 @@ test('cryptoStore.removeAll([objects]) creates deletedAt timestamps', function (
 
   var hoodie = createCryptoStore()
 
+  var startTime = null
+
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
@@ -165,6 +160,7 @@ test('cryptoStore.removeAll([objects]) creates deletedAt timestamps', function (
     })
 
     .then(function () {
+      startTime = new Date()
       return hoodie.cryptoStore.removeAll()
     })
 
@@ -174,7 +170,10 @@ test('cryptoStore.removeAll([objects]) creates deletedAt timestamps', function (
         t.ok(object.hoodie.createdAt, 'should have createdAt timestamp')
         t.ok(object.hoodie.updatedAt, 'should have updatedAt timestamp')
         t.ok(object.hoodie.deletedAt, 'should have deleteAt timestamp')
-        t.ok(checkTime(object.hoodie.deletedAt), 'deletedAt should be the same time as right now')
+        t.ok(
+          checkTime(startTime, object.hoodie.deletedAt),
+          'deletedAt should be the same time as right now'
+        )
       })
     })
 

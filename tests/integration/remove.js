@@ -10,14 +10,7 @@ var test = require('tape')
 var Promise = require('lie')
 
 var createCryptoStore = require('../utils/createCryptoStore')
-
-function checkTime (objectTime) {
-  var now = Date.now()
-  var timeObj = new Date(objectTime)
-  var isoString = timeObj.toISOString()
-  var time = timeObj.getTime()
-  return time <= now && time > (now - 20) && objectTime === isoString
-}
+var checkTime = require('../utils/checkTime')
 
 test('removes existing by id', function (t) {
   t.plan(3)
@@ -307,6 +300,8 @@ test('cryptoStore.remove(object) creates deletedAt timestamp', function (t) {
 
   var hoodie = createCryptoStore()
 
+  var startTime = null
+
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
@@ -323,13 +318,17 @@ test('cryptoStore.remove(object) creates deletedAt timestamp', function (t) {
     })
 
     .then(function () {
+      startTime = new Date()
       return hoodie.cryptoStore.remove('foo')
     })
 
     .then(function (object) {
       t.is(object._id, 'foo', 'resolves doc')
       t.ok(object.hoodie.deletedAt, 'should have deleteAt timestamps')
-      t.ok(checkTime(object.hoodie.deletedAt), 'deletedAt should be a valid date of right now')
+      t.ok(
+        checkTime(startTime, object.hoodie.deletedAt),
+        'deletedAt should be a valid date of right now'
+      )
     })
 
     .catch(function (err) {
@@ -341,6 +340,8 @@ test('cryptoStore.remove([objects]) creates deletedAt timestamps', function (t) 
   t.plan(10)
 
   var hoodie = createCryptoStore()
+
+  var startTime = null
 
   hoodie.cryptoStore.setPassword('test')
 
@@ -358,6 +359,7 @@ test('cryptoStore.remove([objects]) creates deletedAt timestamps', function (t) 
     })
 
     .then(function () {
+      startTime = new Date()
       return hoodie.cryptoStore.remove(['foo', 'bar'])
     })
 
@@ -369,7 +371,10 @@ test('cryptoStore.remove([objects]) creates deletedAt timestamps', function (t) 
         t.ok(object.hoodie.createdAt, 'should have createdAt timestamp')
         t.ok(object.hoodie.updatedAt, 'should have updatedAt timestamp')
         t.ok(object.hoodie.deletedAt, 'should have deleteAt timestamp')
-        t.ok(checkTime(object.hoodie.deletedAt), 'deletedAt should be a valid date of right now')
+        t.ok(
+          checkTime(startTime, object.hoodie.deletedAt),
+          'deletedAt should be a valid date of right now'
+        )
       })
     })
 
