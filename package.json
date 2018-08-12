@@ -32,9 +32,9 @@
   ],
   "devDependencies": {
     "hoodie": "^28.2.6",
-    "pouchdb-adapter-memory": "^6.4.3",
-    "pouchdb-core": "^6.4.3",
-    "pouchdb-replication": "^6.4.3",
+    "pouchdb-adapter-memory": "^7.0.0",
+    "pouchdb-core": "^7.0.0",
+    "pouchdb-replication": "^7.0.0",
     "standard": "^11.0.1",
     "tap-spec": "^5.0.0",
     "tape": "^4.9.1",
@@ -46,8 +46,8 @@
     "lie": "^3.3.0",
     "lodash": "^4.17.10",
     "native-crypto": "^1.8.1",
-    "pouchdb-errors": "^6.4.3",
+    "pouchdb-errors": "^7.0.0",
     "randombytes": "^2.0.6",
-    "uuid": "^3.2.1"
+    "uuid": "^3.3.2"
   }
 }
