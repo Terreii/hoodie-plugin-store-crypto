@@ -264,6 +264,40 @@ function deriveKey (password) {
 }
 ```
 
+### Encrypt a document
+
+```javascript
+var nativeCrypto = require('native-crypto')
+var randomBytes = require('randombytes')
+
+var ignore = [
+  '_id',
+  '_rev',
+  '_deleted',
+  'hoodie'
+]
+
+function encryptDoc (key, doc) {
+  var nonce = randomBytes(12)
+  var outDoc = {
+    nonce: nonce.toString('hex')
+  }
+
+  ignore.forEach(function (key) {
+    outDoc[key] = doc[key]
+    delete doc[key]
+  })
+
+  var data = JSON.stringify(doc)
+  return nativeCrypto.encrypt(key, nonce, data, Buffer.from(outDoc._id))
+    .then(function (response) {
+      outDoc.tag = response.slice(-16).toString('hex')
+      outDoc.data = response.slice(0, -16).toString('hex')
+      return outDoc
+    })
+}
+```
+
 ### Decrypt a document
 
 ```javascript
