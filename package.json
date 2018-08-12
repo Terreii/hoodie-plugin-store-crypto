@@ -1,6 +1,6 @@
 {
   "name": "hoodie-plugin-store-crypto",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "End-to-end crypto plugin for the Hoodie client store.",
   "main": "index.js",
   "scripts": {
