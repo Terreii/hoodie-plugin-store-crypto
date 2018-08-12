@@ -17,6 +17,8 @@ corresponding methods from Hoodie to save them.
 
 There is no server side to this plugin!
 
+**Everything of a doc will be encrypted, except `_id`, `_rev`, `_deleted` and the `hoodie` object!**
+
 ## Example
 ```js
 hoodie.store.add({foo: 'bar'})
@@ -248,7 +250,7 @@ function deriveKey (password) {
       var digest = 'sha256'
       var iterations = 100000
       var salt = doc.salt != null && typeof doc.salt === 'string' && doc.salt.length === 32
-        ? saltArg
+        ? doc.salt
         : randomBytes(16).toString('hex')
 
       return pbkdf2(password, Buffer.from(salt, 'hex'), iterations, 256 / 8, digest)
