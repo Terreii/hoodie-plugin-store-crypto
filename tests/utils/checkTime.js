@@ -11,5 +11,17 @@ function checkTime (startTime, objectTime) {
   var isoString = timeObj.toISOString()
   var time = timeObj.getTime()
 
-  return time <= now && time >= startTime.getTime() && objectTime === isoString
+  if (objectTime !== isoString) {
+    throw new Error('it must be an isoString! Not "' + objectTime + '"')
+  }
+
+  if (time < startTime.getTime()) {
+    throw new Error('time must be at or after the start time!')
+  }
+
+  if (time > now) {
+    throw new Error('time must be at or before now!')
+  }
+
+  return true
 }
