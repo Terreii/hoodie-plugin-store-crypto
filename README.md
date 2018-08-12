@@ -17,6 +17,8 @@ corresponding methods from Hoodie to save them.
 
 There is no server side to this plugin!
 
+**Everything of a doc will be encrypted, except `_id`, `_rev`, `_deleted` and the `hoodie` object!**
+
 ## Example
 ```js
 hoodie.store.add({foo: 'bar'})
@@ -220,6 +222,116 @@ function changePassword (oldPassword, newPassword) {
 
     .then(function (result) {
       console.log(result.notUpdated) // array of ids of all docs that weren't updated
+    })
+}
+```
+
+## About the cryptography
+
+This plugin uses the `sha256` and `pbkdf2` algorithm for generating a key from your password. The key is a 32 char Hash. And for encryption and decryption of your docs the `AES-GCM` algorithm is used.
+
+### What is encrypted
+
+Hoodie, CouchDB and PouchDB need `_id`, `_rev` and `_deleted` to function. They and the content of the `hoodie` object, are **not encrypted**!
+Everything else is run through `JSON.stringify` and encrypted.
+
+**_Please be aware, that the `_id` of a doc is not encrypted! Don't store important or personal information in the `_id`!_**
+
+### Derive key from password and salt
+
+```javascript
+var pbkdf2 = require('native-crypto/pbkdf2')
+var randomBytes = require('randombytes')
+
+function deriveKey (password) {
+  return hoodie.store.find('_design/cryptoStore/salt')
+
+    .then(function (doc) {
+      var digest = 'sha256'
+      var iterations = 100000
+      var salt = doc.salt != null && typeof doc.salt === 'string' && doc.salt.length === 32
+        ? doc.salt
+        : randomBytes(16).toString('hex')
+
+      return pbkdf2(password, Buffer.from(salt, 'hex'), iterations, 256 / 8, digest)
+        .then(function (key) {
+          return {
+            key: key,
+            salt: salt
+          }
+        })
+    })
+}
+```
+
+### Encrypt a document
+
+```javascript
+var nativeCrypto = require('native-crypto')
+var randomBytes = require('randombytes')
+
+var ignore = [
+  '_id',
+  '_rev',
+  '_deleted',
+  'hoodie'
+]
+
+function encryptDoc (key, doc) {
+  var nonce = randomBytes(12)
+  var outDoc = {
+    nonce: nonce.toString('hex')
+  }
+
+  ignore.forEach(function (key) {
+    outDoc[key] = doc[key]
+    delete doc[key]
+  })
+
+  var data = JSON.stringify(doc)
+  return nativeCrypto.encrypt(key, nonce, data, Buffer.from(outDoc._id))
+    .then(function (response) {
+      outDoc.tag = response.slice(-16).toString('hex')
+      outDoc.data = response.slice(0, -16).toString('hex')
+      return outDoc
+    })
+}
+```
+
+### Decrypt a document
+
+```javascript
+var nativeCrypto = require('native-crypto')
+
+var ignore = [
+  '_id',
+  '_rev',
+  '_deleted',
+  'hoodie'
+]
+
+function decryptDoc (key, doc) {
+  var data = Buffer.from(doc.data, 'hex')
+  var tag = Buffer.from(doc.tag, 'hex')
+  var encryptedData = Buffer.concat([data, tag])
+
+  var nonce = Buffer.from(doc.nonce, 'hex')
+  var aad = Buffer.from(doc._id)
+
+  return nativeCrypto.decrypt(key, nonce, encryptedData, aad)
+
+    .then(function (outData) {
+      var out = JSON.parse(outData)
+
+      ignore.forEach(function (key) {
+        var ignoreValue = doc[key]
+
+        if (ignoreValue !== undefined) {
+          out[key] = ignoreValue
+        }
+      })
+
+      return out
     })
 }
 ```
