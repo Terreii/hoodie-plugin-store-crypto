@@ -17,7 +17,7 @@ corresponding methods from Hoodie to save them.
 
 There is no server side to this plugin!
 
-**Everything of a doc will be encrypted, except `_id`, `_rev`, `_deleted` and the `hoodie` object!**
+**Everything of a doc will be encrypted, except `_id`, `_rev`, `_deleted`, `_attachments`, `_conflicts` and the `hoodie` object!**
 
 ## Example
 ```js
@@ -232,7 +232,7 @@ This plugin uses the `sha256` and `pbkdf2` algorithm for generating a key from y
 
 ### What is encrypted
 
-Hoodie, CouchDB and PouchDB need `_id`, `_rev` and `_deleted` to function. They and the content of the `hoodie` object, are **not encrypted**!
+Hoodie, CouchDB and PouchDB need `_id`, `_rev`, `_deleted`, `_attachments` and `_conflicts` to function. They and the content of the `hoodie` object, are **not encrypted**!
 Everything else is run through `JSON.stringify` and encrypted.
 
 **_Please be aware, that the `_id` of a doc is not encrypted! Don't store important or personal information in the `_id`!_**
