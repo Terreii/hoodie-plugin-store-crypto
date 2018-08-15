@@ -33,7 +33,7 @@
   "devDependencies": {
     "hoodie": "^28.2.6",
     "pouchdb-adapter-memory": "^7.0.0",
-    "pouchdb-core": "^6.4.3",
+    "pouchdb-core": "^7.0.0",
     "pouchdb-replication": "^6.4.3",
     "standard": "^11.0.1",
     "tap-spec": "^5.0.0",
