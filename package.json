@@ -17,7 +17,12 @@
   },
   "keywords": [
     "hoodie",
-    "plugin"
+    "plugin",
+    "storage",
+    "data",
+    "crypto",
+    "end-to-end",
+    "ete"
   ],
   "author": "Christopher Astfalk <christopher.astfalk@icloud.com>",
   "license": "Apache-2.0",
