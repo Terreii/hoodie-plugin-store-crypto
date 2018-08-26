@@ -3,6 +3,7 @@
 var test = require('tape')
 
 var createCryptoStore = require('../utils/createCryptoStore')
+var cryptoStoreSetupFunction = require('../../')
 
 test('lock exists', function (t) {
   t.plan(2)
@@ -42,4 +43,24 @@ test('lock locks the cryptoStore', function (t) {
     .catch(function () {
       t.pass('an error was thrown')
     })
+})
+
+test("lock is added to hoodie.account.on('signout')", function (t) {
+  t.plan(2)
+
+  var hoodie = {
+    account: {
+      on: function (eventName, handler) {
+        t.is(eventName, 'signout', 'is listening to signout events')
+        t.is(handler, hoodie.cryptoStore.lock, 'is the lock function')
+      }
+    },
+    store: {
+      on: function () {},
+      off: function () {},
+      one: function () {}
+    }
+  }
+
+  cryptoStoreSetupFunction(hoodie)
 })
