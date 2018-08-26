@@ -3,6 +3,7 @@
 require('./unit/create-key-test')
 require('./unit/encrypt-test')
 require('./unit/decrypt-test')
+require('./unit/lock')
 
 require('./integration/crypto-test')
 require('./integration/set-password')
