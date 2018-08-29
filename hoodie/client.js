@@ -14,4 +14,6 @@ function cryptoStore (hoodie) {
   }
 
   hoodie.cryptoStore = bindFunctions(hoodie.store, state, null, handler, true)
+
+  hoodie.account.on('signout', hoodie.cryptoStore.lock)
 }

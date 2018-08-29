@@ -3,6 +3,7 @@
 require('./unit/create-key-test')
 require('./unit/encrypt-test')
 require('./unit/decrypt-test')
+require('./unit/lock')
 
 require('./integration/crypto-test')
 require('./integration/set-password')
@@ -19,3 +20,4 @@ require('./integration/with-id-prefix')
 require('./integration/events')
 require('./integration/with-password')
 require('./integration/change-password')
+require('./integration/lock')
