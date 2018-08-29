@@ -40,7 +40,7 @@
     "pouchdb-adapter-memory": "^6.4.3",
     "pouchdb-core": "^6.4.3",
     "pouchdb-replication": "^6.4.3",
-    "standard": "^11.0.1",
+    "standard": "^12.0.0",
     "tap-spec": "^5.0.0",
     "tape": "^4.9.1",
     "weallbehave": "^1.2.0",
