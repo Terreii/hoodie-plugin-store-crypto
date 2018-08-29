@@ -20,11 +20,11 @@ test('cryptoStore.update(id, changedProperties)', function (t) {
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      return hoodie.store.add({_id: 'exists', foo: 'bar'})
+      return hoodie.store.add({ _id: 'exists', foo: 'bar' })
     })
 
     .then(function () {
-      return hoodie.cryptoStore.update('exists', {foo: 'baz'})
+      return hoodie.cryptoStore.update('exists', { foo: 'baz' })
     })
 
     .then(function (object) {
@@ -33,7 +33,7 @@ test('cryptoStore.update(id, changedProperties)', function (t) {
       t.ok(/^2-/.test(object._rev), 'revision is 2')
       t.is(object.foo, 'baz', 'passes properties')
 
-      return hoodie.cryptoStore.update('exists', {foo: 'foo'})
+      return hoodie.cryptoStore.update('exists', { foo: 'foo' })
     })
 
     .then(function (object) {
@@ -88,7 +88,7 @@ test(
     hoodie.cryptoStore.setPassword('test')
 
       .then(function () {
-        return hoodie.cryptoStore.update('unknown', {foo: 'bar'})
+        return hoodie.cryptoStore.update('unknown', { foo: 'bar' })
       })
 
       .then(function () {
@@ -111,7 +111,7 @@ test('cryptoStore.update(id, updateFunction)', function (t) {
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      return hoodie.cryptoStore.add({_id: 'exists'})
+      return hoodie.cryptoStore.add({ _id: 'exists' })
     })
 
     .then(function () {
@@ -139,11 +139,11 @@ test('cryptoStore.update(object)', function (t) {
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      return hoodie.store.add({_id: 'exists', foo: 'bar'})
+      return hoodie.store.add({ _id: 'exists', foo: 'bar' })
     })
 
     .then(function () {
-      return hoodie.cryptoStore.update({_id: 'exists', foo: 'baz'})
+      return hoodie.cryptoStore.update({ _id: 'exists', foo: 'baz' })
     })
 
     .then(function (object) {
@@ -152,7 +152,7 @@ test('cryptoStore.update(object)', function (t) {
       t.ok(/^2-/.test(object._rev), 'revision is 2')
       t.is(object.foo, 'baz', 'passes properties')
 
-      return hoodie.cryptoStore.update({_id: 'exists', foo: 'foo'})
+      return hoodie.cryptoStore.update({ _id: 'exists', foo: 'foo' })
     })
 
     .then(function (object) {
@@ -185,8 +185,8 @@ test('cryptoStore.update(array)', function (t) {
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      var encrypted = hoodie.cryptoStore.add({_id: 'encrypted', foo: 'bar', bar: 'foo'})
-      var unencrypted = hoodie.store.add({_id: 'unencrypted', foo: 'bar'})
+      var encrypted = hoodie.cryptoStore.add({ _id: 'encrypted', foo: 'bar', bar: 'foo' })
+      var unencrypted = hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
 
       return Promise.all([encrypted, unencrypted])
     })
@@ -278,14 +278,14 @@ test('cryptoStore.update(array, changedProperties)', function (t) {
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      var encrypted = hoodie.cryptoStore.add({_id: 'encrypted', foo: 'foo', bar: 'foo'})
-      var unencrypted = hoodie.store.add({_id: 'unencrypted', foo: 'bar'})
+      var encrypted = hoodie.cryptoStore.add({ _id: 'encrypted', foo: 'foo', bar: 'foo' })
+      var unencrypted = hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
 
       return Promise.all([encrypted, unencrypted])
     })
 
     .then(function () {
-      return hoodie.cryptoStore.update([{_id: 'encrypted'}, 'unencrypted', 'unknown'], {
+      return hoodie.cryptoStore.update([{ _id: 'encrypted' }, 'unencrypted', 'unknown'], {
         bar: 'baz'
       })
     })
@@ -325,8 +325,8 @@ test('cryptoStore.update(array, updateFunction)', function (t) {
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      var encrypted = hoodie.cryptoStore.add({_id: 'encrypted', foo: 'foo', bar: 'foo'})
-      var unencrypted = hoodie.store.add({_id: 'unencrypted', foo: 'bar'})
+      var encrypted = hoodie.cryptoStore.add({ _id: 'encrypted', foo: 'foo', bar: 'foo' })
+      var unencrypted = hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
 
       return Promise.all([encrypted, unencrypted])
     })
@@ -362,7 +362,7 @@ test('cryptoStore.update(object) updates updatedAt timestamp', function (t) {
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      return hoodie.cryptoStore.add({_id: 'shouldHaveTimestamps'})
+      return hoodie.cryptoStore.add({ _id: 'shouldHaveTimestamps' })
     })
 
     .then(function () {
@@ -404,8 +404,8 @@ test('cryptoStore.update([objects]) updates updatedAt timestamps', function (t) 
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      var encrypted = hoodie.cryptoStore.add({_id: 'encrypted'})
-      var unencrypted = hoodie.store.add({_id: 'unencrypted'})
+      var encrypted = hoodie.cryptoStore.add({ _id: 'encrypted' })
+      var unencrypted = hoodie.store.add({ _id: 'unencrypted' })
 
       return Promise.all([encrypted, unencrypted])
     })
@@ -418,7 +418,7 @@ test('cryptoStore.update([objects]) updates updatedAt timestamps', function (t) 
 
     .then(function () {
       startTime = new Date()
-      return hoodie.cryptoStore.update(['encrypted', 'unencrypted'], {foo: 'bar'})
+      return hoodie.cryptoStore.update(['encrypted', 'unencrypted'], { foo: 'bar' })
     })
 
     .catch(function (err) {
@@ -451,7 +451,7 @@ test('cryptoStore.update(object) ignores .hoodie property', function (t) {
       return hoodie.cryptoStore.update({
         _id: 'exists',
         foo: 'bar',
-        hoodie: {ignore: 'me'}
+        hoodie: { ignore: 'me' }
       })
     })
 
@@ -483,7 +483,7 @@ test('cryptoStore.update(array)', function (t) {
 
     .then(function () {
       return hoodie.cryptoStore.update([
-        { _id: '1', bar: 'baz', hoodie: {ignore: 'me'} },
+        { _id: '1', bar: 'baz', hoodie: { ignore: 'me' } },
         { _id: '2', bar: 'baz' }
       ])
     })

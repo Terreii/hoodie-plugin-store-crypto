@@ -112,7 +112,7 @@ test('cryptoStore.findAll() doesnt return _design docs', function (t) {
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      return hoodie.cryptoStore.add([{foo: 'bar'}, {_id: '_design/bar'}])
+      return hoodie.cryptoStore.add([{ foo: 'bar' }, { _id: '_design/bar' }])
     })
 
     .then(hoodie.cryptoStore.findAll)

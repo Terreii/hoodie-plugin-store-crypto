@@ -20,10 +20,10 @@ test('cryptoStore.updateAll(changedProperties)', function (t) {
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      var unencrypted = hoodie.store.add({_id: 'unencrypted', foo: 'bar'})
+      var unencrypted = hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
       var encrypted = hoodie.cryptoStore.add([
-        {_id: 'encrypted', foo: 'bar'},
-        {foo: 'bar', bar: 'foo'}
+        { _id: 'encrypted', foo: 'bar' },
+        { foo: 'bar', bar: 'foo' }
       ])
 
       return Promise.all([unencrypted, encrypted])
@@ -32,7 +32,7 @@ test('cryptoStore.updateAll(changedProperties)', function (t) {
     .then(function () {
       return hoodie.cryptoStore.updateAll({
         bar: 'bar',
-        hoodie: {ignore: 'me'}
+        hoodie: { ignore: 'me' }
       })
     })
 
@@ -81,10 +81,10 @@ test('cryptoStore.updateAll(updateFunction)', function (t) {
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      var unencrypted = hoodie.store.add({_id: 'unencrypted', foo: 'bar'})
+      var unencrypted = hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
       var encrypted = hoodie.cryptoStore.add([
-        {_id: 'encrypted', foo: 'bar'},
-        {foo: 'bar', bar: 'foo'}
+        { _id: 'encrypted', foo: 'bar' },
+        { foo: 'bar', bar: 'foo' }
       ])
 
       return Promise.all([unencrypted, encrypted])
@@ -180,8 +180,8 @@ test('cryptoStore.updateAll() doesnt update design docs', function (t) {
 
     .then(function () {
       return hoodie.store.add([
-        {bar: 'foo'},
-        {_id: '_design/bar', bar: 'foo'}
+        { bar: 'foo' },
+        { _id: '_design/bar', bar: 'foo' }
       ])
     })
 
@@ -220,8 +220,8 @@ test('cryptoStore.updateAll([objects]) updates all updatedAt timestamps', functi
 
     .then(function () {
       return hoodie.cryptoStore.add([
-        {foo: 'bar'},
-        {foo: 'baz'}
+        { foo: 'bar' },
+        { foo: 'baz' }
       ])
     })
 
@@ -233,7 +233,7 @@ test('cryptoStore.updateAll([objects]) updates all updatedAt timestamps', functi
 
     .then(function () {
       startTime = new Date()
-      return hoodie.cryptoStore.updateAll({bar: 'foo'})
+      return hoodie.cryptoStore.updateAll({ bar: 'foo' })
     })
 
     .catch(function (err) {

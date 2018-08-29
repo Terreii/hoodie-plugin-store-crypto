@@ -139,7 +139,7 @@ test('adds multiple objects to db', function (t) {
       return hoodie.store.find([
         objects[0],
         objects[1],
-        {_id: 'foo'}
+        { _id: 'foo' }
       ])
     })
 
