@@ -5,7 +5,22 @@ var bindFunctions = require('../lib/bind-functions')
 module.exports = cryptoStore
 
 function cryptoStore (hoodie) {
-  var state = {}
+  var withIdPrefixStore = {} // store prefix APIs from hoodie-store. Workaround for #42
+
+  var state = {
+    getWithPrefixAPI: function (prefix) { // get a prefix API. This is a workaround for #42
+      if (prefix == null) {
+        return hoodie.store
+      }
+
+      if (withIdPrefixStore[prefix] != null) {
+        return withIdPrefixStore[prefix]
+      }
+
+      withIdPrefixStore[prefix] = hoodie.store.withIdPrefix(prefix)
+      return withIdPrefixStore[prefix]
+    }
+  }
 
   var handler = {
     on: hoodie.store.on,
