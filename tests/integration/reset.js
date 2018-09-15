@@ -52,6 +52,10 @@ test('cryptoStore.updateAll() works after a reset of the hoodie store', function
   hoodie.store.reset()
 
     .then(function () {
+      return hoodie.cryptoStore.setPassword('test')
+    })
+
+    .then(function () {
       return hoodie.cryptoStore.add({value: 'a'}, {value: 'b'})
     })
 
@@ -72,6 +76,10 @@ test('cryptoStore.removeAll() works after a reset of the hoodie store', function
   var hoodie = createCryptoStore()
 
   hoodie.store.reset()
+
+    .then(function () {
+      return hoodie.cryptoStore.setPassword('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({value: 'a'}, {value: 'b'})
