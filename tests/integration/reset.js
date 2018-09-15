@@ -27,7 +27,7 @@ test('cryptoStore.changePassword() works after a reset of the hoodie store', fun
 })
 
 test('cryptoStore.findAll() works after a reset of the hoodie store', function (t) {
-  t.plan(3)
+  t.plan(1)
 
   var hoodie = createCryptoStore()
 
@@ -47,8 +47,6 @@ test('cryptoStore.findAll() works after a reset of the hoodie store', function (
 
     .then(function (docs) {
       t.equal(docs.length, 2, 'did find 2')
-      t.equal(docs[0].value, 'a', 'did decrypt')
-      t.equal(docs[1].value, 'b', 'did decrypt')
     })
 
     .catch(t.error)
