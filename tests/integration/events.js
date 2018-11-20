@@ -854,6 +854,9 @@ test('cryptoStore should only listen to events, if a handler was added', functio
   var afterAddingCryptoStore = false
   var shouldHave = false
   var hoodie = {
+    account: {
+      on: function () {}
+    },
     store: {
       on: function (eventName, handler) {
         t.is(afterAddingCryptoStore, true, "creating cryptoStore doesn't add an handler")

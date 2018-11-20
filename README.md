@@ -174,6 +174,19 @@ function signIn (username, password, cryptoPassword) {
 }
 ```
 
+#### Sign out
+
+The `cryptoStore` listen automatically to [`hoodie.account.on('signout')`](http://docs.hood.ie/en/latest/api/client/hoodie.account.html#events) events and locks itself. You don't need to add any setup for it.
+
+The [`cryptoStore.lock()`](#cryptostorelock) method is there, so that you can add a lock after a timeout functionality or lock the store in a save way when closing an tab.
+
+```javascript
+window.addEventListener('beforeunload', function (event) {
+  // do your cleanup
+  hoodie.cryptoStore.lock() // lock the cryptoStore in an cryptographic save way.
+})
+```
+
 #### Open your app while signed in
 
 This plugin doesn't save your users password! That results in you having to unlock the cryptoStore
@@ -274,6 +287,8 @@ var ignore = [
   '_id',
   '_rev',
   '_deleted',
+  '_attachments',
+  '_conflicts',
   'hoodie'
 ]
 
@@ -307,6 +322,8 @@ var ignore = [
   '_id',
   '_rev',
   '_deleted',
+  '_attachments',
+  '_conflicts',
   'hoodie'
 ]
 
@@ -342,6 +359,7 @@ function decryptDoc (key, doc) {
 - [cryptoStore.setPassword(password)](#cryptostoresetpasswordpassword)
 - [cryptoStore.setPassword(password, salt)](#cryptostoresetpasswordpassword-salt)
 - [cryptoStore.changePassword(oldPassword, newPassword)](#cryptostorechangepasswordoldpassword-newpassword)
+- [cryptoStore.lock()](#cryptostorelock)
 - [cryptoStore.add(properties)](#cryptostoreaddproperties)
 - [cryptoStore.add(arrayOfProperties)](#cryptostoreaddarrayofproperties)
 - [cryptoStore.find(id)](#cryptostorefindid)
@@ -501,6 +519,18 @@ hoodie.cryptoStore.changePassword('my-old-password', 'secret').then(function (re
   console.error(error)
 })
 ```
+
+### cryptoStore.lock()
+
+```javascript
+cryptoStore.lock()
+```
+
+This locks the store and every method fails until a new password is set. It also overwrites the internal key's memory in a in an cryptographic save way (10 times).
+
+Resolves with a Boolean. `true` if the store is now locked, `false` if the store was already locked.
+
+The `cryptoStore` listen automatically to [`hoodie.account.on('signout')`](http://docs.hood.ie/en/latest/api/client/hoodie.account.html#events) events and locks itself.
 
 ### cryptoStore.add(properties)
 
