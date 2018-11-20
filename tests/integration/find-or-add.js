@@ -19,22 +19,22 @@ test('cryptoStore.findOrAdd(id, object) finds existing', function (t) {
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      return hoodie.cryptoStore.add({_id: 'exists', foo: 'bar'})
+      return hoodie.cryptoStore.add({ _id: 'exists', foo: 'bar' })
     })
 
     .then(function () {
-      return hoodie.cryptoStore.findOrAdd('exists', {foo: 'baz'})
+      return hoodie.cryptoStore.findOrAdd('exists', { foo: 'baz' })
     })
 
     .then(function (object) {
       t.is(object._id, 'exists', 'resolves with id')
       t.is(object.foo, 'bar', 'resolves with old object')
 
-      return hoodie.store.add({_id: 'unencrypted', foo: 'bar'})
+      return hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
     })
 
     .then(function () {
-      return hoodie.cryptoStore.findOrAdd('unencrypted', {foo: 'baz'})
+      return hoodie.cryptoStore.findOrAdd('unencrypted', { foo: 'baz' })
     })
 
     .then(function (object) {
@@ -55,7 +55,7 @@ test('cryptoStore.findOrAdd(id, object) adds new', function (t) {
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      return hoodie.cryptoStore.findOrAdd('newId', {foo: 'bar'})
+      return hoodie.cryptoStore.findOrAdd('newId', { foo: 'bar' })
     })
 
     .then(function (object) {
@@ -104,22 +104,22 @@ test('cryptoStore.findOrAdd(object) finds existing', function (t) {
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      return hoodie.cryptoStore.add({_id: 'encrypted', foo: 'bar'})
+      return hoodie.cryptoStore.add({ _id: 'encrypted', foo: 'bar' })
     })
 
     .then(function () {
-      return hoodie.cryptoStore.findOrAdd({_id: 'encrypted', foo: 'baz'})
+      return hoodie.cryptoStore.findOrAdd({ _id: 'encrypted', foo: 'baz' })
     })
 
     .then(function (object) {
       t.is(object._id, 'encrypted', 'resolves with id')
       t.is(object.foo, 'bar', 'resolves with old object')
 
-      return hoodie.store.add({_id: 'unencrypted', foo: 'bar'})
+      return hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
     })
 
     .then(function () {
-      return hoodie.cryptoStore.findOrAdd({_id: 'unencrypted', foo: 'baz'})
+      return hoodie.cryptoStore.findOrAdd({ _id: 'unencrypted', foo: 'baz' })
     })
 
     .then(function (object) {
@@ -140,7 +140,7 @@ test('cryptoStore.findOrAdd(object) adds new', function (t) {
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      return hoodie.cryptoStore.findOrAdd({_id: 'newId', foo: 'bar'})
+      return hoodie.cryptoStore.findOrAdd({ _id: 'newId', foo: 'bar' })
     })
 
     .then(function (object) {
@@ -169,7 +169,7 @@ test('cryptoStore.findOrAdd(object) fails if object has no id', function (t) {
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      return hoodie.cryptoStore.findOrAdd({foo: 'bar'})
+      return hoodie.cryptoStore.findOrAdd({ foo: 'bar' })
     })
 
     .then(function () {
@@ -189,17 +189,17 @@ test('cryptoStore.findOrAdd([object1, object2])', function (t) {
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      var encrypted = hoodie.cryptoStore.add({_id: 'encrypted', foo: 'bar'})
-      var unencrypted = hoodie.store.add({_id: 'unencrypted', foo: 'bar'})
+      var encrypted = hoodie.cryptoStore.add({ _id: 'encrypted', foo: 'bar' })
+      var unencrypted = hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
 
       return Promise.all([encrypted, unencrypted])
     })
 
     .then(function () {
       return hoodie.cryptoStore.findOrAdd([
-        {_id: 'encrypted', foo: 'baz'},
-        {_id: 'unencrypted', foo: 'baz'},
-        {_id: 'added', foo: 'baz'}
+        { _id: 'encrypted', foo: 'baz' },
+        { _id: 'unencrypted', foo: 'baz' },
+        { _id: 'added', foo: 'baz' }
       ])
     })
 

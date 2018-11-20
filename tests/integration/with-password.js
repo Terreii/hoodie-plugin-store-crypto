@@ -123,7 +123,7 @@ test('cryptoStore.withPassword("test").find(properties)', function (t) {
     .then(function (stores) {
       var testStore = stores[0].store
 
-      testStore.add({foo: 'bar'})
+      testStore.add({ foo: 'bar' })
 
         .then(function (object) {
           return testStore.find(object._id)

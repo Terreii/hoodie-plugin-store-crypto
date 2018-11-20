@@ -61,7 +61,7 @@ test('removes existing by object', function (t) {
     })
 
     .then(function () {
-      return hoodie.cryptoStore.remove({_id: 'foo'})
+      return hoodie.cryptoStore.remove({ _id: 'foo' })
     })
 
     .then(function (object) {
@@ -98,7 +98,7 @@ test('fails for non-existing', function (t) {
     })
 
     .then(function () {
-      return hoodie.cryptoStore.remove({_id: 'foo'})
+      return hoodie.cryptoStore.remove({ _id: 'foo' })
     })
 
     .then(function () {
@@ -182,7 +182,7 @@ test('cryptoStore.remove([changedObjects]) updates before removing', function (t
         {
           _id: 'foo',
           foo: 'changed',
-          hoodie: {ignore: 'me'}
+          hoodie: { ignore: 'me' }
         },
         {
           _id: 'bar',
@@ -219,7 +219,7 @@ test('cryptoStore.remove(changedObject) updates before removing', function (t) {
     })
 
     .then(function () {
-      return hoodie.cryptoStore.remove({_id: 'foo', foo: 'changed', hoodie: {ignore: 'me'}})
+      return hoodie.cryptoStore.remove({ _id: 'foo', foo: 'changed', hoodie: { ignore: 'me' } })
     })
 
     .then(function (object) {
@@ -248,7 +248,7 @@ test('cryptoStore.remove(id, changedProperties) updates before removing', functi
     })
 
     .then(function () {
-      return hoodie.cryptoStore.remove('foo', {foo: 'changed', hoodie: {ignore: 'me'}})
+      return hoodie.cryptoStore.remove('foo', { foo: 'changed', hoodie: { ignore: 'me' } })
     })
 
     .then(function (object) {

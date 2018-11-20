@@ -55,7 +55,7 @@ test('cryptoStore.withIdPrefix("test/").add(properties)', function (t) {
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      return cryptoStore.add({foo: 'bar'})
+      return cryptoStore.add({ foo: 'bar' })
     })
 
     .then(function (object) {
@@ -198,7 +198,7 @@ test('cryptoStore.withIdPrefix("test/").findOrAdd(id, object) when found', funct
     })
 
     .then(function () {
-      return cryptoStore.findOrAdd('foo', {foo: 'baz'})
+      return cryptoStore.findOrAdd('foo', { foo: 'baz' })
     })
 
     .then(function (doc) {
@@ -218,7 +218,7 @@ test('cryptoStore.withIdPrefix("test/").findOrAdd(id, object) when added', funct
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      return cryptoStore.findOrAdd('foo', {foo: 'baz'})
+      return cryptoStore.findOrAdd('foo', { foo: 'baz' })
     })
 
     .then(function (object) {
@@ -309,7 +309,7 @@ test('cryptoStore.withIdPrefix("test/").update(id, changedProperties)', function
     })
 
     .then(function () {
-      return cryptoStore.update('foo', {foo: 'baz'})
+      return cryptoStore.update('foo', { foo: 'baz' })
     })
 
     .then(function (object) {
@@ -374,7 +374,7 @@ test('cryptoStore.withIdPrefix("test/").updateOrAdd(object) when found', functio
     })
 
     .then(function () {
-      return cryptoStore.updateOrAdd('foo', {foo: 'baz'})
+      return cryptoStore.updateOrAdd('foo', { foo: 'baz' })
     })
 
     .then(function (object) {
@@ -394,7 +394,7 @@ test('cryptoStore.withIdPrefix("test/").updateOrAdd(object) when added', functio
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      return cryptoStore.updateOrAdd('foo', {foo: 'baz'})
+      return cryptoStore.updateOrAdd('foo', { foo: 'baz' })
     })
 
     .then(function (object) {
@@ -456,7 +456,7 @@ test('cryptoStore.withIdPrefix("test/").updateAll(changedProperties)', function 
     })
 
     .then(function () {
-      return cryptoStore.updateAll({foo: 'bar'})
+      return cryptoStore.updateAll({ foo: 'bar' })
     })
 
     .then(function (objects) {
@@ -594,8 +594,8 @@ test('cryptoStore.withIdPrefix("test/").on("change", handler) events', function 
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      hoodie.cryptoStore.add({_id: 'foo'})
-      testStore.add({_id: 'foo'})
+      hoodie.cryptoStore.add({ _id: 'foo' })
+      testStore.add({ _id: 'foo' })
     })
 
     .catch(function (err) {

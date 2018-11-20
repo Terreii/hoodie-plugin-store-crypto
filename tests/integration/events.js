@@ -87,8 +87,8 @@ test('cryptoStore.on("add") with adding two', function (t) {
 
     .then(function () {
       hoodie.cryptoStore.add([
-        {foo: 'bar'},
-        {foo: 'baz'}
+        { foo: 'bar' },
+        { foo: 'baz' }
       ])
     })
 
@@ -149,7 +149,7 @@ test('cryptoStore.on("add") with add & update', function (t) {
     })
 
     .then(function () {
-      hoodie.cryptoStore.updateOrAdd('test', {nr: 2})
+      hoodie.cryptoStore.updateOrAdd('test', { nr: 2 })
     })
 
     .catch(function (err) {
@@ -214,8 +214,8 @@ test('cryptoStore.on("update") with updating two', function (t) {
 
     .then(function () {
       return hoodie.cryptoStore.add([
-        {_id: 'first'},
-        {_id: 'second'}
+        { _id: 'first' },
+        { _id: 'second' }
       ])
     })
 
@@ -251,7 +251,7 @@ test('cryptoStore.on("update") with add & update', function (t) {
     })
 
     .then(function () {
-      hoodie.cryptoStore.updateOrAdd('test', {nr: 2})
+      hoodie.cryptoStore.updateOrAdd('test', { nr: 2 })
     })
 
     .catch(function (err) {
@@ -286,8 +286,8 @@ test('cryptoStore.on("update") with update all', function (t) {
 
     .then(function () {
       return hoodie.cryptoStore.add([
-        {_id: 'first', foo: '1'},
-        {_id: 'second', foo: '2'}
+        { _id: 'first', foo: '1' },
+        { _id: 'second', foo: '2' }
       ])
     })
 
@@ -357,8 +357,8 @@ test('cryptoStore.on("remove") with removing two', function (t) {
 
     .then(function () {
       return hoodie.cryptoStore.add([
-        {_id: 'one'},
-        {_id: 'two'}
+        { _id: 'one' },
+        { _id: 'two' }
       ])
     })
 
@@ -398,8 +398,8 @@ test('cryptoStore.on("remove") with remove all', function (t) {
 
     .then(function () {
       return hoodie.cryptoStore.add([
-        {_id: 'one'},
-        {_id: 'two'}
+        { _id: 'one' },
+        { _id: 'two' }
       ])
     })
 
@@ -727,8 +727,8 @@ test('cryptoStore.one("add") with adding two', function (t) {
 
     .then(function () {
       return hoodie.cryptoStore.add([
-        {foo: 'bar'},
-        {foo: 'baz'}
+        { foo: 'bar' },
+        { foo: 'baz' }
       ])
     })
 
@@ -750,11 +750,11 @@ test('cryptoStore.one("add") with add & update', function (t) {
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      return hoodie.cryptoStore.add({_id: 'test', nr: 1})
+      return hoodie.cryptoStore.add({ _id: 'test', nr: 1 })
     })
 
     .then(function () {
-      hoodie.cryptoStore.updateOrAdd('test', {nr: 2})
+      hoodie.cryptoStore.updateOrAdd('test', { nr: 2 })
     })
 
     .catch(function (err) {

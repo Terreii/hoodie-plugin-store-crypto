@@ -76,7 +76,7 @@ test(
     hoodie.cryptoStore.setPassword('test')
 
       .then(function () {
-        return hoodie.cryptoStore.add({foo: 'bar'})
+        return hoodie.cryptoStore.add({ foo: 'bar' })
       })
 
       .then(function (object) {

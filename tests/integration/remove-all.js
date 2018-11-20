@@ -20,10 +20,10 @@ test('cryptoStore.removeAll()', function (t) {
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      var unencrypted = hoodie.store.add({_id: 'unencrypted', foo: 'bar'})
+      var unencrypted = hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
       var encrypted = hoodie.cryptoStore.add([
-        {_id: 'encrypted', foo: 'bar'},
-        {foo: 'bar', bar: 'foo'}
+        { _id: 'encrypted', foo: 'bar' },
+        { foo: 'bar', bar: 'foo' }
       ])
 
       return Promise.all([unencrypted, encrypted])
@@ -111,7 +111,7 @@ test("cryptoStore.removeAll() doesn't remove _design docs", function (t) {
   hoodie.cryptoStore.setPassword('test')
 
     .then(function () {
-      return hoodie.cryptoStore.add([{foo: 'bar'}, {_id: '_design/bar'}])
+      return hoodie.cryptoStore.add([{ foo: 'bar' }, { _id: '_design/bar' }])
     })
 
     .then(function () {
@@ -148,8 +148,8 @@ test('cryptoStore.removeAll([objects]) creates deletedAt timestamps', function (
 
     .then(function () {
       return hoodie.cryptoStore.add([
-        {foo: 'bar'},
-        {foo: 'baz'}
+        { foo: 'bar' },
+        { foo: 'baz' }
       ])
     })
 

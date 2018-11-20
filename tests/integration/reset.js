@@ -38,7 +38,7 @@ test('cryptoStore.findAll() works after a reset of the hoodie store', function (
     })
 
     .then(function () {
-      return hoodie.cryptoStore.add([{value: 'a'}, {value: 'b'}])
+      return hoodie.cryptoStore.add([{ value: 'a' }, { value: 'b' }])
     })
 
     .then(function () {
@@ -64,11 +64,11 @@ test('cryptoStore.updateAll() works after a reset of the hoodie store', function
     })
 
     .then(function () {
-      return hoodie.cryptoStore.add([{value: 'a'}, {value: 'b'}])
+      return hoodie.cryptoStore.add([{ value: 'a' }, { value: 'b' }])
     })
 
     .then(function () {
-      return hoodie.cryptoStore.updateAll({other: 'c'})
+      return hoodie.cryptoStore.updateAll({ other: 'c' })
     })
 
     .then(function (docs) {
@@ -92,7 +92,7 @@ test('cryptoStore.removeAll() works after a reset of the hoodie store', function
     })
 
     .then(function () {
-      return hoodie.cryptoStore.add([{value: 'a'}, {value: 'b'}])
+      return hoodie.cryptoStore.add([{ value: 'a' }, { value: 'b' }])
     })
 
     .then(function () {
