@@ -10,13 +10,13 @@ var createCryptoStore = require('../utils/createCryptoStore')
 var PouchDB = require('../utils/pouchdb.js')
 var uniqueName = require('../utils/unique-name')
 
-test('cryptoStore.setPassword(password) should use the saved salt', function (t) {
+test('cryptoStore.unlock(password) should use the saved salt', function (t) {
   t.plan(1)
 
   var hoodie = createCryptoStore()
 
   hoodie.store.add({
-    _id: '_cryptoStore/salt',
+    _id: 'hoodiePluginCryptoStore/salt',
     salt: 'bf11fa9bafca73586e103d60898989d4'
   })
 
@@ -54,7 +54,7 @@ test('cryptoStore.unlock(password) move and use old salt doc', function (t) {
     .then(function (doc) {
       t.equal(doc._deleted, true, 'old doc is deleted')
 
-      return hoodie.store.find('_cryptoStore/salt')
+      return hoodie.store.find('hoodiePluginCryptoStore/salt')
     })
 
     .then(function (doc) {
@@ -100,7 +100,7 @@ test(
       })
 
       .then(function () {
-        return hoodie.store.find('_cryptoStore/salt')
+        return hoodie.store.find('hoodiePluginCryptoStore/salt')
       })
 
       .then(function (doc) {
