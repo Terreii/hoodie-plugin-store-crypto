@@ -38,7 +38,11 @@ test('cryptoStore.findAll() works after a reset of the hoodie store', function (
   hoodie.store.reset()
 
     .then(function () {
-      return hoodie.cryptoStore.setPassword('test')
+      return hoodie.cryptoStore.setup('test')
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
     })
 
     .then(function () {
@@ -64,7 +68,11 @@ test('cryptoStore.updateAll() works after a reset of the hoodie store', function
   hoodie.store.reset()
 
     .then(function () {
-      return hoodie.cryptoStore.setPassword('test')
+      return hoodie.cryptoStore.setup('test')
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
     })
 
     .then(function () {
@@ -92,7 +100,11 @@ test('cryptoStore.removeAll() works after a reset of the hoodie store', function
   hoodie.store.reset()
 
     .then(function () {
-      return hoodie.cryptoStore.setPassword('test')
+      return hoodie.cryptoStore.setup('test')
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
     })
 
     .then(function () {

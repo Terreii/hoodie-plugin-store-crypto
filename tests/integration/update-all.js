@@ -17,7 +17,11 @@ test('cryptoStore.updateAll(changedProperties)', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       var unencrypted = hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
@@ -78,7 +82,11 @@ test('cryptoStore.updateAll(updateFunction)', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       var unencrypted = hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
@@ -136,7 +144,11 @@ test('fails cryptoStore.updateAll()', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.updateAll()
@@ -156,7 +168,11 @@ test('cryptoStore.updateAll(change) no objects', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.updateAll({})
@@ -176,7 +192,11 @@ test('cryptoStore.updateAll() doesnt update design docs', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.store.add([
@@ -216,7 +236,11 @@ test('cryptoStore.updateAll([objects]) updates all updatedAt timestamps', functi
 
   var startTime = null
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add([

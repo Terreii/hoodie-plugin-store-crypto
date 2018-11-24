@@ -17,7 +17,11 @@ test('cryptoStore.removeAll()', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       var unencrypted = hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
@@ -60,7 +64,11 @@ test('cryptoStore.removeAll(filterFunction)', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add([{
@@ -108,7 +116,11 @@ test("cryptoStore.removeAll() doesn't remove _design docs", function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add([{ foo: 'bar' }, { _id: '_design/bar' }])
@@ -144,7 +156,11 @@ test('cryptoStore.removeAll([objects]) creates deletedAt timestamps', function (
 
   var startTime = null
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add([
