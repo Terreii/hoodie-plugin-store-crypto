@@ -47,12 +47,12 @@ test('cryptoStore.unlock(password) move and use old salt doc', function (t) {
       return hoodie.cryptoStore.unlock('test')
     })
 
-    .then(function (salt) {
+    .then(function () {
       return hoodie.store.find('_design/cryptoStore/salt')
     })
 
-    .then(function (doc) {
-      t.equal(doc._deleted, true, 'old doc is deleted')
+    .catch(function (err) {
+      t.equal(err.status, 404, 'old doc is deleted')
 
       return hoodie.store.find('hoodiePluginCryptoStore/salt')
     })
@@ -113,7 +113,7 @@ test(
   }
 )
 
-test('cryptoStore.unlock(password) should fail if remote has no salt doc', function (t) {
+test('cryptoStore.unlock(password) should fail if local and remote have no salt doc', function (t) {
   t.plan(1)
 
   var name = uniqueName()
@@ -141,4 +141,29 @@ test('cryptoStore.unlock(password) should fail if remote has no salt doc', funct
     .catch(function (err) {
       t.equal(err.name, pouchdbErrors.MISSING_DOC.name, 'fails with PouchDB unauthorized error')
     })
+})
+
+test('cryptoStore.unlock(password) should fail if the salt is not a 32 char string', function (t) {
+  t.plan(2)
+
+  var hoodie = createCryptoStore()
+
+  hoodie.store.add({
+    _id: '_design/cryptoStore/salt',
+    salt: 'bf11fa9bafca73586e103d60898989'
+  })
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(
+      function () {
+        t.fail('unlock didn\'t fail')
+      },
+      function (err) {
+        t.equal(err.status, pouchdbErrors.BAD_ARG.status)
+        t.equal(err.reason, 'salt in "hoodiePluginCryptoStore/salt" must be a 32 char string!')
+      }
+    )
 })
