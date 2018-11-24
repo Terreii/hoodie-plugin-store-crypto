@@ -8,7 +8,7 @@ test('encrypt should encrypt a document', function (t) {
   t.plan(6)
 
   var hoodiePart = {
-    createdAt: Date.now()
+    createdAt: new Date().toJSON()
   }
   var doc = {
     _id: 'hello',
@@ -36,7 +36,7 @@ test('should throw with a TypeError if no key is passed', function (t) {
   t.plan(1)
 
   var hoodiePart = {
-    createdAt: Date.now()
+    createdAt: new Date().toJSON()
   }
   var doc = {
     _id: 'hello',
