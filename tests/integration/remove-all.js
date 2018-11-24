@@ -51,7 +51,10 @@ test('cryptoStore.removeAll()', function (t) {
     })
 
     .then(function (objects) {
-      t.is(objects.length, 0, 'no objects can be found in store')
+      var filtered = objects.filter(function (object) {
+        return /^hoodiePluginCryptoStore\//.test(object._id) !== true
+      })
+      t.is(filtered.length, 0, 'no objects can be found in store')
     })
 
     .catch(function (err) {
@@ -103,7 +106,7 @@ test('cryptoStore.removeAll(filterFunction)', function (t) {
     })
 
     .then(function (objects) {
-      t.is(objects.length, 3, 'does not remove other 3 objects')
+      t.is(objects.length, 4, 'does not remove other 3 objects')
     })
 
     .catch(function (err) {
@@ -111,8 +114,8 @@ test('cryptoStore.removeAll(filterFunction)', function (t) {
     })
 })
 
-test("cryptoStore.removeAll() doesn't remove _design docs", function (t) {
-  t.plan(4)
+test("cryptoStore.removeAll() doesn't remove _design docs or plugin's docs", function (t) {
+  t.plan(6)
 
   var hoodie = createCryptoStore()
 
@@ -131,7 +134,11 @@ test("cryptoStore.removeAll() doesn't remove _design docs", function (t) {
     })
 
     .then(function (objects) {
-      t.is(objects.length, 1, 'resolves everything but _design/bar')
+      t.is(
+        objects.length,
+        1,
+        'resolves everything but _design/bar and hoodiePluginCryptoStore/salt'
+      )
       t.isNot(objects[0]._id, '_design/bar', 'resolved doc isn\'t _design/bar')
     })
 
@@ -142,6 +149,17 @@ test("cryptoStore.removeAll() doesn't remove _design docs", function (t) {
     .then(function (doc) {
       t.is(doc._id, '_design/bar', 'check _design/bar still exists')
       t.isNot(doc._deleted, true, '_design/bar is not deleted')
+
+      return hoodie.store.db.get('hoodiePluginCryptoStore/salt')
+    })
+
+    .then(function (doc) {
+      t.is(
+        doc._id,
+        'hoodiePluginCryptoStore/salt',
+        'check hoodiePluginCryptoStore/salt still exists'
+      )
+      t.isNot(doc._deleted, true, 'hoodiePluginCryptoStore/salt is not deleted')
     })
 
     .catch(function (err) {

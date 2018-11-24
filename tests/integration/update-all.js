@@ -63,13 +63,17 @@ test('cryptoStore.updateAll(changedProperties)', function (t) {
     .then(hoodie.store.findAll)
 
     .then(function (objects) {
-      objects.forEach(function (object) {
-      // object is encrypted
-        t.is(object.foo, undefined, 'stored doc has no foo')
-        t.ok(object.data, 'has encrypted data')
-        t.ok(object.tag, 'has tag')
-        t.ok(object.nonce, 'has nonce')
-      })
+      objects
+        .filter(function (object) {
+          return /^hoodiePluginCryptoStore\//.test(object._id) !== true
+        })
+        .forEach(function (object) {
+          // object is encrypted
+          t.is(object.foo, undefined, 'stored doc has no foo')
+          t.ok(object.data, 'has encrypted data')
+          t.ok(object.tag, 'has tag')
+          t.ok(object.nonce, 'has nonce')
+        })
     })
 
     .catch(function (err) {
@@ -125,13 +129,17 @@ test('cryptoStore.updateAll(updateFunction)', function (t) {
     .then(hoodie.store.findAll)
 
     .then(function (objects) {
-      objects.forEach(function (object) {
-      // object is encrypted
-        t.is(object.foo, undefined, 'stored doc has no foo')
-        t.ok(object.data, 'has encrypted data')
-        t.ok(object.tag, 'has tag')
-        t.ok(object.nonce, 'has nonce')
-      })
+      objects
+        .filter(function (object) {
+          return /^hoodiePluginCryptoStore\//.test(object._id) !== true
+        })
+        .forEach(function (object) {
+          // object is encrypted
+          t.is(object.foo, undefined, 'stored doc has no foo')
+          t.ok(object.data, 'has encrypted data')
+          t.ok(object.tag, 'has tag')
+          t.ok(object.nonce, 'has nonce')
+        })
     })
 
     .catch(function (err) {
