@@ -12,7 +12,11 @@ test('cryptoStore.changePassword() works after a reset of the hoodie store', fun
   hoodie.store.reset()
 
     .then(function () {
-      return hoodie.cryptoStore.setPassword('test')
+      return hoodie.cryptoStore.setup('test')
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
     })
 
     .then(function () {
