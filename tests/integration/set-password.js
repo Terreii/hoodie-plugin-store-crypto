@@ -99,3 +99,34 @@ test('cryptoStore.setPassword(password) should use the saved salt', function (t)
       t.end(err)
     })
 })
+
+test(
+  'cryptoStore.setPassword(password) also should use "hoodiePluginCryptoStore/salt"',
+  function (t) {
+    t.plan(2)
+
+    var hoodie = createCryptoStore()
+    hoodie.store.add({
+      _id: 'hoodiePluginCryptoStore/salt',
+      salt: 'bf11fa9bafca73586e103d60898989d4'
+    })
+
+      .then(function () {
+        return hoodie.cryptoStore.setPassword('test')
+      })
+
+      .then(function (salt) {
+        t.is(salt, 'bf11fa9bafca73586e103d60898989d4', 'uses salt of hoodiePluginCryptoStore/salt')
+
+        return hoodie.store.find('_design/cryptoStore/salt')
+      })
+
+      .then(function () {
+        t.fail('_design/cryptoStore/salt shouldn\'t be created')
+      })
+
+      .catch(function (err) {
+        t.equal(err.status, 404, 'no new salt doc was created')
+      })
+  }
+)
