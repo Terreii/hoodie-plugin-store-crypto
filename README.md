@@ -24,7 +24,10 @@ There is no server side to this plugin!
 hoodie.store.add({foo: 'bar'})
   .then(function (obj) {console.log(obj)})
 
-hoodie.cryptoStore.setPassword('secret')        // unlock
+hoodie.cryptoStore.setup('secret')
+  .then(function () {
+    return hoodie.cryptoStore.unlock('secret')
+  })
   .then(function (salt) {
     hoodie.cryptoStore.add({foo: 'bar'})        // adds the object encrypted
       .then(function (obj) {console.log(obj)})  // returns it unencrypted!
@@ -121,7 +124,7 @@ There are 4 use-cases you must implement:
 The first use of the cryptoStore. This is usually in your sign up function, but can also be done if
 you newly added this plugin.
 
-[`cryptoStore.setup(password, [salt])`](#cryptostoresetpasswordpassword) is used to set the
+[`cryptoStore.setup(password, [salt])`](#cryptostoresetuppassword) is used to set the
 encryption password. __`cryptoStore.setup(password, [salt])` will not unlock your cryptoStore instance__
 (just like hoodie.account.signUp)!
 
@@ -146,7 +149,7 @@ async function signUp (username, password, cryptoPassword) {
 
 Every time your user signs in you also need to unlock the cryptoStore.
 
-[`cryptoStore.unlock(password)`](#cryptostoresetpasswordpassword) is used for unlocking.
+[`cryptoStore.unlock(password)`](#cryptostoreunlockpassword) is used for unlocking.
 
 `unlock` will try to pull `hoodiePluginCryptoStore/salt` from the server, 
 to have the latest version of it.
@@ -334,8 +337,9 @@ function decryptDoc (key, doc) {
 ## API
 
 - [cryptoStore (setup function)](#cryptostore-setup-function)
-- [cryptoStore.setPassword(password)](#cryptostoresetpasswordpassword)
-- [cryptoStore.setPassword(password, salt)](#cryptostoresetpasswordpassword-salt)
+- [cryptoStore.setup(password)](#cryptostoresetuppassword)
+- [cryptoStore.setup(password, salt)](#cryptostoresetuppassword-salt)
+- [cryptoStore.unlock(password)](#cryptostorelock)
 - [cryptoStore.changePassword(oldPassword, newPassword)](#cryptostorechangepasswordoldpassword-newpassword)
 - [cryptoStore.lock()](#cryptostorelock)
 - [cryptoStore.add(properties)](#cryptostoreaddproperties)
@@ -394,8 +398,8 @@ var hoodie = new Hoodie({ // create an instance of the hoodie-client
 
 cryptoStore(hoodie) // sets up hoodie.cryptoStore
 
-hoodie.cryptoStore.setPassword('test')
-  .then(function (salt) {
+hoodie.cryptoStore.setup('test')
+  .then(function () {
     console.log('done')
   })
 ```
@@ -528,7 +532,7 @@ Argument      | Type   | Description    | Required
 
 Resolves with an object with the new `salt` and an array (`notUpdated`) with the ids of not updated docs.
 It will update all with `oldPassword` encrypted documents. And encrypt them with with the help of
-the `newPassword`. It also updates the `salt` in `_design/cryptoStore/salt`.
+the `newPassword`. It also updates the `salt` in `hoodiePluginCryptoStore/salt`.
 
 Rejects with:
 
