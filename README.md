@@ -148,9 +148,9 @@ Every time your user signs in you also need to unlock the cryptoStore.
 [`cryptoStore.setPassword(password)`](#cryptostoresetpasswordpassword) is also used for unlocking.
 After sign in you __must wait for the store to sync__ and then unlock the cryptoStore.
 
-You must wait for the sync to finish, because the `_design/cryptoStore/salt` object must be updated
-to the latest version to unlock the cryptoStore! __If the salt doc is missing, a new one will be
-created!__ Resulting in a new encryption key!
+You must wait for the sync to finish, because the `_design/cryptoStore/salt` and
+`hoodiePluginCryptoStore/salt` objects must be updated to the latest version to unlock the
+cryptoStore! __If the salt doc is missing, a new one will be created!__ Resulting in a new encryption key!
 
 Example:
 ```javascript
@@ -158,7 +158,10 @@ function signIn (username, password, cryptoPassword) {
   return hoodie.account.signIn({username: username, password: password})
 
     .then(function (accountProperties) {
-      return hoodie.store.sync() // wait for syncing to finish!
+      return hoodie.store.sync([
+        '_design/cryptoStore/salt',
+        'hoodiePluginCryptoStore/salt'
+      ]) // wait for syncing to finish!
         .then(function () {
           return accountProperties
         })
@@ -433,7 +436,7 @@ Argument | Type   | Description                           | Required
 `password` | String | A password for encrypting the objects | Yes
 
 Resolves with a `salt`. A salt is a string that will be used with the password together for the encryption.
-It is saved with the `id` `_design/cryptoStore/salt`.
+It is saved with the `id` `_design/cryptoStore/salt`. It also tests `hoodiePluginCryptoStore/salt` for the salt.
 
 It doesn't reject!
 
