@@ -282,3 +282,43 @@ test('cryptoStore.changePassword() should only update objects that it can decryp
       t.end(err)
     })
 })
+
+test('cryptoStore.changePassword() should use hoodiePluginCryptoStore/salt', function (t) {
+  t.plan(2)
+
+  var hoodie = createCryptoStore()
+
+  hoodie.store.add({
+    _id: 'hoodiePluginCryptoStore/salt',
+    salt: 'bf11fa9bafca73586e103d60898989d4'
+  })
+
+    .then(function () {
+      return hoodie.cryptoStore.setPassword('test')
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.add({
+        _id: 'shouldUpdate',
+        test: 'value'
+      })
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.changePassword('test', 'foo')
+    })
+
+    .then(function (report) {
+      return hoodie.cryptoStore.find(['shouldUpdate', 'hoodiePluginCryptoStore/salt'])
+
+        .then(function (objects) {
+          t.equal(objects[0].test, 'value', 'should update objects')
+
+          t.equal(objects[1].salt, report.salt, 'should update new salt doc')
+        })
+    })
+
+    .catch(function (err) {
+      t.end(err)
+    })
+})
