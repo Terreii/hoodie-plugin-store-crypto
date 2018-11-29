@@ -41,7 +41,11 @@ test(
 
     var hoodie = createCryptoStore()
 
-    hoodie.cryptoStore.setPassword('test')
+    hoodie.cryptoStore.setup('test')
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('test')
+      })
 
       .then(function () {
         return hoodie.cryptoStore.changePassword('test', 'foo')
@@ -53,7 +57,7 @@ test(
         t.ok(Array.isArray(report.notUpdated), 'has a array of not updated IDs')
         t.is(report.notUpdated.length, 0, 'array has a length of 0')
 
-        return hoodie.store.find('_design/cryptoStore/salt')
+        return hoodie.store.find('hoodiePluginCryptoStore/salt')
 
           .then(function (saltObj) {
             t.is(saltObj.salt, report.salt, 'stored salt was updated')
@@ -73,7 +77,11 @@ test(
 
     var hoodie = createCryptoStore()
 
-    hoodie.cryptoStore.setPassword('test')
+    hoodie.cryptoStore.setup('test')
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('test')
+      })
 
       .then(function () {
         return hoodie.cryptoStore.add({ foo: 'bar' })
@@ -118,7 +126,11 @@ test('cryptoStore.changePassword(oldPassword, newPassword) should update existin
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -167,7 +179,11 @@ test(
 
     var hoodie = createCryptoStore()
 
-    hoodie.cryptoStore.setPassword('test')
+    hoodie.cryptoStore.setup('test')
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('test')
+      })
 
       .then(function () {
         return hoodie.cryptoStore.changePassword('foo', 'bar')
@@ -190,7 +206,11 @@ test(
 
     var hoodie = createCryptoStore()
 
-    hoodie.cryptoStore.setPassword('test')
+    hoodie.cryptoStore.setup('test')
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('test')
+      })
 
       .then(function () {
         return hoodie.cryptoStore.changePassword('test')
@@ -211,7 +231,11 @@ test('cryptoStore.changePassword() should only update objects that it can decryp
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       var adding = hoodie.cryptoStore.add({
@@ -252,46 +276,6 @@ test('cryptoStore.changePassword() should only update objects that it can decryp
 
       t.is(docs[1]._id, 'notUpdate', 'correct id')
       t.ok(/^1-/.test(docs[1]._rev), 'revision is 1')
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
-})
-
-test('cryptoStore.changePassword() should use hoodiePluginCryptoStore/salt', function (t) {
-  t.plan(2)
-
-  var hoodie = createCryptoStore()
-
-  hoodie.store.add({
-    _id: 'hoodiePluginCryptoStore/salt',
-    salt: 'bf11fa9bafca73586e103d60898989d4'
-  })
-
-    .then(function () {
-      return hoodie.cryptoStore.setPassword('test')
-    })
-
-    .then(function () {
-      return hoodie.cryptoStore.add({
-        _id: 'shouldUpdate',
-        test: 'value'
-      })
-    })
-
-    .then(function () {
-      return hoodie.cryptoStore.changePassword('test', 'foo')
-    })
-
-    .then(function (report) {
-      return hoodie.cryptoStore.find(['shouldUpdate', 'hoodiePluginCryptoStore/salt'])
-
-        .then(function (objects) {
-          t.equal(objects[0].test, 'value', 'should update objects')
-
-          t.equal(objects[1].salt, report.salt, 'should update new salt doc')
-        })
     })
 
     .catch(function (err) {

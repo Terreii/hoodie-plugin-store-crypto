@@ -17,7 +17,11 @@ test('cryptoStore.updateAll(changedProperties)', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       var unencrypted = hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
@@ -59,13 +63,17 @@ test('cryptoStore.updateAll(changedProperties)', function (t) {
     .then(hoodie.store.findAll)
 
     .then(function (objects) {
-      objects.forEach(function (object) {
-      // object is encrypted
-        t.is(object.foo, undefined, 'stored doc has no foo')
-        t.ok(object.data, 'has encrypted data')
-        t.ok(object.tag, 'has tag')
-        t.ok(object.nonce, 'has nonce')
-      })
+      objects
+        .filter(function (object) {
+          return /^hoodiePluginCryptoStore\//.test(object._id) !== true
+        })
+        .forEach(function (object) {
+          // object is encrypted
+          t.is(object.foo, undefined, 'stored doc has no foo')
+          t.ok(object.data, 'has encrypted data')
+          t.ok(object.tag, 'has tag')
+          t.ok(object.nonce, 'has nonce')
+        })
     })
 
     .catch(function (err) {
@@ -78,7 +86,11 @@ test('cryptoStore.updateAll(updateFunction)', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       var unencrypted = hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
@@ -117,13 +129,17 @@ test('cryptoStore.updateAll(updateFunction)', function (t) {
     .then(hoodie.store.findAll)
 
     .then(function (objects) {
-      objects.forEach(function (object) {
-      // object is encrypted
-        t.is(object.foo, undefined, 'stored doc has no foo')
-        t.ok(object.data, 'has encrypted data')
-        t.ok(object.tag, 'has tag')
-        t.ok(object.nonce, 'has nonce')
-      })
+      objects
+        .filter(function (object) {
+          return /^hoodiePluginCryptoStore\//.test(object._id) !== true
+        })
+        .forEach(function (object) {
+          // object is encrypted
+          t.is(object.foo, undefined, 'stored doc has no foo')
+          t.ok(object.data, 'has encrypted data')
+          t.ok(object.tag, 'has tag')
+          t.ok(object.nonce, 'has nonce')
+        })
     })
 
     .catch(function (err) {
@@ -136,7 +152,11 @@ test('fails cryptoStore.updateAll()', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.updateAll()
@@ -156,7 +176,11 @@ test('cryptoStore.updateAll(change) no objects', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.updateAll({})
@@ -176,7 +200,11 @@ test('cryptoStore.updateAll() doesnt update design docs', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.store.add([
@@ -216,7 +244,11 @@ test('cryptoStore.updateAll([objects]) updates all updatedAt timestamps', functi
 
   var startTime = null
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add([

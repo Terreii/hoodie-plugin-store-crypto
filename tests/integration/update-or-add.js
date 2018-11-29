@@ -16,7 +16,11 @@ test('cryptoStore.updateOrAdd(id, object) updates existing', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       var unencrypted = hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
@@ -60,7 +64,11 @@ test('cryptoStore.updateOrAdd(id, object) adds new if non-existent', function (t
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.updateOrAdd('newid', { foo: 'baz' })
@@ -91,7 +99,11 @@ test('cryptoStore.updateOrAdd(id) fails with 400 error', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.updateOrAdd('id')
@@ -111,7 +123,11 @@ test('cryptoStore.updateOrAdd(object) updates existing', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       var unencrypted = hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
@@ -155,7 +171,11 @@ test('cryptoStore.updateOrAdd(object) adds new if non-existent', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.updateOrAdd({ _id: 'newid', foo: 'baz' })
@@ -186,7 +206,11 @@ test('cryptoStore.updateOrAdd(object) without object._id fails with 400 error', 
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.updateOrAdd({ foo: 'bar' })
@@ -206,7 +230,11 @@ test('cryptoStore.updateOrAdd(array) updates existing, adds new', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       var unencrypted = hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
