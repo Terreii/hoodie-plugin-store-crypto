@@ -47,7 +47,11 @@ test('cryptoStore.on("add") with adding one', function (t) {
     t.is(object.foo, 'bar', 'event passes object')
   })
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       hoodie.cryptoStore.add({
@@ -83,12 +87,16 @@ test('cryptoStore.on("add") with adding two', function (t) {
     t.is(orderedObjAttrs[1], 'baz', '2nd event passes object')
   })
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       hoodie.cryptoStore.add([
-        {foo: 'bar'},
-        {foo: 'baz'}
+        { foo: 'bar' },
+        { foo: 'baz' }
       ])
     })
 
@@ -104,7 +112,11 @@ test(
 
     var hoodie = createCryptoStore()
 
-    hoodie.cryptoStore.setPassword('test')
+    hoodie.cryptoStore.setup('test')
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('test')
+      })
 
       .then(function () {
         return hoodie.cryptoStore.add({
@@ -139,7 +151,11 @@ test('cryptoStore.on("add") with add & update', function (t) {
     t.is(object.nr, 1, 'event passes object')
   })
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.updateOrAdd({
@@ -149,7 +165,7 @@ test('cryptoStore.on("add") with add & update', function (t) {
     })
 
     .then(function () {
-      hoodie.cryptoStore.updateOrAdd('test', {nr: 2})
+      hoodie.cryptoStore.updateOrAdd('test', { nr: 2 })
     })
 
     .catch(function (err) {
@@ -167,7 +183,11 @@ test('cryptoStore.on("update") with updating one', function (t) {
     t.is(object.foo, 'bar', 'event passes object')
   })
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -210,12 +230,16 @@ test('cryptoStore.on("update") with updating two', function (t) {
     t.is(orderedObjAttrs[1], 'baz', '2nd event passes object')
   })
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add([
-        {_id: 'first'},
-        {_id: 'second'}
+        { _id: 'first' },
+        { _id: 'second' }
       ])
     })
 
@@ -241,7 +265,11 @@ test('cryptoStore.on("update") with add & update', function (t) {
     t.is(object.nr, 2, 'event passes object')
   })
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.updateOrAdd({
@@ -251,7 +279,7 @@ test('cryptoStore.on("update") with add & update', function (t) {
     })
 
     .then(function () {
-      hoodie.cryptoStore.updateOrAdd('test', {nr: 2})
+      hoodie.cryptoStore.updateOrAdd('test', { nr: 2 })
     })
 
     .catch(function (err) {
@@ -282,12 +310,16 @@ test('cryptoStore.on("update") with update all', function (t) {
     t.is(orderedObjAttrs[1], '2', '2nd event passes object')
   })
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add([
-        {_id: 'first', foo: '1'},
-        {_id: 'second', foo: '2'}
+        { _id: 'first', foo: '1' },
+        { _id: 'second', foo: '2' }
       ])
     })
 
@@ -312,7 +344,11 @@ test('cryptoStore.on("remove") with removing one', function (t) {
     t.is(object.foo, 'bar', 'event passes object')
   })
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -353,12 +389,16 @@ test('cryptoStore.on("remove") with removing two', function (t) {
     t.is(orderedObjAttrs[1], 'two', '2nd event passes object')
   })
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add([
-        {_id: 'one'},
-        {_id: 'two'}
+        { _id: 'one' },
+        { _id: 'two' }
       ])
     })
 
@@ -394,12 +434,16 @@ test('cryptoStore.on("remove") with remove all', function (t) {
     t.is(orderedObjAttrs[1], 'two', '2nd event passes object')
   })
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add([
-        {_id: 'one'},
-        {_id: 'two'}
+        { _id: 'one' },
+        { _id: 'two' }
       ])
     })
 
@@ -423,7 +467,11 @@ test('cryptoStore.on("change") with adding one', function (t) {
     t.is(object.foo, 'bar', 'event passes object')
   })
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -443,7 +491,11 @@ test(
 
     var hoodie = createCryptoStore()
 
-    hoodie.cryptoStore.setPassword('test')
+    hoodie.cryptoStore.setup('test')
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('test')
+      })
 
       .then(function () {
         return hoodie.cryptoStore.add({
@@ -471,7 +523,11 @@ test('cryptoStore.on("change") with updating one', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -502,7 +558,11 @@ test('cryptoStore.on("change") with removing one', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -545,7 +605,11 @@ test('cryptoStore.on("change") with adding one and updating it afterwards', func
 
   hoodie.cryptoStore.one('change', handleFirstChange)
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -581,7 +645,11 @@ test('cryptoStore.off("add") with one add handler', function (t) {
   })
   hoodie.cryptoStore.off('add', addHandler)
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -611,7 +679,11 @@ test('cryptoStore.off("add") with removing one of two add handlers', function (t
   hoodie.cryptoStore.on('add', secondAddHandler)
   hoodie.cryptoStore.off('add', firstAddHandler)
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -641,7 +713,11 @@ test('cryptoStore.off("update") with one update handler', function (t) {
   })
   hoodie.cryptoStore.off('update', updateHandler)
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -673,7 +749,11 @@ test('cryptoStore.off("remove") with one remove handler', function (t) {
   })
   hoodie.cryptoStore.off('remove', removeHandler)
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -698,7 +778,11 @@ test('cryptoStore.one("add") with adding one', function (t) {
     t.is(object.foo, 'bar', 'event passes object')
   })
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -723,12 +807,16 @@ test('cryptoStore.one("add") with adding two', function (t) {
     t.pass('store.on handler')
   })
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add([
-        {foo: 'bar'},
-        {foo: 'baz'}
+        { foo: 'bar' },
+        { foo: 'baz' }
       ])
     })
 
@@ -747,14 +835,18 @@ test('cryptoStore.one("add") with add & update', function (t) {
     t.is(object.nr, 1, 'event passes object')
   })
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
 
     .then(function () {
-      return hoodie.cryptoStore.add({_id: 'test', nr: 1})
+      return hoodie.cryptoStore.unlock('test')
     })
 
     .then(function () {
-      hoodie.cryptoStore.updateOrAdd('test', {nr: 2})
+      return hoodie.cryptoStore.add({ _id: 'test', nr: 1 })
+    })
+
+    .then(function () {
+      hoodie.cryptoStore.updateOrAdd('test', { nr: 2 })
     })
 
     .catch(function (err) {
@@ -767,7 +859,11 @@ test('cryptoStore.one("add") with one element added before registering event and
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -831,7 +927,11 @@ test('events should emit before methods resolve', function (t) {
     eventTriggered = true
   })
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -854,6 +954,9 @@ test('cryptoStore should only listen to events, if a handler was added', functio
   var afterAddingCryptoStore = false
   var shouldHave = false
   var hoodie = {
+    account: {
+      on: function () {}
+    },
     store: {
       on: function (eventName, handler) {
         t.is(afterAddingCryptoStore, true, "creating cryptoStore doesn't add an handler")
@@ -911,7 +1014,11 @@ test('cryptoStore should emit events only for encryped objects', function (t) {
     eventNumber += 1
   })
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.store.add({

@@ -17,7 +17,11 @@ test('removes existing by id', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -51,7 +55,11 @@ test('removes existing by object', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -61,7 +69,7 @@ test('removes existing by object', function (t) {
     })
 
     .then(function () {
-      return hoodie.cryptoStore.remove({_id: 'foo'})
+      return hoodie.cryptoStore.remove({ _id: 'foo' })
     })
 
     .then(function (object) {
@@ -85,7 +93,11 @@ test('fails for non-existing', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.remove('foo')
@@ -98,7 +110,7 @@ test('fails for non-existing', function (t) {
     })
 
     .then(function () {
-      return hoodie.cryptoStore.remove({_id: 'foo'})
+      return hoodie.cryptoStore.remove({ _id: 'foo' })
     })
 
     .then(function () {
@@ -117,7 +129,11 @@ test('cryptoStore.remove(array) removes existing, returns error for non-existing
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add([
@@ -162,7 +178,11 @@ test('cryptoStore.remove([changedObjects]) updates before removing', function (t
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add([
@@ -182,7 +202,7 @@ test('cryptoStore.remove([changedObjects]) updates before removing', function (t
         {
           _id: 'foo',
           foo: 'changed',
-          hoodie: {ignore: 'me'}
+          hoodie: { ignore: 'me' }
         },
         {
           _id: 'bar',
@@ -209,7 +229,11 @@ test('cryptoStore.remove(changedObject) updates before removing', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -219,7 +243,7 @@ test('cryptoStore.remove(changedObject) updates before removing', function (t) {
     })
 
     .then(function () {
-      return hoodie.cryptoStore.remove({_id: 'foo', foo: 'changed', hoodie: {ignore: 'me'}})
+      return hoodie.cryptoStore.remove({ _id: 'foo', foo: 'changed', hoodie: { ignore: 'me' } })
     })
 
     .then(function (object) {
@@ -238,7 +262,11 @@ test('cryptoStore.remove(id, changedProperties) updates before removing', functi
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -248,7 +276,7 @@ test('cryptoStore.remove(id, changedProperties) updates before removing', functi
     })
 
     .then(function () {
-      return hoodie.cryptoStore.remove('foo', {foo: 'changed', hoodie: {ignore: 'me'}})
+      return hoodie.cryptoStore.remove('foo', { foo: 'changed', hoodie: { ignore: 'me' } })
     })
 
     .then(function (object) {
@@ -267,7 +295,11 @@ test('cryptoStore.remove(id, changeFunction) updates before removing', function 
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -302,7 +334,11 @@ test('cryptoStore.remove(object) creates deletedAt timestamp', function (t) {
 
   var startTime = null
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -343,7 +379,11 @@ test('cryptoStore.remove([objects]) creates deletedAt timestamps', function (t) 
 
   var startTime = null
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add([

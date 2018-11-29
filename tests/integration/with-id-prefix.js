@@ -52,10 +52,14 @@ test('cryptoStore.withIdPrefix("test/").add(properties)', function (t) {
 
   var cryptoStore = hoodie.cryptoStore.withIdPrefix('test/')
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
 
     .then(function () {
-      return cryptoStore.add({foo: 'bar'})
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      return cryptoStore.add({ foo: 'bar' })
     })
 
     .then(function (object) {
@@ -74,7 +78,11 @@ test('cryptoStore.withIdPrefix("test/").add([doc1, doc2])', function (t) {
 
   var cryptoStore = hoodie.cryptoStore.withIdPrefix('test/')
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return cryptoStore.add([{
@@ -99,7 +107,11 @@ test('cryptoStore.withIdPrefix("test/").find("foo")', function (t) {
 
   var cryptoStore = hoodie.cryptoStore.withIdPrefix('test/')
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -125,7 +137,11 @@ test('cryptoStore.withIdPrefix("test/").find("test/foo")', function (t) {
 
   var cryptoStore = hoodie.cryptoStore.withIdPrefix('test/')
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -153,7 +169,11 @@ test('cryptoStore.withIdPrefix("test/").find(["foo", "test/bar"])', function (t)
 
   var cryptoStore = hoodie.cryptoStore.withIdPrefix('test/')
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       var encrypted = hoodie.cryptoStore.add([{
@@ -188,7 +208,11 @@ test('cryptoStore.withIdPrefix("test/").findOrAdd(id, object) when found', funct
 
   var cryptoStore = hoodie.cryptoStore.withIdPrefix('test/')
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -198,7 +222,7 @@ test('cryptoStore.withIdPrefix("test/").findOrAdd(id, object) when found', funct
     })
 
     .then(function () {
-      return cryptoStore.findOrAdd('foo', {foo: 'baz'})
+      return cryptoStore.findOrAdd('foo', { foo: 'baz' })
     })
 
     .then(function (doc) {
@@ -215,10 +239,14 @@ test('cryptoStore.withIdPrefix("test/").findOrAdd(id, object) when added', funct
 
   var cryptoStore = hoodie.cryptoStore.withIdPrefix('test/')
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
 
     .then(function () {
-      return cryptoStore.findOrAdd('foo', {foo: 'baz'})
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      return cryptoStore.findOrAdd('foo', { foo: 'baz' })
     })
 
     .then(function (object) {
@@ -236,7 +264,11 @@ test('cryptoStore.withIdPrefix("test/").findOrAdd([object1, object2])', function
 
   var cryptoStore = hoodie.cryptoStore.withIdPrefix('test/')
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -270,7 +302,11 @@ test('cryptoStore.withIdPrefix("test/").findAll()', function (t) {
 
   var cryptoStore = hoodie.cryptoStore.withIdPrefix('test/')
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add([{
@@ -299,7 +335,11 @@ test('cryptoStore.withIdPrefix("test/").update(id, changedProperties)', function
 
   var cryptoStore = hoodie.cryptoStore.withIdPrefix('test/')
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -309,7 +349,7 @@ test('cryptoStore.withIdPrefix("test/").update(id, changedProperties)', function
     })
 
     .then(function () {
-      return cryptoStore.update('foo', {foo: 'baz'})
+      return cryptoStore.update('foo', { foo: 'baz' })
     })
 
     .then(function (object) {
@@ -326,7 +366,11 @@ test('cryptoStore.withIdPrefix("test/").update([object1, object2])', function (t
 
   var cryptoStore = hoodie.cryptoStore.withIdPrefix('test/')
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add([{
@@ -364,7 +408,11 @@ test('cryptoStore.withIdPrefix("test/").updateOrAdd(object) when found', functio
 
   var cryptoStore = hoodie.cryptoStore.withIdPrefix('test/')
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -374,7 +422,7 @@ test('cryptoStore.withIdPrefix("test/").updateOrAdd(object) when found', functio
     })
 
     .then(function () {
-      return cryptoStore.updateOrAdd('foo', {foo: 'baz'})
+      return cryptoStore.updateOrAdd('foo', { foo: 'baz' })
     })
 
     .then(function (object) {
@@ -391,10 +439,14 @@ test('cryptoStore.withIdPrefix("test/").updateOrAdd(object) when added', functio
 
   var cryptoStore = hoodie.cryptoStore.withIdPrefix('test/')
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
 
     .then(function () {
-      return cryptoStore.updateOrAdd('foo', {foo: 'baz'})
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      return cryptoStore.updateOrAdd('foo', { foo: 'baz' })
     })
 
     .then(function (object) {
@@ -411,7 +463,11 @@ test('cryptoStore.withIdPrefix("test/").updateOrAdd([object1, object2])', functi
 
   var cryptoStore = hoodie.cryptoStore.withIdPrefix('test/')
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -445,7 +501,11 @@ test('cryptoStore.withIdPrefix("test/").updateAll(changedProperties)', function 
 
   var cryptoStore = hoodie.cryptoStore.withIdPrefix('test/')
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add([{
@@ -456,7 +516,7 @@ test('cryptoStore.withIdPrefix("test/").updateAll(changedProperties)', function 
     })
 
     .then(function () {
-      return cryptoStore.updateAll({foo: 'bar'})
+      return cryptoStore.updateAll({ foo: 'bar' })
     })
 
     .then(function (objects) {
@@ -474,7 +534,11 @@ test('cryptoStore.withIdPrefix("test/").remove(id)', function (t) {
 
   var cryptoStore = hoodie.cryptoStore.withIdPrefix('test/')
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -501,7 +565,11 @@ test('cryptoStore.withIdPrefix("test/").remove([object1, id2])', function (t) {
 
   var cryptoStore = hoodie.cryptoStore.withIdPrefix('test/')
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add([{
@@ -532,7 +600,11 @@ test('cryptoStore.withIdPrefix("test/").removeAll()', function (t) {
 
   var cryptoStore = hoodie.cryptoStore.withIdPrefix('test/')
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add([{
@@ -561,7 +633,11 @@ test('cryptoStore.withIdPrefix("test/").withIdPrefix("onetwo/").add(properties)'
 
   var cryptoStore = hoodie.cryptoStore.withIdPrefix('test/').withIdPrefix('onetwo/')
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return cryptoStore.add({
@@ -591,11 +667,15 @@ test('cryptoStore.withIdPrefix("test/").on("change", handler) events', function 
     t.is(object._id, 'test/foo')
   })
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
 
     .then(function () {
-      hoodie.cryptoStore.add({_id: 'foo'})
-      testStore.add({_id: 'foo'})
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      hoodie.cryptoStore.add({ _id: 'foo' })
+      testStore.add({ _id: 'foo' })
     })
 
     .catch(function (err) {

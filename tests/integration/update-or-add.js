@@ -16,18 +16,22 @@ test('cryptoStore.updateOrAdd(id, object) updates existing', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
 
     .then(function () {
-      var unencrypted = hoodie.store.add({_id: 'unencrypted', foo: 'bar'})
-      var encrypted = hoodie.cryptoStore.add({_id: 'encrypted', foo: 'bar'})
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      var unencrypted = hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
+      var encrypted = hoodie.cryptoStore.add({ _id: 'encrypted', foo: 'bar' })
 
       return Promise.all([unencrypted, encrypted])
     })
 
     .then(function () {
-      var unencrypted = hoodie.cryptoStore.updateOrAdd('unencrypted', {foo: 'baz'})
-      var encrypted = hoodie.cryptoStore.updateOrAdd('encrypted', {foo: 'baz'})
+      var unencrypted = hoodie.cryptoStore.updateOrAdd('unencrypted', { foo: 'baz' })
+      var encrypted = hoodie.cryptoStore.updateOrAdd('encrypted', { foo: 'baz' })
 
       return Promise.all([unencrypted, encrypted])
     })
@@ -60,10 +64,14 @@ test('cryptoStore.updateOrAdd(id, object) adds new if non-existent', function (t
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
 
     .then(function () {
-      return hoodie.cryptoStore.updateOrAdd('newid', {foo: 'baz'})
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.updateOrAdd('newid', { foo: 'baz' })
     })
 
     .then(function (object) {
@@ -91,7 +99,11 @@ test('cryptoStore.updateOrAdd(id) fails with 400 error', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.updateOrAdd('id')
@@ -111,18 +123,22 @@ test('cryptoStore.updateOrAdd(object) updates existing', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
 
     .then(function () {
-      var unencrypted = hoodie.store.add({_id: 'unencrypted', foo: 'bar'})
-      var encrypted = hoodie.cryptoStore.add({_id: 'encrypted', foo: 'bar'})
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      var unencrypted = hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
+      var encrypted = hoodie.cryptoStore.add({ _id: 'encrypted', foo: 'bar' })
 
       return Promise.all([unencrypted, encrypted])
     })
 
     .then(function () {
-      var unencrypted = hoodie.cryptoStore.updateOrAdd({_id: 'unencrypted', foo: 'baz'})
-      var encrypted = hoodie.cryptoStore.updateOrAdd({_id: 'encrypted', foo: 'baz'})
+      var unencrypted = hoodie.cryptoStore.updateOrAdd({ _id: 'unencrypted', foo: 'baz' })
+      var encrypted = hoodie.cryptoStore.updateOrAdd({ _id: 'encrypted', foo: 'baz' })
 
       return Promise.all([unencrypted, encrypted])
     })
@@ -155,10 +171,14 @@ test('cryptoStore.updateOrAdd(object) adds new if non-existent', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
 
     .then(function () {
-      return hoodie.cryptoStore.updateOrAdd({_id: 'newid', foo: 'baz'})
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.updateOrAdd({ _id: 'newid', foo: 'baz' })
     })
 
     .then(function (object) {
@@ -186,10 +206,14 @@ test('cryptoStore.updateOrAdd(object) without object._id fails with 400 error', 
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
 
     .then(function () {
-      return hoodie.cryptoStore.updateOrAdd({foo: 'bar'})
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.updateOrAdd({ foo: 'bar' })
     })
 
     .then(function () {
@@ -206,20 +230,24 @@ test('cryptoStore.updateOrAdd(array) updates existing, adds new', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
 
     .then(function () {
-      var unencrypted = hoodie.store.add({_id: 'unencrypted', foo: 'bar'})
-      var encrypted = hoodie.cryptoStore.add({_id: 'encrypted', foo: 'bar'})
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      var unencrypted = hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
+      var encrypted = hoodie.cryptoStore.add({ _id: 'encrypted', foo: 'bar' })
 
       return Promise.all([unencrypted, encrypted])
     })
 
     .then(function () {
       return hoodie.cryptoStore.updateOrAdd([
-        {_id: 'unencrypted', foo: 'baz'},
-        {_id: 'encrypted', foo: 'baz'},
-        {_id: 'unknown', foo: 'baz'}
+        { _id: 'unencrypted', foo: 'baz' },
+        { _id: 'encrypted', foo: 'baz' },
+        { _id: 'unknown', foo: 'baz' }
       ])
     })
 

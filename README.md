@@ -24,7 +24,10 @@ There is no server side to this plugin!
 hoodie.store.add({foo: 'bar'})
   .then(function (obj) {console.log(obj)})
 
-hoodie.cryptoStore.setPassword('secret')        // unlock
+hoodie.cryptoStore.setup('secret')
+  .then(function () {
+    return hoodie.cryptoStore.unlock('secret')
+  })
   .then(function (salt) {
     hoodie.cryptoStore.add({foo: 'bar'})        // adds the object encrypted
       .then(function (obj) {console.log(obj)})  // returns it unencrypted!
@@ -111,33 +114,34 @@ your app, or a special password, which they will enter or you generate.
 
 There are 4 use-cases you must implement:
 
-- [Sign up / start of using encryption](#sign-up)
+- [Sign up / setup / start of using encryption](#setup)
 - [Sign in](#sign-in)
 - [Open a tap/instance of your web-app if they are already signed in](#open-your-app-while-signed-in)
 - [changing the password for encryption](#changing-the-password)
 
-#### Sign up
+#### Setup
 
 The first use of the cryptoStore. This is usually in your sign up function, but can also be done if
 you newly added this plugin.
 
-[`cryptoStore.setPassword(password)`](#cryptostoresetpasswordpassword) is used to set the
-encryption password. It will resolve with a `salt`. A salt is a second part of a password.
-`cryptoStore.setPassword(password)` will save the generated salt in `_design/cryptoStore/salt`, and
-use it.
+[`cryptoStore.setup(password, [salt])`](#cryptostoresetuppassword) is used to set the
+encryption password. __`cryptoStore.setup(password, [salt])` will not unlock your cryptoStore instance__
+(just like hoodie.account.signUp)!
+
+A salt is a second part of a password. `cryptoStore.setup(password, [salt])` will save the generated salt in `hoodiePluginCryptoStore/salt`,
+and use it.
 
 Example:
 ```javascript
-function signUp (username, password, cryptoPassword) {
-  return hoodie.account.signUp({username: username, password: password})
+async function signUp (username, password, cryptoPassword) {
+  const accountProperties = await hoodie.account.signUp({
+    username: username,
+    password: password
+  })
 
-    .then(function (accountProperties) {
-      return hoodie.cryptoStore.setPassword(cryptoPassword)
+  await hoodie.cryptoStore.setup(cryptoPassword)
 
-        .then(function (salt) {
-          // now do what you do after you did sign up a user.
-        })
-    })
+  return signIn(username, password, cryptoPassword) // Call your signIn function
 }
 ```
 
@@ -145,33 +149,36 @@ function signUp (username, password, cryptoPassword) {
 
 Every time your user signs in you also need to unlock the cryptoStore.
 
-[`cryptoStore.setPassword(password)`](#cryptostoresetpasswordpassword) is also used for unlocking.
-After sign in you __must wait for the store to sync__ and then unlock the cryptoStore.
+[`cryptoStore.unlock(password)`](#cryptostoreunlockpassword) is used for unlocking.
 
-You must wait for the sync to finish, because the `_design/cryptoStore/salt` object must be updated
-to the latest version to unlock the cryptoStore! __If the salt doc is missing, a new one will be
-created!__ Resulting in a new encryption key!
+`unlock` will try to pull `hoodiePluginCryptoStore/salt` from the server, 
+to have the latest version of it.
 
 Example:
 ```javascript
-function signIn (username, password, cryptoPassword) {
-  return hoodie.account.signIn({username: username, password: password})
+async function signIn (username, password, cryptoPassword) {
+  const accountProperties = await hoodie.account.signIn({
+    username: username,
+    password: password
+  })
 
-    .then(function (accountProperties) {
-      return hoodie.store.sync() // wait for syncing to finish!
-        .then(function () {
-          return accountProperties
-        })
-    })
+  await hoodie.cryptoStore.unlock(cryptoPassword)
 
-    .then(function (accountProperties) {
-      return hoodie.cryptoStore.setPassword(cryptoPassword)
-
-        .then(function (salt) {
-          // now do what you do after sign in.
-        })
-    })
+  // now do what you do after sign in.
 }
+```
+
+#### Sign out
+
+The `cryptoStore` listen automatically to [`hoodie.account.on('signout')`](http://docs.hood.ie/en/latest/api/client/hoodie.account.html#events) events and locks itself. You don't need to add any setup for it.
+
+The [`cryptoStore.lock()`](#cryptostorelock) method is there, so that you can add a lock after a timeout functionality or lock the store in a save way when closing an tab.
+
+```javascript
+window.addEventListener('beforeunload', function (event) {
+  // do your cleanup
+  hoodie.cryptoStore.lock() // lock the cryptoStore in an cryptographic save way.
+})
 ```
 
 #### Open your app while signed in
@@ -179,22 +186,12 @@ function signIn (username, password, cryptoPassword) {
 This plugin doesn't save your users password! That results in you having to unlock the cryptoStore
 on every instance/tap of your web-app!
 
-Here you also must wait for syncing to finish! But only if your user is online.
-
 Example:
 ```javascript
-function unlock (cryptoPassword) {
-  return hoodie.connectionStatus.check() // check if your app is online
+async function unlock (cryptoPassword) {
+  await hoodie.cryptoStore.unlock(cryptoPassword) // then unlock
 
-    .then(function () {
-      if (hoodie.connectionStatus.ok) { // if your app is online: sync your users store
-        return hoodie.store.sync()
-      }
-    })
-
-    .then(function () {
-      return hoodie.cryptoStore.setPassword(cryptoPassword) // then unlock
-    })
+  // now do what you do after unlocking
 }
 ```
 
@@ -243,24 +240,21 @@ Everything else is run through `JSON.stringify` and encrypted.
 var pbkdf2 = require('native-crypto/pbkdf2')
 var randomBytes = require('randombytes')
 
-function deriveKey (password) {
-  return hoodie.store.find('_design/cryptoStore/salt')
+async function deriveKey (password) {
+  const doc = await hoodie.store.find('hoodiePluginCryptoStore/salt')
 
-    .then(function (doc) {
-      var digest = 'sha256'
-      var iterations = 100000
-      var salt = doc.salt != null && typeof doc.salt === 'string' && doc.salt.length === 32
-        ? doc.salt
-        : randomBytes(16).toString('hex')
+  const digest = 'sha256'
+  const iterations = 100000
+  const salt = doc.salt != null && typeof doc.salt === 'string' && doc.salt.length === 32
+    ? doc.salt
+    : randomBytes(16).toString('hex')
 
-      return pbkdf2(password, Buffer.from(salt, 'hex'), iterations, 256 / 8, digest)
-        .then(function (key) {
-          return {
-            key: key,
-            salt: salt
-          }
-        })
-    })
+  const key = await pbkdf2(password, Buffer.from(salt, 'hex'), iterations, 256 / 8, digest)
+
+  return {
+    key: key,
+    salt: salt
+  }
 }
 ```
 
@@ -274,6 +268,8 @@ var ignore = [
   '_id',
   '_rev',
   '_deleted',
+  '_attachments',
+  '_conflicts',
   'hoodie'
 ]
 
@@ -307,6 +303,8 @@ var ignore = [
   '_id',
   '_rev',
   '_deleted',
+  '_attachments',
+  '_conflicts',
   'hoodie'
 ]
 
@@ -339,9 +337,11 @@ function decryptDoc (key, doc) {
 ## API
 
 - [cryptoStore (setup function)](#cryptostore-setup-function)
-- [cryptoStore.setPassword(password)](#cryptostoresetpasswordpassword)
-- [cryptoStore.setPassword(password, salt)](#cryptostoresetpasswordpassword-salt)
+- [cryptoStore.setup(password)](#cryptostoresetuppassword)
+- [cryptoStore.setup(password, salt)](#cryptostoresetuppassword-salt)
+- [cryptoStore.unlock(password)](#cryptostorelock)
 - [cryptoStore.changePassword(oldPassword, newPassword)](#cryptostorechangepasswordoldpassword-newpassword)
+- [cryptoStore.lock()](#cryptostorelock)
 - [cryptoStore.add(properties)](#cryptostoreaddproperties)
 - [cryptoStore.add(arrayOfProperties)](#cryptostoreaddarrayofproperties)
 - [cryptoStore.find(id)](#cryptostorefindid)
@@ -398,75 +398,124 @@ var hoodie = new Hoodie({ // create an instance of the hoodie-client
 
 cryptoStore(hoodie) // sets up hoodie.cryptoStore
 
-hoodie.cryptoStore.setPassword('test')
-  .then(function (salt) {
+hoodie.cryptoStore.setup('test')
+  .then(function () {
     console.log('done')
   })
 ```
 
-### cryptoStore.setPassword(password)
+### cryptoStore.setup(password)
 
 ```javascript
-cryptoStore.setPassword(password)
+cryptoStore.setup(password)
 ```
 
 Argument | Type   | Description                           | Required
 ---------|--------|---------------------------------------|----------
 `password` | String | A password for encrypting the objects | Yes
 
-Resolves with a `salt`. A salt is a string that will be used with the password together for the encryption.
-It is saved with the `id` `_design/cryptoStore/salt`.
+Sets up the encryption and generates a salt and saves it in `hoodiePluginCryptoStore/salt`.
+A salt is a string that will be used with the password together for the encryption.
 
-It doesn't reject!
+__*This will not unlock the cryptoStore!*__
+
+Rejects if there is already a local or remote `hoodiePluginCryptoStore/salt` or `_design/cryptoStore/salt` doc!
+
+Rejects with:
+
+Name 	| Description
+------|--------
+Error |	...
 
 Example
 ```javascript
-function signUp (accountProperties, encryptionPW) {
-  hoodie.account.signUp(accountProperties)
-    .then(function () {
-      if (encryptionPW == null) {                  // Use a separate password for encryption or the same
-        encryptionPW = accountProperties.password
-      }
-      return hoodie.cryptoStore.setPassword(encryptionPW)
-        .then(function (salt) { // Salt is saved for you under `_design/cryptoStore/salt`
-          console.log('Encryption is enabled!')
-        })
-    })
+async function signUp (username, password, cryptoPassword) {
+  const accountProperties = await hoodie.account.signUp({
+    username: username,
+    password: password
+  })
+
+  if (cryptoPassword == null) { // Use a separate password for encryption or the same
+    cryptoPassword = password
+  }
+  await hoodie.cryptoStore.setup(cryptoPassword)
+
+  return signIn(username, password, cryptoPassword) // Call your signIn function
 }
 ```
 
-### cryptoStore.setPassword(password, salt)
+### cryptoStore.setup(password, salt)
 
 ```javascript
-cryptoStore.setPassword(password, salt)
+cryptoStore.setup(password, salt)
 ```
 
 Argument | Type   | Description                           | Required
 ---------|--------|---------------------------------------|----------
 `password` | String | A password for encrypting the objects | Yes
-`salt`   | String | A string generated by `setPassword(password)`, to add another protection lair, as a second password. If this is missing, a salt will be generated. Which will result in a different encryption! | Yes
+`salt`   | String | To add another protection lair, as a second password. If this is missing, a salt will be generated. Which will result in a different encryption! | Yes
 
-Resolves with a `salt`. A salt is a string that will be used with the password together for the encryption.
-It is saved with the `id` `_design/cryptoStore/salt`.
+Sets up the encryption and saves the salt in `hoodiePluginCryptoStore/salt`.
+A salt is a string that will be used with the password together for the encryption.
 
-It doesn't reject!
+__*This will not unlock the cryptoStore!*__
+
+Rejects if there is already a local or remote `hoodiePluginCryptoStore/salt` or `_design/cryptoStore/salt` doc!
+
+Rejects with:
+
+Name 	| Description
+------|--------
+Error |	...
 
 Example
 ```javascript
-function signIn (accountProperties, encryptionPW) {
-  hoodie.account.signIn(accountProperties)
-    .then(function () {
-      return hoodie.store.find('cryptoSalt')
-    })
-    .then(function (saltObj) {
-      if (encryptionPW == null) {                  // Use a separate password for encryption or the same
-        encryptionPW = accountProperties.password
-      }
-      return hoodie.cryptoStore.setPassword(encryptionPW, saltObj.salt)
-    })
-    .then(function (salt) {
-      console.log('you did sign in!')
-    })
+async function signUp (username, password, cryptoPassword, salt) {
+  const accountProperties = await hoodie.account.signUp({
+    username: username,
+    password: password
+  })
+
+  if (cryptoPassword == null) { // Use a separate password for encryption or the same
+    cryptoPassword = password
+  }
+  await hoodie.cryptoStore.setup(cryptoPassword, salt)
+
+  return signIn(username, password, cryptoPassword) // Call your signIn function
+}
+```
+
+### cryptoStore.unlock(password)
+
+```javascript
+cryptoStore.unlock(password)
+```
+
+Argument | Type   | Description                           | Required
+---------|--------|---------------------------------------|----------
+`password` | String | The password used for encrypting the objects | Yes
+
+Uses the salt in `hoodiePluginCryptoStore/salt` or `_design/cryptoStore/salt` and unlocks the cryptoStore.
+It will pull `hoodiePluginCryptoStore/salt` and `_design/cryptoStore/salt` from the remote and
+reject if they don't exists or are deleted.
+
+Rejects with:
+
+Name 	| Description
+------|--------
+Error |	...
+
+Example
+```javascript
+async function signIn (username, password, cryptoPassword) {
+  const accountProperties = await hoodie.account.signIn({
+    username: username,
+    password: password
+  })
+
+  await hoodie.cryptoStore.unlock(cryptoPassword)
+
+  // now do what you do after sign in.
 }
 ```
 
@@ -483,7 +532,7 @@ Argument      | Type   | Description    | Required
 
 Resolves with an object with the new `salt` and an array (`notUpdated`) with the ids of not updated docs.
 It will update all with `oldPassword` encrypted documents. And encrypt them with with the help of
-the `newPassword`. It also updates the `salt` in `_design/cryptoStore/salt`.
+the `newPassword`. It also updates the `salt` in `hoodiePluginCryptoStore/salt`.
 
 Rejects with:
 
@@ -501,6 +550,18 @@ hoodie.cryptoStore.changePassword('my-old-password', 'secret').then(function (re
   console.error(error)
 })
 ```
+
+### cryptoStore.lock()
+
+```javascript
+cryptoStore.lock()
+```
+
+This locks the store and every method fails until a new password is set. It also overwrites the internal key's memory in a in an cryptographic save way (10 times).
+
+Resolves with a Boolean. `true` if the store is now locked, `false` if the store was already locked.
+
+The `cryptoStore` listen automatically to [`hoodie.account.on('signout')`](http://docs.hood.ie/en/latest/api/client/hoodie.account.html#events) events and locks itself.
 
 ### cryptoStore.add(properties)
 

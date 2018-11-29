@@ -1,8 +1,11 @@
 {
   "name": "hoodie-plugin-store-crypto",
-  "version": "1.0.2",
+  "version": "1.2.0",
   "description": "End-to-end crypto plugin for the Hoodie client store.",
   "main": "index.js",
+  "engines": {
+    "node": ">=6"
+  },
   "scripts": {
     "update-coc": "weallbehave -o . && git add CODE_OF_CONDUCT.md && git commit -m 'docs(coc): updated CODE_OF_CONDUCT.md'",
     "update-contrib": "weallcontribute -o . && git add CONTRIBUTING.md && git commit -m 'docs(contributing): updated CONTRIBUTING.md'",
@@ -17,7 +20,12 @@
   },
   "keywords": [
     "hoodie",
-    "plugin"
+    "plugin",
+    "storage",
+    "data",
+    "crypto",
+    "end-to-end",
+    "ete"
   ],
   "author": "Christopher Astfalk <christopher.astfalk@icloud.com>",
   "license": "Apache-2.0",
@@ -35,7 +43,7 @@
     "pouchdb-adapter-memory": "^7.0.0",
     "pouchdb-core": "^7.0.0",
     "pouchdb-replication": "^7.0.0",
-    "standard": "^11.0.1",
+    "standard": "^12.0.1",
     "tap-spec": "^5.0.0",
     "tape": "^4.9.1",
     "weallbehave": "^1.2.0",
@@ -44,7 +52,7 @@
   "dependencies": {
     "@hoodie/store-client": "^8.3.0",
     "lie": "^3.3.0",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.11",
     "native-crypto": "^1.8.1",
     "pouchdb-errors": "^7.0.0",
     "randombytes": "^2.0.6",

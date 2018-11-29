@@ -15,7 +15,11 @@ test('cryptoStore.findAll()', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(hoodie.cryptoStore.findAll)
 
@@ -69,7 +73,11 @@ test('cryptoStore.findAll(filterFunction)', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add([{
@@ -109,10 +117,14 @@ test('cryptoStore.findAll() doesnt return _design docs', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
 
     .then(function () {
-      return hoodie.cryptoStore.add([{foo: 'bar'}, {_id: '_design/bar'}])
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.add([{ foo: 'bar' }, { _id: '_design/bar' }])
     })
 
     .then(hoodie.cryptoStore.findAll)

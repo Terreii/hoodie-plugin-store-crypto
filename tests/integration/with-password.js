@@ -73,7 +73,11 @@ test('cryptoStore.withPassword("test").add(properties)', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('foo')
+  hoodie.cryptoStore.setup('foo')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('foo')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.withPassword('test')
@@ -117,13 +121,17 @@ test('cryptoStore.withPassword("test").find(properties)', function (t) {
 
   Promise.all([
     hoodie.cryptoStore.withPassword('test'),
-    hoodie.cryptoStore.setPassword('foo')
+    hoodie.cryptoStore.setup('foo')
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('foo')
+      })
   ])
 
     .then(function (stores) {
       var testStore = stores[0].store
 
-      testStore.add({foo: 'bar'})
+      testStore.add({ foo: 'bar' })
 
         .then(function (object) {
           return testStore.find(object._id)
@@ -148,7 +156,11 @@ test('createCryptoStore.withPassword("test").find() fails with wrong password', 
 
   var hoodie = createCryptoStore()
 
-  var objectWrite = hoodie.cryptoStore.setPassword('foo')
+  var objectWrite = hoodie.cryptoStore.setup('foo')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('foo')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -217,7 +229,11 @@ test('createCryptoStore.withPassword("test").update(properties) changes object',
 
   var hoodie = createCryptoStore()
 
-  var objectWrite = hoodie.cryptoStore.setPassword('foo')
+  var objectWrite = hoodie.cryptoStore.setup('foo')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('foo')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -272,7 +288,11 @@ test(
 
     Promise.all([
       hoodie.cryptoStore.withPassword('test'),
-      hoodie.cryptoStore.setPassword('foo')
+      hoodie.cryptoStore.setup('foo')
+
+        .then(function () {
+          return hoodie.cryptoStore.unlock('foo')
+        })
     ])
 
       .then(function (stores) {

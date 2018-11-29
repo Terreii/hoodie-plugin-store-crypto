@@ -11,15 +11,17 @@ var test = require('tape')
 var createCryptoStore = require('../utils/createCryptoStore')
 
 test('adds object to Store', function (t) {
-  t.plan(9)
+  t.plan(8)
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function (salt) {
-      t.is(salt.length, 32, 'setPassword resolves with salt')
-
       return hoodie.cryptoStore.add({
         foo: 'bar'
       })
@@ -51,7 +53,11 @@ test('fails for invalid object', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add()
@@ -73,7 +79,11 @@ test('fails for existing object', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -105,7 +115,11 @@ test('adds multiple objects to db', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -139,7 +153,7 @@ test('adds multiple objects to db', function (t) {
       return hoodie.store.find([
         objects[0],
         objects[1],
-        {_id: 'foo'}
+        { _id: 'foo' }
       ])
     })
 

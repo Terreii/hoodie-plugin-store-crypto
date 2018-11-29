@@ -18,6 +18,9 @@ function createCryptoStore () {
   })
 
   var hoodie = {
+    account: {
+      on: function () {}
+    },
     store: store
   }
 

@@ -16,7 +16,11 @@ test('cryptoStore.find(id)', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -44,7 +48,11 @@ test('cryptoStore.find(object)', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -54,7 +62,7 @@ test('cryptoStore.find(object)', function (t) {
     })
 
     .then(function () {
-      return hoodie.cryptoStore.find({_id: 'foo'})
+      return hoodie.cryptoStore.find({ _id: 'foo' })
     })
 
     .then(function (doc) {
@@ -72,7 +80,11 @@ test('find unencrypted objects', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.store.add([{
@@ -92,7 +104,7 @@ test('find unencrypted objects', function (t) {
           t.is(object.bar, 'baz', 'resolves value')
         })
 
-      var second = hoodie.cryptoStore.find({_id: 'bar'})
+      var second = hoodie.cryptoStore.find({ _id: 'bar' })
 
         .then(function (object) {
           t.is(object._id, 'bar', 'resolves id')
@@ -112,7 +124,11 @@ test('find rejects with hoodie.find error for non-existing', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
@@ -128,7 +144,7 @@ test('find rejects with hoodie.find error for non-existing', function (t) {
           t.is(err.status, 404)
         })
 
-      var second = hoodie.cryptoStore.find({_id: 'foo'})
+      var second = hoodie.cryptoStore.find({ _id: 'foo' })
 
         .catch(function (err) {
           t.ok(err instanceof Error, 'rejects error')
@@ -148,7 +164,11 @@ test('cryptoStore.find(array)', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add([{
@@ -168,7 +188,7 @@ test('cryptoStore.find(array)', function (t) {
     })
 
     .then(function () {
-      return hoodie.cryptoStore.find(['foo', {_id: 'bar'}, 'baz'])
+      return hoodie.cryptoStore.find(['foo', { _id: 'bar' }, 'baz'])
     })
 
     .then(function (objects) {
@@ -190,7 +210,11 @@ test('cryptoStore.find(array) with non-existing', function (t) {
 
   var hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setPassword('test')
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
 
     .then(function () {
       return hoodie.cryptoStore.add({
