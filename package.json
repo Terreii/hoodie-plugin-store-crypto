@@ -54,7 +54,7 @@
     "lie": "^3.3.0",
     "lodash": "^4.17.11",
     "native-crypto": "^1.8.1",
-    "pouchdb-errors": "^7.0.0",
+    "pouchdb-errors": "^6.4.3 || ^7.0.0",
     "randombytes": "^2.0.6",
     "uuid": "^3.2.1"
   }
