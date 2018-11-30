@@ -201,31 +201,482 @@ test(
   }
 )
 
-test('cryptoStore.unlock(password) should add checks to moved old salt doc', function (t) {
-  t.plan(3)
+test('cryptoStore.unlock(password) should fail if it did already unlock', function (t) {
+  t.plan(2)
 
   var hoodie = createCryptoStore()
 
-  hoodie.store.add({
-    _id: '_design/cryptoStore/salt',
-    salt: 'bf11fa9bafca73586e103d60898989d4'
-  })
+  hoodie.cryptoStore.setup('test')
 
     .then(function () {
       return hoodie.cryptoStore.unlock('test')
     })
 
     .then(function () {
-      return hoodie.store.find('hoodiePluginCryptoStore/salt')
+      return hoodie.cryptoStore.unlock('test')
     })
 
-    .then(function (saltDoc) {
-      t.ok(saltDoc.check.tag.length === 32, 'tag part should have a length of 32')
-      t.ok(saltDoc.check.data.length > 0, 'encrypted data')
-      t.ok(saltDoc.check.nonce.length === 24, 'nonce should have a length of 24')
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+    .then(
+      function () {
+        t.fail('unlock should have failed on second unlock')
+      },
+      function (err) {
+        t.equal(err.status, pouchdbErrors.INVALID_REQUEST.status, 'shoud be an INVALID_REQUEST')
+        t.equal(err.message, 'store is already unlocked!', 'With the correct error message')
+      }
+    )
 })
+
+test(
+  'cryptoStore.unlock(password) should add checks to moved old salt doc after first encrypted doc' +
+    ' was read with find',
+  function (t) {
+    t.plan(4)
+
+    var hoodie = createCryptoStore()
+
+    hoodie.store.add([
+      {
+        _id: '_design/cryptoStore/salt',
+        salt: 'bf11fa9bafca73586e103d60898989d4'
+      },
+      {
+        _id: 'test-doc',
+        tag: '1d9fb919ebecfe3c207781d103164a7f',
+        data: 'e6dc77a9451e3c91113ba19ead4c4045',
+        nonce: 'e1cb5518678d08619697d6f7'
+      }
+    ])
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('test')
+      })
+
+      .then(function () {
+        return hoodie.store.find('hoodiePluginCryptoStore/salt')
+      })
+
+      .then(function (saltDoc) {
+        t.notOk(saltDoc.check, 'salt doc shouldn\'t have the check object')
+
+        return hoodie.cryptoStore.find('test-doc')
+      })
+
+      .then(function () {
+        return hoodie.store.find('hoodiePluginCryptoStore/salt')
+      })
+
+      .then(function (saltDoc) {
+        t.ok(saltDoc.check.tag.length === 32, 'tag part should have a length of 32')
+        t.ok(saltDoc.check.data.length > 0, 'encrypted data')
+        t.ok(saltDoc.check.nonce.length === 24, 'nonce should have a length of 24')
+      })
+
+      .catch(function (err) {
+        t.end(err)
+      })
+  }
+)
+
+test(
+  'cryptoStore.unlock(password) should add checks to moved old salt doc after first encrypted doc' +
+    ' was read with findAll',
+  function (t) {
+    t.plan(4)
+
+    var hoodie = createCryptoStore()
+
+    hoodie.store.add([
+      {
+        _id: '_design/cryptoStore/salt',
+        salt: 'bf11fa9bafca73586e103d60898989d4'
+      },
+      {
+        _id: 'test-doc',
+        tag: '1d9fb919ebecfe3c207781d103164a7f',
+        data: 'e6dc77a9451e3c91113ba19ead4c4045',
+        nonce: 'e1cb5518678d08619697d6f7'
+      }
+    ])
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('test')
+      })
+
+      .then(function () {
+        return hoodie.store.find('hoodiePluginCryptoStore/salt')
+      })
+
+      .then(function (saltDoc) {
+        t.notOk(saltDoc.check, 'salt doc shouldn\'t have the check object')
+
+        return hoodie.cryptoStore.findAll()
+      })
+
+      .then(function () {
+        return hoodie.store.find('hoodiePluginCryptoStore/salt')
+      })
+
+      .then(function (saltDoc) {
+        t.ok(saltDoc.check.tag.length === 32, 'tag part should have a length of 32')
+        t.ok(saltDoc.check.data.length > 0, 'encrypted data')
+        t.ok(saltDoc.check.nonce.length === 24, 'nonce should have a length of 24')
+      })
+
+      .catch(function (err) {
+        t.end(err)
+      })
+  }
+)
+
+test(
+  'cryptoStore.unlock(password) should add checks to moved old salt doc after first encrypted doc' +
+    ' was read with findOrAdd',
+  function (t) {
+    t.plan(4)
+
+    var hoodie = createCryptoStore()
+
+    hoodie.store.add([
+      {
+        _id: '_design/cryptoStore/salt',
+        salt: 'bf11fa9bafca73586e103d60898989d4'
+      },
+      {
+        _id: 'test-doc',
+        tag: '1d9fb919ebecfe3c207781d103164a7f',
+        data: 'e6dc77a9451e3c91113ba19ead4c4045',
+        nonce: 'e1cb5518678d08619697d6f7'
+      }
+    ])
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('test')
+      })
+
+      .then(function () {
+        return hoodie.store.find('hoodiePluginCryptoStore/salt')
+      })
+
+      .then(function (saltDoc) {
+        t.notOk(saltDoc.check, 'salt doc shouldn\'t have the check object')
+
+        return hoodie.cryptoStore.findOrAdd('test-doc')
+      })
+
+      .then(function () {
+        return hoodie.store.find('hoodiePluginCryptoStore/salt')
+      })
+
+      .then(function (saltDoc) {
+        t.ok(saltDoc.check.tag.length === 32, 'tag part should have a length of 32')
+        t.ok(saltDoc.check.data.length > 0, 'encrypted data')
+        t.ok(saltDoc.check.nonce.length === 24, 'nonce should have a length of 24')
+      })
+
+      .catch(function (err) {
+        t.end(err)
+      })
+  }
+)
+
+test(
+  'cryptoStore.unlock(password) should add checks to moved old salt doc after first encrypted doc' +
+    ' was read with update',
+  function (t) {
+    t.plan(4)
+
+    var hoodie = createCryptoStore()
+
+    hoodie.store.add([
+      {
+        _id: '_design/cryptoStore/salt',
+        salt: 'bf11fa9bafca73586e103d60898989d4'
+      },
+      {
+        _id: 'test-doc',
+        tag: '1d9fb919ebecfe3c207781d103164a7f',
+        data: 'e6dc77a9451e3c91113ba19ead4c4045',
+        nonce: 'e1cb5518678d08619697d6f7'
+      }
+    ])
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('test')
+      })
+
+      .then(function () {
+        return hoodie.store.find('hoodiePluginCryptoStore/salt')
+      })
+
+      .then(function (saltDoc) {
+        t.notOk(saltDoc.check, 'salt doc shouldn\'t have the check object')
+
+        return hoodie.cryptoStore.update('test-doc', { otherValue: 2 })
+      })
+
+      .then(function () {
+        return hoodie.store.find('hoodiePluginCryptoStore/salt')
+      })
+
+      .then(function (saltDoc) {
+        t.ok(saltDoc.check.tag.length === 32, 'tag part should have a length of 32')
+        t.ok(saltDoc.check.data.length > 0, 'encrypted data')
+        t.ok(saltDoc.check.nonce.length === 24, 'nonce should have a length of 24')
+      })
+
+      .catch(function (err) {
+        t.end(err)
+      })
+  }
+)
+
+test(
+  'cryptoStore.unlock(password) should add checks to moved old salt doc after first encrypted doc' +
+    ' was read with updateOrAdd',
+  function (t) {
+    t.plan(4)
+
+    var hoodie = createCryptoStore()
+
+    hoodie.store.add([
+      {
+        _id: '_design/cryptoStore/salt',
+        salt: 'bf11fa9bafca73586e103d60898989d4'
+      },
+      {
+        _id: 'test-doc',
+        tag: '1d9fb919ebecfe3c207781d103164a7f',
+        data: 'e6dc77a9451e3c91113ba19ead4c4045',
+        nonce: 'e1cb5518678d08619697d6f7'
+      }
+    ])
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('test')
+      })
+
+      .then(function () {
+        return hoodie.store.find('hoodiePluginCryptoStore/salt')
+      })
+
+      .then(function (saltDoc) {
+        t.notOk(saltDoc.check, 'salt doc shouldn\'t have the check object')
+
+        return hoodie.cryptoStore.updateOrAdd('test-doc', { otherValue: 2 })
+      })
+
+      .then(function () {
+        return hoodie.store.find('hoodiePluginCryptoStore/salt')
+      })
+
+      .then(function (saltDoc) {
+        t.ok(saltDoc.check.tag.length === 32, 'tag part should have a length of 32')
+        t.ok(saltDoc.check.data.length > 0, 'encrypted data')
+        t.ok(saltDoc.check.nonce.length === 24, 'nonce should have a length of 24')
+      })
+
+      .catch(function (err) {
+        t.end(err)
+      })
+  }
+)
+
+test(
+  'cryptoStore.unlock(password) should add checks to moved old salt doc after first encrypted doc' +
+    ' was read with updateAll',
+  function (t) {
+    t.plan(4)
+
+    var hoodie = createCryptoStore()
+
+    hoodie.store.add([
+      {
+        _id: '_design/cryptoStore/salt',
+        salt: 'bf11fa9bafca73586e103d60898989d4'
+      },
+      {
+        _id: 'test-doc',
+        tag: '1d9fb919ebecfe3c207781d103164a7f',
+        data: 'e6dc77a9451e3c91113ba19ead4c4045',
+        nonce: 'e1cb5518678d08619697d6f7'
+      }
+    ])
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('test')
+      })
+
+      .then(function () {
+        return hoodie.store.find('hoodiePluginCryptoStore/salt')
+      })
+
+      .then(function (saltDoc) {
+        t.notOk(saltDoc.check, 'salt doc shouldn\'t have the check object')
+
+        return hoodie.cryptoStore.updateAll({ otherValue: 2 })
+      })
+
+      .then(function () {
+        return hoodie.store.find('hoodiePluginCryptoStore/salt')
+      })
+
+      .then(function (saltDoc) {
+        t.ok(saltDoc.check.tag.length === 32, 'tag part should have a length of 32')
+        t.ok(saltDoc.check.data.length > 0, 'encrypted data')
+        t.ok(saltDoc.check.nonce.length === 24, 'nonce should have a length of 24')
+      })
+
+      .catch(function (err) {
+        t.end(err)
+      })
+  }
+)
+
+test(
+  'cryptoStore.unlock(password) should add checks to moved old salt doc after first encrypted doc' +
+    ' was read with remove',
+  function (t) {
+    t.plan(4)
+
+    var hoodie = createCryptoStore()
+
+    hoodie.store.add([
+      {
+        _id: '_design/cryptoStore/salt',
+        salt: 'bf11fa9bafca73586e103d60898989d4'
+      },
+      {
+        _id: 'test-doc',
+        tag: '1d9fb919ebecfe3c207781d103164a7f',
+        data: 'e6dc77a9451e3c91113ba19ead4c4045',
+        nonce: 'e1cb5518678d08619697d6f7'
+      }
+    ])
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('test')
+      })
+
+      .then(function () {
+        return hoodie.store.find('hoodiePluginCryptoStore/salt')
+      })
+
+      .then(function (saltDoc) {
+        t.notOk(saltDoc.check, 'salt doc shouldn\'t have the check object')
+
+        return hoodie.cryptoStore.remove('test-doc', { otherValue: 2 })
+      })
+
+      .then(function () {
+        return hoodie.store.find('hoodiePluginCryptoStore/salt')
+      })
+
+      .then(function (saltDoc) {
+        t.ok(saltDoc.check.tag.length === 32, 'tag part should have a length of 32')
+        t.ok(saltDoc.check.data.length > 0, 'encrypted data')
+        t.ok(saltDoc.check.nonce.length === 24, 'nonce should have a length of 24')
+      })
+
+      .catch(function (err) {
+        t.end(err)
+      })
+  }
+)
+
+test(
+  'cryptoStore.unlock(password) should add checks to moved old salt doc after first encrypted doc' +
+    ' was read with removeAll',
+  function (t) {
+    t.plan(4)
+
+    var hoodie = createCryptoStore()
+
+    hoodie.store.add([
+      {
+        _id: '_design/cryptoStore/salt',
+        salt: 'bf11fa9bafca73586e103d60898989d4'
+      },
+      {
+        _id: 'test-doc',
+        tag: '1d9fb919ebecfe3c207781d103164a7f',
+        data: 'e6dc77a9451e3c91113ba19ead4c4045',
+        nonce: 'e1cb5518678d08619697d6f7'
+      }
+    ])
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('test')
+      })
+
+      .then(function () {
+        return hoodie.store.find('hoodiePluginCryptoStore/salt')
+      })
+
+      .then(function (saltDoc) {
+        t.notOk(saltDoc.check, 'salt doc shouldn\'t have the check object')
+
+        return hoodie.cryptoStore.removeAll({ otherValue: 2 })
+      })
+
+      .then(function () {
+        return hoodie.store.find('hoodiePluginCryptoStore/salt')
+      })
+
+      .then(function (saltDoc) {
+        t.ok(saltDoc.check.tag.length === 32, 'tag part should have a length of 32')
+        t.ok(saltDoc.check.data.length > 0, 'encrypted data')
+        t.ok(saltDoc.check.nonce.length === 24, 'nonce should have a length of 24')
+      })
+
+      .catch(function (err) {
+        t.end(err)
+      })
+  }
+)
+
+test(
+  'cryptoStore.withPassword() should not case a check to be added to the moved saltDoc',
+  function (t) {
+    t.plan(1)
+
+    var hoodie = createCryptoStore()
+
+    hoodie.store.add([
+      {
+        _id: '_design/cryptoStore/salt',
+        salt: 'bf11fa9bafca73586e103d60898989d4'
+      },
+      {
+        _id: 'test-doc',
+        tag: 'b2917d9e4e2954bef59ce09a0805b05c',
+        data: '4ff14f46992d2f473288ef',
+        nonce: '49c61c84248eb6c0e6cda510'
+      }
+    ])
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('test')
+      })
+
+      .then(function () {
+        return hoodie.cryptoStore.withPassword('other', '495d3b6a06b27512b47bc426150866b3')
+      })
+
+      .then(function (result) {
+        return result.store.find('test-doc')
+      })
+
+      .then(function () {
+        return hoodie.store.find('hoodiePluginCryptoStore/salt')
+      })
+
+      .then(function (saltDoc) {
+        t.notOk(saltDoc.check, 'salt doc shouldn\'t have the check object')
+      })
+
+      .catch(function (err) {
+        t.end(err)
+      })
+  }
+)
