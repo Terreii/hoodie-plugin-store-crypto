@@ -17,7 +17,14 @@ test('cryptoStore.unlock(password) should use the saved salt', function (t) {
 
   hoodie.store.add({
     _id: 'hoodiePluginCryptoStore/salt',
-    salt: 'bf11fa9bafca73586e103d60898989d4'
+    salt: 'bf11fa9bafca73586e103d60898989d4',
+    check: {
+      nonce: '6e9cf8a4a6eee26f19ff8c70',
+      tag: '0d2cfd645fe49b8a29ce22dbbac26b1e',
+      data: '5481cf42b7e3f1d15477ed8f1d938bd9fd6103903be6dd4e146f69d9f124e34f33b7fa66930557ae6c88' +
+        '2cc5f0e23ac4450a8a6653d5aa36ba531667b9cc6874fddf995efc50322bd1bfed19eb086a2efc7732c7cb6f' +
+        '56efd6efe33d273f3e6f538a17d183bc1e9f160d0c080f25a17b863e6904fd0a1c8fd918a3bb79655fb1'
+    }
   })
 
     .then(function () {
@@ -92,6 +99,13 @@ test(
       salt: 'bf11fa9bafca73586e103d60898989d4',
       hoodie: {
         createdAt: new Date().toJSON()
+      },
+      check: {
+        nonce: '6e9cf8a4a6eee26f19ff8c70',
+        tag: '0d2cfd645fe49b8a29ce22dbbac26b1e',
+        data: '5481cf42b7e3f1d15477ed8f1d938bd9fd6103903be6dd4e146f69d9f124e34f33b7fa66930557ae6c' +
+          '882cc5f0e23ac4450a8a6653d5aa36ba531667b9cc6874fddf995efc50322bd1bfed19eb086a2efc7732c7' +
+          'cb6f56efd6efe33d273f3e6f538a17d183bc1e9f160d0c080f25a17b863e6904fd0a1c8fd918a3bb79655fb1'
       }
     })
 
@@ -222,7 +236,7 @@ test('cryptoStore.unlock(password) should fail if it did already unlock', functi
       },
       function (err) {
         t.equal(err.status, pouchdbErrors.INVALID_REQUEST.status, 'shoud be an INVALID_REQUEST')
-        t.equal(err.message, 'store is already unlocked!', 'With the correct error message')
+        t.equal(err.reason, 'store is already unlocked!', 'With the correct error message')
       }
     )
 })
