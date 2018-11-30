@@ -167,3 +167,65 @@ test('cryptoStore.unlock(password) should fail if the salt is not a 32 char stri
       }
     )
 })
+
+test(
+  'cryptoStore.unlock(password) should fail if the encrypted check for the password fails',
+  function (t) {
+    t.plan(1)
+
+    var hoodie = createCryptoStore()
+
+    hoodie.store.add({
+      _id: 'hoodiePluginCryptoStore/salt',
+      salt: '5a352fb087036f59242316e1aab1d681',
+      check: {
+        nonce: '3829ae61881defa450655a43',
+        tag: '8f73c2e364c64a6601b8c6bdabaf2dd3',
+        data: '9a32bbead59b32adb99b54483e4ea34c7731f90df1eed76c867b77c60c393891d660f6cad9433fd437' +
+          '7ad938cf9912139a9f79bfe85d4f144f4a887722571bdeeab25e63b831abc115f61fe4954ceee7d3968656' +
+          '43e246048ab6fb1295495a6b55fb53fbfe590cbf7bbec604a1d76259dab0f0c4628c52b25c0ece6412930445'
+      }
+    })
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('other-Password')
+      })
+
+      .then(function () {
+        t.fail('unlock should have failed')
+      })
+
+      .catch(function (err) {
+        t.equal(err.status, pouchdbErrors.UNAUTHORIZED.status, 'should be UNAUTHORIZED')
+      })
+  }
+)
+
+test('cryptoStore.unlock(password) should add checks to moved old salt doc', function (t) {
+  t.plan(3)
+
+  var hoodie = createCryptoStore()
+
+  hoodie.store.add({
+    _id: '_design/cryptoStore/salt',
+    salt: 'bf11fa9bafca73586e103d60898989d4'
+  })
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      return hoodie.store.find('hoodiePluginCryptoStore/salt')
+    })
+
+    .then(function (saltDoc) {
+      t.ok(saltDoc.check.tag.length === 32, 'tag part should have a length of 32')
+      t.ok(saltDoc.check.data.length > 0, 'encrypted data')
+      t.ok(saltDoc.check.nonce.length === 24, 'nonce should have a length of 24')
+    })
+
+    .catch(function (err) {
+      t.end(err)
+    })
+})

@@ -226,6 +226,40 @@ test(
   }
 )
 
+test('cryptoStore.changePassword() should update the check in the salt object', function (t) {
+  t.plan(3)
+
+  var hoodie = createCryptoStore()
+
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      return hoodie.store.find('hoodiePluginCryptoStore/salt')
+    })
+
+    .then(function (oldSaltDoc) {
+      return hoodie.cryptoStore.changePassword('test', 'otherPassword')
+
+        .then(function () {
+          return hoodie.store.find('hoodiePluginCryptoStore/salt')
+        })
+
+        .then(function (newSaltDoc) {
+          t.notEqual(newSaltDoc.check.tag, oldSaltDoc.check.tag, 'tag should not be equal')
+          t.notEqual(newSaltDoc.check.data, oldSaltDoc.check.data, 'data should not be equal')
+          t.notEqual(newSaltDoc.check.nonce, oldSaltDoc.check.nonce, 'nonce should not be equal')
+        })
+    })
+
+    .catch(function (err) {
+      t.end(err)
+    })
+})
+
 test('cryptoStore.changePassword() should only update objects that it can decrypt', function (t) {
   t.plan(7)
 

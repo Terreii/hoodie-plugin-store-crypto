@@ -51,6 +51,42 @@ test('cryptoStore.setup(password, salt) should use the passed salt', function (t
     })
 })
 
+test('cryptoStore.setup(password) should create an encrypted check for the password', function (t) {
+  t.plan(6)
+
+  var hoodie = createCryptoStore()
+  var hoodie2 = createCryptoStore()
+
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.store.find('hoodiePluginCryptoStore/salt')
+    })
+
+    .then(function (saltDoc) {
+      t.ok(saltDoc.check.tag.length === 32, 'tag part should have a length of 32')
+      t.ok(saltDoc.check.data.length > 0, 'encrypted data')
+      t.ok(saltDoc.check.nonce.length === 24, 'nonce should have a length of 24')
+
+      // setup with salt passed
+      return hoodie2.cryptoStore.setup('test', 'bf11fa9bafca73586e103d60898989d4')
+    })
+
+    .then(function () {
+      return hoodie2.store.find('hoodiePluginCryptoStore/salt')
+    })
+
+    .then(function (saltDoc) {
+      t.ok(saltDoc.check.tag.length === 32, 'tag part should have a length of 32')
+      t.ok(saltDoc.check.data.length > 0, 'encrypted data')
+      t.ok(saltDoc.check.nonce.length === 24, 'nonce should have a length of 24')
+    })
+
+    .catch(function (err) {
+      t.end(err)
+    })
+})
+
 test('cryptoStore.setup(password) should throw if a salt doc exists', function (t) {
   t.plan(1)
 
