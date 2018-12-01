@@ -375,7 +375,7 @@ test(
       .then(function (saltDoc) {
         t.notOk(saltDoc.check, 'salt doc shouldn\'t have the check object')
 
-        return hoodie.cryptoStore.findOrAdd('test-doc')
+        return hoodie.cryptoStore.findOrAdd('test-doc', { otherValue: 2 })
       })
 
       .then(function () {
