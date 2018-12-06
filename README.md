@@ -223,6 +223,27 @@ function changePassword (oldPassword, newPassword) {
 }
 ```
 
+## v2 Update Notes
+
+__*v1 didn't check if the entered password was correct!* This version does now!__
+It uses an encrypted random string in the `hoodiePluginCryptoStore/salt` doc. Saved in the `check`-field. With the same encryption as the other docs.
+
+```JSON
+{
+  "_id": "hoodiePluginCryptoStore/salt",
+  "salt": "bf11fa9bafca73586e103d60898989d4",
+  "check": {
+    "nonce": "6e9cf8a4a6eee26f19ff8c70",
+    "tag": "0d2cfd645fe49b8a29ce22dbbac26b1e",
+    "data": "5481cf42b7e3f1d15477ed8f1d938bd9fd6103903be6dd4e146f69d9f124e34f33b7f ... this is 256 chars long ..."
+  }
+}
+```
+
+__It will still unlock, if no password check is present on the salt-doc!__ But it will add an check as soon as the first encrypted doc is successfully read!
+
+This is to ensure backwards compatibility.
+
 ## About the cryptography
 
 This plugin uses the `sha256` and `pbkdf2` algorithm for generating a key from your password. The key is a 32 char Hash. And for encryption and decryption of your docs the `AES-GCM` algorithm is used.
@@ -273,7 +294,7 @@ var ignore = [
   'hoodie'
 ]
 
-function encryptDoc (key, doc) {
+async function encryptDoc (key, doc) {
   var nonce = randomBytes(12)
   var outDoc = {
     nonce: nonce.toString('hex')
@@ -285,12 +306,12 @@ function encryptDoc (key, doc) {
   })
 
   var data = JSON.stringify(doc)
-  return nativeCrypto.encrypt(key, nonce, data, Buffer.from(outDoc._id))
-    .then(function (response) {
-      outDoc.tag = response.slice(-16).toString('hex')
-      outDoc.data = response.slice(0, -16).toString('hex')
-      return outDoc
-    })
+  const response = await nativeCrypto.encrypt(key, nonce, data, Buffer.from(outDoc._id))
+
+  outDoc.tag = response.slice(-16).toString('hex')
+  outDoc.data = response.slice(0, -16).toString('hex')
+
+  return outDoc
 }
 ```
 
@@ -308,7 +329,7 @@ var ignore = [
   'hoodie'
 ]
 
-function decryptDoc (key, doc) {
+async function decryptDoc (key, doc) {
   var data = Buffer.from(doc.data, 'hex')
   var tag = Buffer.from(doc.tag, 'hex')
   var encryptedData = Buffer.concat([data, tag])
@@ -316,21 +337,18 @@ function decryptDoc (key, doc) {
   var nonce = Buffer.from(doc.nonce, 'hex')
   var aad = Buffer.from(doc._id)
 
-  return nativeCrypto.decrypt(key, nonce, encryptedData, aad)
+  const outData = await nativeCrypto.decrypt(key, nonce, encryptedData, aad)
+  var out = JSON.parse(outData)
 
-    .then(function (outData) {
-      var out = JSON.parse(outData)
+  ignore.forEach(function (key) {
+    var ignoreValue = doc[key]
 
-      ignore.forEach(function (key) {
-        var ignoreValue = doc[key]
+    if (ignoreValue !== undefined) {
+      out[key] = ignoreValue
+    }
+  })
 
-        if (ignoreValue !== undefined) {
-          out[key] = ignoreValue
-        }
-      })
-
-      return out
-    })
+  return out
 }
 ```
 
@@ -545,7 +563,7 @@ Example
 hoodie.cryptoStore.changePassword('my-old-password', 'secret').then(function (report) {
   console.log('all documents are updated!')
   console.log(report.salt) // the new salt
-  console.log(report.notUpdated) // array with all ids of encrypted docs that hasn't been updated
+  console.log(report.notUpdated) // array with all ids of encrypted docs that have not been updated
 }).catch(function (error) {
   console.error(error)
 })
