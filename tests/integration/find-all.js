@@ -7,6 +7,7 @@
  */
 
 var test = require('tape')
+var pouchdbErrors = require('pouchdb-errors')
 
 var createCryptoStore = require('../utils/createCryptoStore')
 
@@ -136,5 +137,43 @@ test('cryptoStore.findAll() doesnt return _design docs', function (t) {
 
     .catch(function (err) {
       t.end(err)
+    })
+})
+
+test('cryptoStore.findAll() should throw if plugin isn\'t unlocked', function (t) {
+  t.plan(4)
+
+  var hoodie = createCryptoStore()
+
+  hoodie.cryptoStore.findAll()
+
+    .then(function () {
+      t.fail('It should have thrown')
+    })
+
+    .catch(function (err) {
+      t.equal(err.status, 401, 'uses PouchDB UNAUTHORIZED status')
+      t.equal(err.message, pouchdbErrors.UNAUTHORIZED.message)
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.setup('test')
+    })
+
+    .then(function () {
+      hoodie.cryptoStore.findAll()
+    })
+
+    .then(function () {
+      t.fail('It should have thrown')
+    })
+
+    .catch(function (err) {
+      t.equal(err.status, 401, 'uses PouchDB UNAUTHORIZED status')
+      t.equal(err.message, pouchdbErrors.UNAUTHORIZED.message)
+    })
+
+    .then(function () {
+      t.end()
     })
 })
