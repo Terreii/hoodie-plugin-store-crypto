@@ -260,11 +260,11 @@ test('cryptoStore.find() should throw if plugin isn\'t unlocked', function (t) {
     })
 
     .then(function () {
-      hoodie.cryptoStore.find('anId')
+      return hoodie.cryptoStore.find('anId')
     })
 
     .then(function () {
-      t.fail('It should have thrown')
+      t.fail('It should have thrown after setup')
     })
 
     .catch(function (err) {

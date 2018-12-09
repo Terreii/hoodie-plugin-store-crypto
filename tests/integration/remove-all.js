@@ -238,11 +238,11 @@ test('cryptoStore.removeAll() should throw if plugin isn\'t unlocked', function 
     })
 
     .then(function () {
-      hoodie.cryptoStore.removeAll()
+      return hoodie.cryptoStore.removeAll()
     })
 
     .then(function () {
-      t.fail('It should have thrown')
+      t.fail('It should have thrown after setup')
     })
 
     .catch(function (err) {
