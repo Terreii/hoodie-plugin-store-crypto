@@ -7,8 +7,8 @@
 [![devDependencies Status](https://david-dm.org/Terreii/hoodie-plugin-store-crypto/dev-status.svg)](https://david-dm.org/Terreii/hoodie-plugin-store-crypto?type=dev)
 [![Greenkeeper badge](https://badges.greenkeeper.io/Terreii/hoodie-plugin-store-crypto.svg)](https://greenkeeper.io/)
 
-This [Hoodie](http://hood.ie/) plugin adds methods, to add, read and update encrypted
-documents in your users store, while still being able to add, read and update unencrypted
+This [Hoodie](http://hood.ie/) plugin adds methods, to add, read, update and delete encrypted
+documents in your users store, while still being able to add, read, update and delete unencrypted
 documents.
 
 It does this by adding an object to your Hoodie-client, with similar methods
@@ -177,7 +177,8 @@ The [`cryptoStore.lock()`](#cryptostorelock) method is there, so that you can ad
 ```javascript
 window.addEventListener('beforeunload', function (event) {
   // do your cleanup
-  hoodie.cryptoStore.lock() // lock the cryptoStore in an cryptographic save way.
+  hoodie.cryptoStore.lock() // lock the cryptoStore in an cryptographic saver way.
+                            // It overwrites the key data 10 times.
 })
 ```
 
@@ -204,22 +205,16 @@ It is recommended to sync before the password change! To update all documents.
 
 Example:
 ```javascript
-function changePassword (oldPassword, newPassword) {
-  return hoodie.connectionStatus.check() // check if your app is online
+async function changePassword (oldPassword, newPassword) {
+  await hoodie.connectionStatus.check() // check if your app is online
 
-    .then(function () {
-      if (hoodie.connectionStatus.ok) { // if your app is online: sync your users store
-        return hoodie.store.sync()
-      }
-    })
+  if (hoodie.connectionStatus.ok) { // if your app is online: sync your users store
+    await hoodie.store.sync()
+  }
 
-    .then(function () {
-      return hoodie.cryptoStore.changePassword(oldPassword, newPassword)
-    })
+  const result = await hoodie.cryptoStore.changePassword(oldPassword, newPassword)
 
-    .then(function (result) {
-      console.log(result.notUpdated) // array of ids of all docs that weren't updated
-    })
+  console.log(result.notUpdated) // array of ids of all docs that weren't updated
 }
 ```
 
@@ -253,6 +248,8 @@ This plugin uses the `sha256` and `pbkdf2` algorithm for generating a key from y
 Hoodie, CouchDB and PouchDB need `_id`, `_rev`, `_deleted`, `_attachments` and `_conflicts` to function. They and the content of the `hoodie` object, are **not encrypted**!
 Everything else is run through `JSON.stringify` and encrypted.
 
+This includes all fields of old documents. Thouse fields will then be deleted!
+
 **_Please be aware, that the `_id` of a doc is not encrypted! Don't store important or personal information in the `_id`!_**
 
 ### Derive key from password and salt
@@ -282,7 +279,7 @@ async function deriveKey (password) {
 ### Encrypt a document
 
 ```javascript
-var nativeCrypto = require('native-crypto')
+var encrypt = require('native-crypto/encrypt')
 var randomBytes = require('randombytes')
 
 var ignore = [
@@ -306,7 +303,7 @@ async function encryptDoc (key, doc) {
   })
 
   var data = JSON.stringify(doc)
-  const response = await nativeCrypto.encrypt(key, nonce, data, Buffer.from(outDoc._id))
+  const response = await encrypt(key, nonce, data, Buffer.from(outDoc._id))
 
   outDoc.tag = response.slice(-16).toString('hex')
   outDoc.data = response.slice(0, -16).toString('hex')
@@ -318,7 +315,7 @@ async function encryptDoc (key, doc) {
 ### Decrypt a document
 
 ```javascript
-var nativeCrypto = require('native-crypto')
+var decrypt = require('native-crypto/decrypt')
 
 var ignore = [
   '_id',
@@ -337,7 +334,7 @@ async function decryptDoc (key, doc) {
   var nonce = Buffer.from(doc.nonce, 'hex')
   var aad = Buffer.from(doc._id)
 
-  const outData = await nativeCrypto.decrypt(key, nonce, encryptedData, aad)
+  const outData = await decrypt(key, nonce, encryptedData, aad)
   var out = JSON.parse(outData)
 
   ignore.forEach(function (key) {
@@ -515,7 +512,7 @@ Argument | Type   | Description                           | Required
 
 Uses the salt in `hoodiePluginCryptoStore/salt` or `_design/cryptoStore/salt` and unlocks the cryptoStore.
 It will pull `hoodiePluginCryptoStore/salt` and `_design/cryptoStore/salt` from the remote and
-reject if they don't exists or are deleted.
+reject if they don't exists or are deleted or the password mismatch.
 
 Rejects with:
 
