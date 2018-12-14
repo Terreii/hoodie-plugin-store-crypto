@@ -694,3 +694,62 @@ test(
       })
   }
 )
+
+test(
+  'cryptoStore.unlock(password) should not add checks if the option "noPasswordAutoFix" was set',
+  function (t) {
+    t.plan(2)
+
+    var name = uniqueName()
+    var store = new Store(name, {
+      PouchDB: PouchDB,
+      remote: 'remote-' + name
+    })
+    var hoodie = {
+      account: {
+        on: function () {}
+      },
+      store: store
+    }
+    cryptoStore(hoodie, { noPasswordAutoFix: true })
+
+    hoodie.store.add([
+      {
+        _id: '_design/cryptoStore/salt',
+        salt: 'bf11fa9bafca73586e103d60898989d4'
+      },
+      {
+        _id: 'test-doc',
+        tag: '1d9fb919ebecfe3c207781d103164a7f',
+        data: 'e6dc77a9451e3c91113ba19ead4c4045',
+        nonce: 'e1cb5518678d08619697d6f7'
+      }
+    ])
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('test')
+      })
+
+      .then(function () {
+        return hoodie.store.find('hoodiePluginCryptoStore/salt')
+      })
+
+      .then(function (saltDoc) {
+        t.notOk(saltDoc.check, 'salt doc shouldn\'t have the check object')
+
+        return hoodie.cryptoStore.find('test-doc')
+      })
+
+      .then(function () {
+        return hoodie.store.find('hoodiePluginCryptoStore/salt')
+      })
+
+      .then(function (saltDoc) {
+        t.notOk(saltDoc.check, 'salt doc shouldn\'t have the check object')
+      })
+
+      .catch(function (err) {
+        t.end(err)
+      })
+  }
+)
