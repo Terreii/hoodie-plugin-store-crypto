@@ -239,6 +239,45 @@ __It will still unlock, if no password check is present on the salt-doc!__ But i
 
 This is to ensure backwards compatibility.
 
+__The password check autofix can be deactivated__
+
+To deactivate the password check autofix add the option `noPasswordCheckAutoFix`.
+
+
+```json
+{
+  "name": "your-hoodie-app",
+  ...
+  "hoodie": {
+    "plugins": [
+      "hoodie-plugin-store-crypto"
+    ],
+    "app": {
+      "hoodie-plugin-store-crypto": {
+        "noPasswordCheckAutoFix": true
+      }
+    }
+  }
+}
+```
+
+```javascript
+// Or if you set up your client yourself
+
+var Hoodie = require('@hoodie/client')
+var PouchDB = require('pouchdb')
+var cryptoStore = require('hoodie-plugin-store-crypto')
+
+var hoodie = new Hoodie({ // create an instance of the hoodie-client
+  url: '',
+  PouchDB: PouchDB
+})
+
+cryptoStore(hoodie, { noPasswordCheckAutoFix: true }) // sets up hoodie.cryptoStore
+```
+
+Then a password check will only be added on the next password change.
+
 ## About the cryptography
 
 This plugin uses the `sha256` and `pbkdf2` algorithm for generating a key from your password. The key is a 32 char Hash. And for encryption and decryption of your docs the `AES-GCM` algorithm is used.
