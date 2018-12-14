@@ -20,7 +20,7 @@ function cryptoStore (hoodie, options) {
       withIdPrefixStore[prefix] = hoodie.store.withIdPrefix(prefix)
       return withIdPrefixStore[prefix]
     },
-    noPasswordAutoFix: options != null && Boolean(options.noPasswordAutoFix)
+    noPasswordCheckAutoFix: options != null && Boolean(options.noPasswordCheckAutoFix)
   }
 
   var handler = {

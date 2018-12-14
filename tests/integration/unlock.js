@@ -711,7 +711,7 @@ test(
       },
       store: store
     }
-    cryptoStore(hoodie, { noPasswordAutoFix: true })
+    cryptoStore(hoodie, { noPasswordCheckAutoFix: true })
 
     hoodie.store.add([
       {
