@@ -4,7 +4,7 @@ var bindFunctions = require('../lib/bind-functions')
 
 module.exports = cryptoStore
 
-function cryptoStore (hoodie) {
+function cryptoStore (hoodie, options) {
   var withIdPrefixStore = {} // store prefix APIs from hoodie-store. Workaround for #42
 
   var state = {
@@ -19,7 +19,8 @@ function cryptoStore (hoodie) {
 
       withIdPrefixStore[prefix] = hoodie.store.withIdPrefix(prefix)
       return withIdPrefixStore[prefix]
-    }
+    },
+    noPasswordCheckAutoFix: options != null && Boolean(options.noPasswordCheckAutoFix)
   }
 
   var handler = {
