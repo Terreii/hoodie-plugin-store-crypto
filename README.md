@@ -428,12 +428,13 @@ async function decryptDoc (key, doc) {
 ### cryptoStore (setup function)
 
 ```javascript
-cryptoStore(hoodie)
+cryptoStore(hoodie, options)
 ```
 
 Argument | Type   | Description | Required
 ---------|--------|-------------|----------
 `hoodie` | Object | Hoodie client instance | Yes
+`options.noPasswordCheckAutoFix` | Boolean | [Deactivate password-check autofix](#v2-update-notes). Default is `False` | No
 
 Returns `undefined`
 
@@ -477,9 +478,11 @@ Rejects if there is already a local or remote `hoodiePluginCryptoStore/salt` or 
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+badarg | 500 | password must be a string!
+badarg | 500 | password is to short!
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 ```javascript
@@ -518,9 +521,12 @@ Rejects if there is already a local or remote `hoodiePluginCryptoStore/salt` or 
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+badarg | 500 | password must be a string!
+badarg | 500 | password is to short!
+badarg | 500 | salt must be a 32 char string!
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 ```javascript
@@ -555,9 +561,13 @@ reject if they don't exists or are deleted or the password mismatch.
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+badarg | 500 | password must be a string!
+badarg | 500 | password is to short!
+badarg | 500 | salt in "hoodiePluginCryptoStore/salt" must be a 32 char string!
+invalid_request | 400 | store is already unlocked!
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 ```javascript
@@ -590,9 +600,10 @@ the `newPassword`. It also updates the `salt` in `hoodiePluginCryptoStore/salt`.
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+badarg | 500 | New password must be a string!
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 ```javascript
@@ -641,11 +652,9 @@ Resolves with `properties` unencrypted and adds `id` (unless provided). And adds
 }
 ```
 
-Rejects with:
-
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 ```javascript
@@ -683,9 +692,9 @@ Resolves with an array of `properties` unencrypted in the `arrayOfProperties` an
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 ```javascript
@@ -721,9 +730,9 @@ Resolves with `properties` unencrypted. Works on encrypted and unencrypted docum
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 
@@ -760,9 +769,9 @@ Resolves with `properties` unencrypted. Works on encrypted and unencrypted docum
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 
@@ -801,9 +810,9 @@ Resolves with array of `properties` unencrypted. Works on encrypted and unencryp
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 
@@ -833,9 +842,9 @@ Resolves with `properties` unencrypted. Works on encrypted and unencrypted docum
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 
@@ -861,9 +870,9 @@ Resolves with `properties` unencrypted. Works on encrypted and unencrypted docum
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 
@@ -889,9 +898,9 @@ Resolves with array of `properties` unencrypted. Works on encrypted and unencryp
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 
@@ -933,9 +942,9 @@ Resolves with array of `properties` unencrypted. Works on encrypted and unencryp
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 
@@ -966,9 +975,9 @@ Resolves with updated `properties` unencrypted. Works on encrypted and unencrypt
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 
@@ -995,9 +1004,9 @@ Resolves with updated `properties` unencrypted. Works on encrypted and unencrypt
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 
@@ -1027,9 +1036,9 @@ Resolves with updated `properties` unencrypted. Works on encrypted and unencrypt
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 
@@ -1058,9 +1067,9 @@ Resolves with an array of updated `properties` unencrypted. Works on encrypted a
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 
@@ -1093,9 +1102,9 @@ Resolves with updated `properties` unencrypted. Updates existing documents and a
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 
@@ -1121,9 +1130,9 @@ Resolves with updated `properties` unencrypted. Updates existing documents and a
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 
@@ -1152,9 +1161,9 @@ Resolves with an array of updated `properties` unencrypted. Updates existing doc
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 
@@ -1188,9 +1197,9 @@ __This updates and encrypts all documents with its idPrefix!__
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 
@@ -1226,9 +1235,9 @@ __This updates and encrypts all documents with its idPrefix!__
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 
@@ -1279,9 +1288,9 @@ Resolves with `properties` unencrypted. Works on encrypted and unencrypted docum
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 
@@ -1320,9 +1329,9 @@ Resolves with `properties` unencrypted. Works on encrypted and unencrypted docum
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 
@@ -1366,9 +1375,9 @@ Resolves with `properties` unencrypted. Works on encrypted and unencrypted docum
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 
@@ -1412,9 +1421,9 @@ Resolves with updated `properties` unencrypted. Works on encrypted and unencrypt
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description
+------|--------|--------
+unauthorized | 401 | Name or password is incorrect.
 
 Example
 
