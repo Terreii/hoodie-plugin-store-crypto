@@ -568,6 +568,7 @@ badarg | 500 | password is to short!
 badarg | 500 | salt in "hoodiePluginCryptoStore/salt" must be a 32 char string!
 invalid_request | 400 | store is already unlocked!
 unauthorized | 401 | Name or password is incorrect.
+not_found | 404 | missing
 
 Example
 ```javascript
@@ -655,6 +656,8 @@ Resolves with `properties` unencrypted and adds `id` (unless provided). And adds
 Name 	| Status | Description
 ------|--------|--------
 unauthorized | 401 | Name or password is incorrect.
+bad_request | 400 | Document must be a JSON object
+Conflict | 409 | Object with id "id" already exists
 
 Example
 ```javascript
@@ -695,6 +698,8 @@ Rejects with:
 Name 	| Status | Description
 ------|--------|--------
 unauthorized | 401 | Name or password is incorrect.
+bad_request | 400 | Document must be a JSON object
+Conflict | 409 | Object with id "id" already exists
 
 Example
 ```javascript
@@ -733,6 +738,7 @@ Rejects with:
 Name 	| Status | Description
 ------|--------|--------
 unauthorized | 401 | Name or password is incorrect.
+Not found | 404 | Object with id "id" is missing
 
 Example
 
@@ -772,6 +778,7 @@ Rejects with:
 Name 	| Status | Description
 ------|--------|--------
 unauthorized | 401 | Name or password is incorrect.
+Not found | 404 | Object with id "id" is missing
 
 Example
 
@@ -813,6 +820,7 @@ Rejects with:
 Name 	| Status | Description
 ------|--------|--------
 unauthorized | 401 | Name or password is incorrect.
+Not found | 404 | Object with id "id" is missing
 
 Example
 
@@ -845,6 +853,7 @@ Rejects with:
 Name 	| Status | Description
 ------|--------|--------
 unauthorized | 401 | Name or password is incorrect.
+missing_id | 412 | \_id is required for puts
 
 Example
 
@@ -873,6 +882,7 @@ Rejects with:
 Name 	| Status | Description
 ------|--------|--------
 unauthorized | 401 | Name or password is incorrect.
+missing_id | 412 | \_id is required for puts
 
 Example
 
@@ -901,6 +911,7 @@ Rejects with:
 Name 	| Status | Description
 ------|--------|--------
 unauthorized | 401 | Name or password is incorrect.
+missing_id | 412 | \_id is required for puts
 
 Example
 
@@ -978,6 +989,9 @@ Rejects with:
 Name 	| Status | Description
 ------|--------|--------
 unauthorized | 401 | Name or password is incorrect.
+bad_request | 400 | Document must be a JSON object
+not_found | 404 | missing
+\- | \- | Must provide change
 
 Example
 
@@ -1007,6 +1021,9 @@ Rejects with:
 Name 	| Status | Description
 ------|--------|--------
 unauthorized | 401 | Name or password is incorrect.
+bad_request | 400 | Document must be a JSON object
+not_found | 404 | missing
+\- | \- | Must provide change
 
 Example
 
@@ -1039,6 +1056,8 @@ Rejects with:
 Name 	| Status | Description
 ------|--------|--------
 unauthorized | 401 | Name or password is incorrect.
+bad_request | 400 | Document must be a JSON object
+not_found | 404 | missing
 
 Example
 
@@ -1070,6 +1089,8 @@ Rejects with:
 Name 	| Status | Description
 ------|--------|--------
 unauthorized | 401 | Name or password is incorrect.
+bad_request | 400 | Document must be a JSON object
+not_found | 404 | missing
 
 Example
 
@@ -1105,6 +1126,7 @@ Rejects with:
 Name 	| Status | Description
 ------|--------|--------
 unauthorized | 401 | Name or password is incorrect.
+bad_request | 400 | Document must be a JSON object
 
 Example
 
@@ -1133,6 +1155,7 @@ Rejects with:
 Name 	| Status | Description
 ------|--------|--------
 unauthorized | 401 | Name or password is incorrect.
+bad_request | 400 | Document must be a JSON object
 
 Example
 
@@ -1164,6 +1187,7 @@ Rejects with:
 Name 	| Status | Description
 ------|--------|--------
 unauthorized | 401 | Name or password is incorrect.
+bad_request | 400 | Document must be a JSON object
 
 Example
 
@@ -1200,6 +1224,7 @@ Rejects with:
 Name 	| Status | Description
 ------|--------|--------
 unauthorized | 401 | Name or password is incorrect.
+\- | \- | Must provide object or function
 
 Example
 
@@ -1238,6 +1263,7 @@ Rejects with:
 Name 	| Status | Description
 ------|--------|--------
 unauthorized | 401 | Name or password is incorrect.
+\- | \- | Must provide object or function
 
 Example
 
@@ -1291,6 +1317,8 @@ Rejects with:
 Name 	| Status | Description
 ------|--------|--------
 unauthorized | 401 | Name or password is incorrect.
+bad_request | 400 | Document must be a JSON object
+not_found | 404 | missing
 
 Example
 
@@ -1332,6 +1360,8 @@ Rejects with:
 Name 	| Status | Description
 ------|--------|--------
 unauthorized | 401 | Name or password is incorrect.
+bad_request | 400 | Document must be a JSON object
+not_found | 404 | missing
 
 Example
 
@@ -1378,6 +1408,8 @@ Rejects with:
 Name 	| Status | Description
 ------|--------|--------
 unauthorized | 401 | Name or password is incorrect.
+bad_request | 400 | Document must be a JSON object
+not_found | 404 | missing
 
 Example
 
