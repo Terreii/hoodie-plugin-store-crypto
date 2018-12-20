@@ -1052,3 +1052,34 @@ test('cryptoStore should emit events only for encryped objects', function (t) {
       t.end(err)
     })
 })
+
+test('cryptoStore should\'t emit events for hoodiePluginCryptoStore/ docs', function (t) {
+  t.plan(1)
+
+  var hoodie = createCryptoStore()
+
+  var eventCount = 0
+
+  hoodie.cryptoStore.on('change', function (eventName, object) {
+    if (/^hoodiePluginCryptoStore\//.test(object._id)) {
+      eventCount += 1
+    }
+  })
+
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.changePassword('test', 'otherPassword')
+    })
+
+    .then(function () {
+      t.equal(eventCount, 0, 'No events for hoodiePluginCryptoStore docs should be emitted.')
+      t.end()
+    }, function (err) {
+      t.end(err)
+    })
+})
