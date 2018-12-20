@@ -35,7 +35,7 @@ hoodie.cryptoStore.setup('secret')
 
 ## Update notes
 
-[Please read the update notes for migrating from v1 to v2!](#v2-update-notes)
+[Please read the update notes for migrating from v1 to v2!](https://github.com/Terreii/hoodie-plugin-store-crypto/releases/tag/v2.0.0).
 
 ## Acknowledgments
 This project heavily uses code and is inspired by
