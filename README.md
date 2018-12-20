@@ -25,14 +25,17 @@ hoodie.store.add({foo: 'bar'})
   .then(function (obj) {console.log(obj)})
 
 hoodie.cryptoStore.setup('secret')
-  .then(function () {
-    return hoodie.cryptoStore.unlock('secret')
-  })
-  .then(function (salt) {
-    hoodie.cryptoStore.add({foo: 'bar'})        // adds the object encrypted
-      .then(function (obj) {console.log(obj)})  // returns it unencrypted!
+  .then(async () => {
+    const salt = await hoodie.cryptoStore.unlock('secret')
+
+    const obj = await hoodie.cryptoStore.add({foo: 'bar'})  // adds the object encrypted
+    console.log(obj)                                        // returns it unencrypted!
   })
 ```
+
+## Update notes
+
+[Please read the update notes for migrating from v1 to v2!](#v2-update-notes)
 
 ## Acknowledgments
 This project heavily uses code and is inspired by
@@ -220,8 +223,18 @@ async function changePassword (oldPassword, newPassword) {
 
 ## v2 Update Notes
 
+### setPassword
+
+`setPassword` was split into `setup` and `unlock`.
+
+### Fail if not unlocked
+
+All reading and writing methods fail now if this plugin wasn't unlocked!
+
+### Checking the Password
+
 __*v1 didn't check if the entered password was correct!* This version does now!__
-It uses an encrypted random string in the `hoodiePluginCryptoStore/salt` doc. Saved in the `check`-field. With the same encryption as the other docs.
+It uses an encrypted random string in the `hoodiePluginCryptoStore/salt` doc. Saved in the `check`-field. With the same encryption as the other docs. It will be added/updated with `setup` and `changePassword`.
 
 ```JSON
 {
@@ -235,7 +248,7 @@ It uses an encrypted random string in the `hoodiePluginCryptoStore/salt` doc. Sa
 }
 ```
 
-__It will still unlock, if no password check is present on the salt-doc!__ But it will add an check as soon as the first encrypted doc is successfully read!
+__It will still unlock, if no password check is present on the salt-doc!__ But it will add a check as soon as the first encrypted doc is successfully read!
 
 This is to ensure backwards compatibility.
 
