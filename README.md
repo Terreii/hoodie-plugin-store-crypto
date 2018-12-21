@@ -7,8 +7,8 @@
 [![devDependencies Status](https://david-dm.org/Terreii/hoodie-plugin-store-crypto/dev-status.svg)](https://david-dm.org/Terreii/hoodie-plugin-store-crypto?type=dev)
 [![Greenkeeper badge](https://badges.greenkeeper.io/Terreii/hoodie-plugin-store-crypto.svg)](https://greenkeeper.io/)
 
-This [Hoodie](http://hood.ie/) plugin adds methods, to add, read and update encrypted
-documents in your users store, while still being able to add, read and update unencrypted
+This [Hoodie](http://hood.ie/) plugin adds methods, to add, read, update and delete encrypted
+documents in your users store, while still being able to add, read, update and delete unencrypted
 documents.
 
 It does this by adding an object to your Hoodie-client, with similar methods
@@ -25,14 +25,17 @@ hoodie.store.add({foo: 'bar'})
   .then(function (obj) {console.log(obj)})
 
 hoodie.cryptoStore.setup('secret')
-  .then(function () {
-    return hoodie.cryptoStore.unlock('secret')
-  })
-  .then(function (salt) {
-    hoodie.cryptoStore.add({foo: 'bar'})        // adds the object encrypted
-      .then(function (obj) {console.log(obj)})  // returns it unencrypted!
+  .then(async () => {
+    const salt = await hoodie.cryptoStore.unlock('secret')
+
+    const obj = await hoodie.cryptoStore.add({foo: 'bar'})  // adds the object encrypted
+    console.log(obj)                                        // returns it unencrypted!
   })
 ```
+
+## Update notes
+
+[Please read the update notes for migrating from v1 to v2!](https://github.com/Terreii/hoodie-plugin-store-crypto/releases/tag/v2.0.0).
 
 ## Acknowledgments
 This project heavily uses code and is inspired by
@@ -177,7 +180,8 @@ The [`cryptoStore.lock()`](#cryptostorelock) method is there, so that you can ad
 ```javascript
 window.addEventListener('beforeunload', function (event) {
   // do your cleanup
-  hoodie.cryptoStore.lock() // lock the cryptoStore in an cryptographic save way.
+  hoodie.cryptoStore.lock() // lock the cryptoStore in an cryptographic saver way.
+                            // It overwrites the key data 10 times.
 })
 ```
 
@@ -204,24 +208,88 @@ It is recommended to sync before the password change! To update all documents.
 
 Example:
 ```javascript
-function changePassword (oldPassword, newPassword) {
-  return hoodie.connectionStatus.check() // check if your app is online
+async function changePassword (oldPassword, newPassword) {
+  await hoodie.connectionStatus.check() // check if your app is online
 
-    .then(function () {
-      if (hoodie.connectionStatus.ok) { // if your app is online: sync your users store
-        return hoodie.store.sync()
-      }
-    })
+  if (hoodie.connectionStatus.ok) { // if your app is online: sync your users store
+    await hoodie.store.sync()
+  }
 
-    .then(function () {
-      return hoodie.cryptoStore.changePassword(oldPassword, newPassword)
-    })
+  const result = await hoodie.cryptoStore.changePassword(oldPassword, newPassword)
 
-    .then(function (result) {
-      console.log(result.notUpdated) // array of ids of all docs that weren't updated
-    })
+  console.log(result.notUpdated) // array of ids of all docs that weren't updated
 }
 ```
+
+## v2 Update Notes
+
+### setPassword
+
+`setPassword` was split into `setup` and `unlock`.
+
+### Fail if not unlocked
+
+All reading and writing methods fail now if this plugin wasn't unlocked!
+
+### Checking the Password
+
+__*v1 didn't check if the entered password was correct!* This version does now!__
+It uses an encrypted random string in the `hoodiePluginCryptoStore/salt` doc. Saved in the `check`-field. With the same encryption as the other docs. It will be added/updated with `setup` and `changePassword`.
+
+```JSON
+{
+  "_id": "hoodiePluginCryptoStore/salt",
+  "salt": "bf11fa9bafca73586e103d60898989d4",
+  "check": {
+    "nonce": "6e9cf8a4a6eee26f19ff8c70",
+    "tag": "0d2cfd645fe49b8a29ce22dbbac26b1e",
+    "data": "5481cf42b7e3f1d15477ed8f1d938bd9fd6103903be6dd4e146f69d9f124e34f33b7f ... this is 256 chars long ..."
+  }
+}
+```
+
+__It will still unlock, if no password check is present on the salt-doc!__ But it will add a check as soon as the first encrypted doc is successfully read!
+
+This is to ensure backwards compatibility.
+
+__The password check autofix can be deactivated__
+
+To deactivate the password check autofix add the option `noPasswordCheckAutoFix`.
+
+
+```json
+{
+  "name": "your-hoodie-app",
+  ...
+  "hoodie": {
+    "plugins": [
+      "hoodie-plugin-store-crypto"
+    ],
+    "app": {
+      "hoodie-plugin-store-crypto": {
+        "noPasswordCheckAutoFix": true
+      }
+    }
+  }
+}
+```
+
+```javascript
+// Or if you set up your client yourself
+
+var Hoodie = require('@hoodie/client')
+var PouchDB = require('pouchdb')
+var cryptoStore = require('hoodie-plugin-store-crypto')
+
+var hoodie = new Hoodie({ // create an instance of the hoodie-client
+  url: '',
+  PouchDB: PouchDB
+})
+
+cryptoStore(hoodie, { noPasswordCheckAutoFix: true }) // sets up hoodie.cryptoStore
+```
+
+Then a password check will only be added on the next password change.
 
 ## About the cryptography
 
@@ -231,6 +299,8 @@ This plugin uses the `sha256` and `pbkdf2` algorithm for generating a key from y
 
 Hoodie, CouchDB and PouchDB need `_id`, `_rev`, `_deleted`, `_attachments` and `_conflicts` to function. They and the content of the `hoodie` object, are **not encrypted**!
 Everything else is run through `JSON.stringify` and encrypted.
+
+This includes all fields of old documents. Thouse fields will then be deleted!
 
 **_Please be aware, that the `_id` of a doc is not encrypted! Don't store important or personal information in the `_id`!_**
 
@@ -261,7 +331,7 @@ async function deriveKey (password) {
 ### Encrypt a document
 
 ```javascript
-var nativeCrypto = require('native-crypto')
+var encrypt = require('native-crypto/encrypt')
 var randomBytes = require('randombytes')
 
 var ignore = [
@@ -273,7 +343,7 @@ var ignore = [
   'hoodie'
 ]
 
-function encryptDoc (key, doc) {
+async function encryptDoc (key, doc) {
   var nonce = randomBytes(12)
   var outDoc = {
     nonce: nonce.toString('hex')
@@ -285,19 +355,19 @@ function encryptDoc (key, doc) {
   })
 
   var data = JSON.stringify(doc)
-  return nativeCrypto.encrypt(key, nonce, data, Buffer.from(outDoc._id))
-    .then(function (response) {
-      outDoc.tag = response.slice(-16).toString('hex')
-      outDoc.data = response.slice(0, -16).toString('hex')
-      return outDoc
-    })
+  const response = await encrypt(key, nonce, data, Buffer.from(outDoc._id))
+
+  outDoc.tag = response.slice(-16).toString('hex')
+  outDoc.data = response.slice(0, -16).toString('hex')
+
+  return outDoc
 }
 ```
 
 ### Decrypt a document
 
 ```javascript
-var nativeCrypto = require('native-crypto')
+var decrypt = require('native-crypto/decrypt')
 
 var ignore = [
   '_id',
@@ -308,7 +378,7 @@ var ignore = [
   'hoodie'
 ]
 
-function decryptDoc (key, doc) {
+async function decryptDoc (key, doc) {
   var data = Buffer.from(doc.data, 'hex')
   var tag = Buffer.from(doc.tag, 'hex')
   var encryptedData = Buffer.concat([data, tag])
@@ -316,21 +386,18 @@ function decryptDoc (key, doc) {
   var nonce = Buffer.from(doc.nonce, 'hex')
   var aad = Buffer.from(doc._id)
 
-  return nativeCrypto.decrypt(key, nonce, encryptedData, aad)
+  const outData = await decrypt(key, nonce, encryptedData, aad)
+  var out = JSON.parse(outData)
 
-    .then(function (outData) {
-      var out = JSON.parse(outData)
+  ignore.forEach(function (key) {
+    var ignoreValue = doc[key]
 
-      ignore.forEach(function (key) {
-        var ignoreValue = doc[key]
+    if (ignoreValue !== undefined) {
+      out[key] = ignoreValue
+    }
+  })
 
-        if (ignoreValue !== undefined) {
-          out[key] = ignoreValue
-        }
-      })
-
-      return out
-    })
+  return out
 }
 ```
 
@@ -374,12 +441,13 @@ function decryptDoc (key, doc) {
 ### cryptoStore (setup function)
 
 ```javascript
-cryptoStore(hoodie)
+cryptoStore(hoodie, options)
 ```
 
 Argument | Type   | Description | Required
 ---------|--------|-------------|----------
 `hoodie` | Object | Hoodie client instance | Yes
+`options.noPasswordCheckAutoFix` | Boolean | [Deactivate password-check autofix](#v2-update-notes). Default is `False` | No
 
 Returns `undefined`
 
@@ -423,9 +491,11 @@ Rejects if there is already a local or remote `hoodiePluginCryptoStore/salt` or 
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|-------------|----
+badarg | 500 | password must be a string! | The password wasn't a string.
+badarg | 500 | password is to short! | The password must be longer than 2 chars. (You should require an even longer password!)
+unauthorized | 401 | Name or password is incorrect. | Did already setup.
 
 Example
 ```javascript
@@ -464,9 +534,12 @@ Rejects if there is already a local or remote `hoodiePluginCryptoStore/salt` or 
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|-------------|-----
+badarg | 500 | password must be a string! | The password wasn't a string.
+badarg | 500 | password is to short! | The password must be longer than 2 chars. (You should require an even longer password!)
+badarg | 500 | salt must be a 32 char string! | The passed salt wasn't a string or not 32 chars long!
+unauthorized | 401 | Name or password is incorrect. | Did already setup.
 
 Example
 ```javascript
@@ -497,13 +570,18 @@ Argument | Type   | Description                           | Required
 
 Uses the salt in `hoodiePluginCryptoStore/salt` or `_design/cryptoStore/salt` and unlocks the cryptoStore.
 It will pull `hoodiePluginCryptoStore/salt` and `_design/cryptoStore/salt` from the remote and
-reject if they don't exists or are deleted.
+reject if they don't exists or are deleted or the password mismatch.
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|-------------|-----
+badarg | 500 | password must be a string! | The password wasn't a string.
+badarg | 500 | password is to short! | The password must be longer than 2 chars.
+badarg | 500 | salt in "hoodiePluginCryptoStore/salt" must be a 32 char string! | The salt was changed and is not a 32 char string!
+invalid_request | 400 | store is already unlocked! | Store is unlocked.
+unauthorized | 401 | Name or password is incorrect. | The password wasn't correct. (user input)
+not_found | 404 | missing | The salt-doc couldn't be found! Was it deleted or the user wasn't setup?
 
 Example
 ```javascript
@@ -536,16 +614,18 @@ the `newPassword`. It also updates the `salt` in `hoodiePluginCryptoStore/salt`.
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|-------------|----
+badarg | 500 | New password must be a string! | The new password wasn't a string.
+badarg | 500 | password is to short! | The password must be longer than 2 chars.
+unauthorized | 401 | Name or password is incorrect. | The entered old password is wrong.
 
 Example
 ```javascript
 hoodie.cryptoStore.changePassword('my-old-password', 'secret').then(function (report) {
   console.log('all documents are updated!')
   console.log(report.salt) // the new salt
-  console.log(report.notUpdated) // array with all ids of encrypted docs that hasn't been updated
+  console.log(report.notUpdated) // array with all ids of encrypted docs that have not been updated
 }).catch(function (error) {
   console.error(error)
 })
@@ -587,11 +667,11 @@ Resolves with `properties` unencrypted and adds `id` (unless provided). And adds
 }
 ```
 
-Rejects with:
-
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|--------|-----
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Document must be a JSON object | `properties` isn't an object.
+Conflict | 409 | Object with id "id" already exists | An object with this `_id` already exists.
 
 Example
 ```javascript
@@ -629,9 +709,11 @@ Resolves with an array of `properties` unencrypted in the `arrayOfProperties` an
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|--------|-----
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Document must be a JSON object | `properties` isn't an object.
+Conflict | 409 | Object with id "id" already exists | An object with this `_id` already exists.
 
 Example
 ```javascript
@@ -667,9 +749,10 @@ Resolves with `properties` unencrypted. Works on encrypted and unencrypted docum
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+Not found | 404 | Object with id "id" is missing | There is no object with this `_id`.
 
 Example
 
@@ -706,9 +789,10 @@ Resolves with `properties` unencrypted. Works on encrypted and unencrypted docum
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+Not found | 404 | Object with id "id" is missing | There is no object with this `_id`.
 
 Example
 
@@ -747,9 +831,10 @@ Resolves with array of `properties` unencrypted. Works on encrypted and unencryp
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|--------|-----
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+Not found | 404 | Object with id "id" is missing | There is no object with this `_id`.
 
 Example
 
@@ -779,9 +864,10 @@ Resolves with `properties` unencrypted. Works on encrypted and unencrypted docum
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+missing_id | 412 | \_id is required for puts | `id` is not a string or an object with an `_id`.
 
 Example
 
@@ -807,9 +893,10 @@ Resolves with `properties` unencrypted. Works on encrypted and unencrypted docum
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|--------|-----
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+missing_id | 412 | \_id is required for puts | `id` is not a string or an object with an `_id`.
 
 Example
 
@@ -835,9 +922,10 @@ Resolves with array of `properties` unencrypted. Works on encrypted and unencryp
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+missing_id | 412 | \_id is required for puts | `id` is not a string or an object with an `_id`.
 
 Example
 
@@ -879,9 +967,9 @@ Resolves with array of `properties` unencrypted. Works on encrypted and unencryp
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
 
 Example
 
@@ -912,9 +1000,12 @@ Resolves with updated `properties` unencrypted. Works on encrypted and unencrypt
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Document must be a JSON object | `changedProperties` isn't an object.
+not_found | 404 | missing | There is no object with this `_id`.
+\- | \- | Must provide change | `changedProperties` isn't an object or function.
 
 Example
 
@@ -941,9 +1032,12 @@ Resolves with updated `properties` unencrypted. Works on encrypted and unencrypt
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Document must be a JSON object | `updateFunction` isn't an object or function.
+not_found | 404 | missing | There is no object with this `_id`.
+\- | \- | Must provide change | `updateFunction` isn't an object or function.
 
 Example
 
@@ -973,9 +1067,11 @@ Resolves with updated `properties` unencrypted. Works on encrypted and unencrypt
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Document must be a JSON object | `doc` isn't an object with an `_id` field.
+not_found | 404 | missing | There is no object with this `_id`.
 
 Example
 
@@ -1004,9 +1100,11 @@ Resolves with an array of updated `properties` unencrypted. Works on encrypted a
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Document must be a JSON object | This element in the array isn't an object with an `_id` field.
+not_found | 404 | missing | There is no object with this `_id`.
 
 Example
 
@@ -1039,9 +1137,10 @@ Resolves with updated `properties` unencrypted. Updates existing documents and a
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Document must be a JSON object | `doc` isn't an object.
 
 Example
 
@@ -1067,9 +1166,10 @@ Resolves with updated `properties` unencrypted. Updates existing documents and a
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Document must be a JSON object | `doc` isn't an object with an `_id` field.
 
 Example
 
@@ -1098,9 +1198,10 @@ Resolves with an array of updated `properties` unencrypted. Updates existing doc
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|--------|-------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Document must be a JSON object | This element in the array isn't an object with an `_id` field.
 
 Example
 
@@ -1134,9 +1235,10 @@ __This updates and encrypts all documents with its idPrefix!__
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+\- | \- | Must provide object or function | `changedProperties` isn't an object or a function.
 
 Example
 
@@ -1172,9 +1274,10 @@ __This updates and encrypts all documents with its idPrefix!__
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|--------|-------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+\- | \- | Must provide object or function | `changedProperties` isn't an object or a function.
 
 Example
 
@@ -1225,9 +1328,10 @@ Resolves with `properties` unencrypted. Works on encrypted and unencrypted docum
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|--------|-------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+not_found | 404 | missing | There is no object with this `_id`.
 
 Example
 
@@ -1266,9 +1370,11 @@ Resolves with `properties` unencrypted. Works on encrypted and unencrypted docum
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|--------|-------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Document must be a JSON object | `doc` isn't an object with an `_id` field.
+not_found | 404 | missing | There is no object with this `_id`.
 
 Example
 
@@ -1312,9 +1418,11 @@ Resolves with `properties` unencrypted. Works on encrypted and unencrypted docum
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Document must be a JSON object | That element of the array isn't an object with an `_id` field or a string.
+not_found | 404 | missing | There is no object with this `_id`.
 
 Example
 
@@ -1358,9 +1466,9 @@ Resolves with updated `properties` unencrypted. Works on encrypted and unencrypt
 
 Rejects with:
 
-Name 	| Description
-------|--------
-Error |	...
+Name 	| Status | Description | Why
+------|--------|--------|-------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
 
 Example
 
