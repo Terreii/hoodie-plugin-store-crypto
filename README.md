@@ -491,11 +491,11 @@ Rejects if there is already a local or remote `hoodiePluginCryptoStore/salt` or 
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-badarg | 500 | password must be a string!
-badarg | 500 | password is to short!
-unauthorized | 401 | Name or password is incorrect.
+Name 	| Status | Description | Why
+------|--------|-------------|----
+badarg | 500 | password must be a string! | The password wasn't a string.
+badarg | 500 | password is to short! | The password must be longer than 2 chars. (You should require an even longer password!)
+unauthorized | 401 | Name or password is incorrect. | Did already setup.
 
 Example
 ```javascript
@@ -534,12 +534,12 @@ Rejects if there is already a local or remote `hoodiePluginCryptoStore/salt` or 
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-badarg | 500 | password must be a string!
-badarg | 500 | password is to short!
-badarg | 500 | salt must be a 32 char string!
-unauthorized | 401 | Name or password is incorrect.
+Name 	| Status | Description | Why
+------|--------|-------------|-----
+badarg | 500 | password must be a string! | The password wasn't a string.
+badarg | 500 | password is to short! | The password must be longer than 2 chars. (You should require an even longer password!)
+badarg | 500 | salt must be a 32 char string! | The passed salt wasn't a string or not 32 chars long!
+unauthorized | 401 | Name or password is incorrect. | Did already setup.
 
 Example
 ```javascript
@@ -574,14 +574,14 @@ reject if they don't exists or are deleted or the password mismatch.
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-badarg | 500 | password must be a string!
-badarg | 500 | password is to short!
-badarg | 500 | salt in "hoodiePluginCryptoStore/salt" must be a 32 char string!
-invalid_request | 400 | store is already unlocked!
-unauthorized | 401 | Name or password is incorrect.
-not_found | 404 | missing
+Name 	| Status | Description | Why
+------|--------|-------------|-----
+badarg | 500 | password must be a string! | The password wasn't a string.
+badarg | 500 | password is to short! | The password must be longer than 2 chars.
+badarg | 500 | salt in "hoodiePluginCryptoStore/salt" must be a 32 char string! | The salt was changed and is not a 32 char string!
+invalid_request | 400 | store is already unlocked! | Store is unlocked.
+unauthorized | 401 | Name or password is incorrect. | The password wasn't correct. (user input)
+not_found | 404 | missing | The salt-doc couldn't be found! Was it deleted or the user wasn't setup?
 
 Example
 ```javascript
@@ -614,10 +614,11 @@ the `newPassword`. It also updates the `salt` in `hoodiePluginCryptoStore/salt`.
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-badarg | 500 | New password must be a string!
-unauthorized | 401 | Name or password is incorrect.
+Name 	| Status | Description | Why
+------|--------|-------------|----
+badarg | 500 | New password must be a string! | The new password wasn't a string.
+badarg | 500 | password is to short! | The password must be longer than 2 chars.
+unauthorized | 401 | Name or password is incorrect. | The entered old password is wrong.
 
 Example
 ```javascript
@@ -666,11 +667,11 @@ Resolves with `properties` unencrypted and adds `id` (unless provided). And adds
 }
 ```
 
-Name 	| Status | Description
-------|--------|--------
-unauthorized | 401 | Name or password is incorrect.
-bad_request | 400 | Document must be a JSON object
-Conflict | 409 | Object with id "id" already exists
+Name 	| Status | Description | Why
+------|--------|--------|-----
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Document must be a JSON object | `properties` isn't an object.
+Conflict | 409 | Object with id "id" already exists | An object with this `_id` already exists.
 
 Example
 ```javascript
@@ -708,11 +709,11 @@ Resolves with an array of `properties` unencrypted in the `arrayOfProperties` an
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-unauthorized | 401 | Name or password is incorrect.
-bad_request | 400 | Document must be a JSON object
-Conflict | 409 | Object with id "id" already exists
+Name 	| Status | Description | Why
+------|--------|--------|-----
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Document must be a JSON object | `properties` isn't an object.
+Conflict | 409 | Object with id "id" already exists | An object with this `_id` already exists.
 
 Example
 ```javascript
@@ -748,10 +749,10 @@ Resolves with `properties` unencrypted. Works on encrypted and unencrypted docum
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-unauthorized | 401 | Name or password is incorrect.
-Not found | 404 | Object with id "id" is missing
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+Not found | 404 | Object with id "id" is missing | There is no object with this `_id`.
 
 Example
 
@@ -788,10 +789,10 @@ Resolves with `properties` unencrypted. Works on encrypted and unencrypted docum
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-unauthorized | 401 | Name or password is incorrect.
-Not found | 404 | Object with id "id" is missing
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+Not found | 404 | Object with id "id" is missing | There is no object with this `_id`.
 
 Example
 
@@ -830,10 +831,10 @@ Resolves with array of `properties` unencrypted. Works on encrypted and unencryp
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-unauthorized | 401 | Name or password is incorrect.
-Not found | 404 | Object with id "id" is missing
+Name 	| Status | Description | Why
+------|--------|--------|-----
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+Not found | 404 | Object with id "id" is missing | There is no object with this `_id`.
 
 Example
 
@@ -863,10 +864,10 @@ Resolves with `properties` unencrypted. Works on encrypted and unencrypted docum
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-unauthorized | 401 | Name or password is incorrect.
-missing_id | 412 | \_id is required for puts
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+missing_id | 412 | \_id is required for puts | `id` is not a string or an object with an `_id`.
 
 Example
 
@@ -892,10 +893,10 @@ Resolves with `properties` unencrypted. Works on encrypted and unencrypted docum
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-unauthorized | 401 | Name or password is incorrect.
-missing_id | 412 | \_id is required for puts
+Name 	| Status | Description | Why
+------|--------|--------|-----
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+missing_id | 412 | \_id is required for puts | `id` is not a string or an object with an `_id`.
 
 Example
 
@@ -921,10 +922,10 @@ Resolves with array of `properties` unencrypted. Works on encrypted and unencryp
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-unauthorized | 401 | Name or password is incorrect.
-missing_id | 412 | \_id is required for puts
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+missing_id | 412 | \_id is required for puts | `id` is not a string or an object with an `_id`.
 
 Example
 
@@ -966,9 +967,9 @@ Resolves with array of `properties` unencrypted. Works on encrypted and unencryp
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-unauthorized | 401 | Name or password is incorrect.
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
 
 Example
 
@@ -999,12 +1000,12 @@ Resolves with updated `properties` unencrypted. Works on encrypted and unencrypt
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-unauthorized | 401 | Name or password is incorrect.
-bad_request | 400 | Document must be a JSON object
-not_found | 404 | missing
-\- | \- | Must provide change
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Document must be a JSON object | `changedProperties` isn't an object.
+not_found | 404 | missing | There is no object with this `_id`.
+\- | \- | Must provide change | `changedProperties` isn't an object or function.
 
 Example
 
@@ -1031,12 +1032,12 @@ Resolves with updated `properties` unencrypted. Works on encrypted and unencrypt
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-unauthorized | 401 | Name or password is incorrect.
-bad_request | 400 | Document must be a JSON object
-not_found | 404 | missing
-\- | \- | Must provide change
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Document must be a JSON object | `updateFunction` isn't an object or function.
+not_found | 404 | missing | There is no object with this `_id`.
+\- | \- | Must provide change | `updateFunction` isn't an object or function.
 
 Example
 
@@ -1066,11 +1067,11 @@ Resolves with updated `properties` unencrypted. Works on encrypted and unencrypt
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-unauthorized | 401 | Name or password is incorrect.
-bad_request | 400 | Document must be a JSON object
-not_found | 404 | missing
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Document must be a JSON object | `doc` isn't an object with an `_id` field.
+not_found | 404 | missing | There is no object with this `_id`.
 
 Example
 
@@ -1099,11 +1100,11 @@ Resolves with an array of updated `properties` unencrypted. Works on encrypted a
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-unauthorized | 401 | Name or password is incorrect.
-bad_request | 400 | Document must be a JSON object
-not_found | 404 | missing
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Document must be a JSON object | This element in the array isn't an object with an `_id` field.
+not_found | 404 | missing | There is no object with this `_id`.
 
 Example
 
@@ -1136,10 +1137,10 @@ Resolves with updated `properties` unencrypted. Updates existing documents and a
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-unauthorized | 401 | Name or password is incorrect.
-bad_request | 400 | Document must be a JSON object
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Document must be a JSON object | `doc` isn't an object.
 
 Example
 
@@ -1165,10 +1166,10 @@ Resolves with updated `properties` unencrypted. Updates existing documents and a
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-unauthorized | 401 | Name or password is incorrect.
-bad_request | 400 | Document must be a JSON object
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Document must be a JSON object | `doc` isn't an object with an `_id` field.
 
 Example
 
@@ -1197,10 +1198,10 @@ Resolves with an array of updated `properties` unencrypted. Updates existing doc
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-unauthorized | 401 | Name or password is incorrect.
-bad_request | 400 | Document must be a JSON object
+Name 	| Status | Description | Why
+------|--------|--------|-------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Document must be a JSON object | This element in the array isn't an object with an `_id` field.
 
 Example
 
@@ -1234,10 +1235,10 @@ __This updates and encrypts all documents with its idPrefix!__
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-unauthorized | 401 | Name or password is incorrect.
-\- | \- | Must provide object or function
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+\- | \- | Must provide object or function | `changedProperties` isn't an object or a function.
 
 Example
 
@@ -1273,10 +1274,10 @@ __This updates and encrypts all documents with its idPrefix!__
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-unauthorized | 401 | Name or password is incorrect.
-\- | \- | Must provide object or function
+Name 	| Status | Description | Why
+------|--------|--------|-------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+\- | \- | Must provide object or function | `changedProperties` isn't an object or a function.
 
 Example
 
@@ -1327,11 +1328,10 @@ Resolves with `properties` unencrypted. Works on encrypted and unencrypted docum
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-unauthorized | 401 | Name or password is incorrect.
-bad_request | 400 | Document must be a JSON object
-not_found | 404 | missing
+Name 	| Status | Description | Why
+------|--------|--------|-------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+not_found | 404 | missing | There is no object with this `_id`.
 
 Example
 
@@ -1370,11 +1370,11 @@ Resolves with `properties` unencrypted. Works on encrypted and unencrypted docum
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-unauthorized | 401 | Name or password is incorrect.
-bad_request | 400 | Document must be a JSON object
-not_found | 404 | missing
+Name 	| Status | Description | Why
+------|--------|--------|-------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Document must be a JSON object | `doc` isn't an object with an `_id` field.
+not_found | 404 | missing | There is no object with this `_id`.
 
 Example
 
@@ -1418,11 +1418,11 @@ Resolves with `properties` unencrypted. Works on encrypted and unencrypted docum
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-unauthorized | 401 | Name or password is incorrect.
-bad_request | 400 | Document must be a JSON object
-not_found | 404 | missing
+Name 	| Status | Description | Why
+------|--------|--------|------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Document must be a JSON object | That element of the array isn't an object with an `_id` field or a string.
+not_found | 404 | missing | There is no object with this `_id`.
 
 Example
 
@@ -1466,9 +1466,9 @@ Resolves with updated `properties` unencrypted. Works on encrypted and unencrypt
 
 Rejects with:
 
-Name 	| Status | Description
-------|--------|--------
-unauthorized | 401 | Name or password is incorrect.
+Name 	| Status | Description | Why
+------|--------|--------|-------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
 
 Example
 
