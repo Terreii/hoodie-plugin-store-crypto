@@ -2,6 +2,7 @@
 
 var test = require('tape')
 var Promise = require('lie')
+var pouchdbErrors = require('pouchdb-errors')
 
 var createCryptoStore = require('../utils/createCryptoStore')
 
@@ -222,6 +223,34 @@ test(
 
       .catch(function (error) {
         t.is(error.message, 'New password must be a string!', 'fails with error message')
+      })
+  }
+)
+
+test(
+  'cryptoStore.changePassword(oldPassword, newPassword) should fail if the new password is to short',
+  function (t) {
+    t.plan(2)
+
+    var hoodie = createCryptoStore()
+
+    hoodie.cryptoStore.setup('test')
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('test')
+      })
+
+      .then(function () {
+        return hoodie.cryptoStore.changePassword('test', 'a')
+      })
+
+      .then(function () {
+        t.fail('should throw an Error')
+      })
+
+      .catch(function (error) {
+        t.is(error.reason, 'password is to short!', 'fails with error message')
+        t.is(error.status, pouchdbErrors.BAD_ARG.status, 'fails with a PouchDB error')
       })
   }
 )
