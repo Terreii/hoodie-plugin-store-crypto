@@ -195,7 +195,7 @@ test(
       })
 
       .catch(function (error) {
-        t.is(error.message, 'old password mismatch', 'fails with error message')
+        t.is(error.message, pouchdbErrors.UNAUTHORIZED.message, 'fails with error message')
       })
   }
 )
@@ -203,7 +203,7 @@ test(
 test(
   'cryptoStore.changePassword(oldPassword, newPassword) should fail if there is no new password',
   function (t) {
-    t.plan(1)
+    t.plan(2)
 
     var hoodie = createCryptoStore()
 
@@ -222,7 +222,8 @@ test(
       })
 
       .catch(function (error) {
-        t.is(error.message, 'New password must be a string!', 'fails with error message')
+        t.is(error.message, pouchdbErrors.BAD_ARG.message, 'fails with pouchdb error')
+        t.is(error.reason, 'New password must be a string!', 'fails with error message')
       })
   }
 )

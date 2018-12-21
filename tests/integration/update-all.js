@@ -8,6 +8,7 @@
 
 var test = require('tape')
 var Promise = require('lie')
+var pouchdbErrors = require('pouchdb-errors')
 
 var createCryptoStore = require('../utils/createCryptoStore')
 var checkTime = require('../utils/checkTime')
@@ -281,4 +282,42 @@ test('cryptoStore.updateAll([objects]) updates all updatedAt timestamps', functi
     )
     t.not(object.hoodie.createdAt, object.hoodie.updatedAt, 'createdAt and updatedAt should not be the same')
   })
+})
+
+test('cryptoStore.updateAll() should throw if plugin isn\'t unlocked', function (t) {
+  t.plan(4)
+
+  var hoodie = createCryptoStore()
+
+  hoodie.cryptoStore.updateAll({ value: 'something' })
+
+    .then(function () {
+      t.fail('It should have thrown')
+    })
+
+    .catch(function (err) {
+      t.equal(err.status, 401, 'uses PouchDB UNAUTHORIZED status')
+      t.equal(err.message, pouchdbErrors.UNAUTHORIZED.message)
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.setup('test')
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.updateAll({ value: 'something' })
+    })
+
+    .then(function () {
+      t.fail('It should have thrown after setup')
+    })
+
+    .catch(function (err) {
+      t.equal(err.status, 401, 'uses PouchDB UNAUTHORIZED status')
+      t.equal(err.message, pouchdbErrors.UNAUTHORIZED.message)
+    })
+
+    .then(function () {
+      t.end()
+    })
 })
