@@ -431,6 +431,8 @@ async function decryptDoc (key, doc) {
 - [cryptoStore.remove(doc)](#cryptostoreremovedoc)
 - [cryptoStore.remove(idsOrDocs)](#cryptostoreremoveidsordocs)
 - [cryptoStore.removeAll()](#cryptostoreremoveall)
+- [cryptoStore.isEncrypted(object)](#cryptostoreisencryptedobject)
+- [cryptoStore.isEncrypted(Promise)](#cryptostoreisencryptedpromise)
 - [cryptoStore.on()](#cryptostoreon)
 - [cryptoStore.one()](#cryptostoreone)
 - [cryptoStore.off()](#cryptostoreoff)
@@ -1482,6 +1484,70 @@ hoodie.cryptoStore.removeAll(filter).then(function (docs) {
 }).catch(function (error) {
   console.error(error)
 })
+```
+
+### cryptoStore.isEncrypted(object)
+
+```javascript
+cryptoStore.isEncrypted(object)
+```
+
+Argument| Type  | Description      | Required
+--------|-------|------------------|----------
+`object` | Object | Document or object to be checked if it has the structure of an encrypted document. | Yes
+
+Returns a Boolean. Returns `true` if the passed object is encrypted, and `false` if it is not.
+
+Rejects with:
+
+Name 	| Status | Description | Why
+------|--------|--------|-------
+bad_request | 400 | Document must be a JSON object | `object` isn't an object.
+
+Example
+
+```javascript
+async function test () {
+  const obj = await hoodie.cryptoStore.add({
+    _id: 'test',
+    value: 3
+  })
+
+  hoodie.cryptoStore.isEncrypted(obj) // false; because the obj was decrypted!
+
+  const doc = await hoodie.store.find('test')
+
+  return hoodie.cryptoStore.isEncrypted(doc) // will return true
+}
+```
+
+### cryptoStore.isEncrypted(Promise)
+
+```javascript
+cryptoStore.isEncrypted(Promise.resolve(object))
+```
+
+Argument| Type  | Description      | Required
+--------|-------|------------------|----------
+`Promise` | Promise<Object> | Promise that will resolve into an Object. That object will then be check if it has the structure of an encrypted document. | Yes
+
+Resolves a Boolean. Resolves `true` if the resolved object is encrypted, and `false` if it is not.
+
+Rejects with:
+
+Name 	| Status | Description | Why
+------|--------|--------|-------
+bad_request | 400 | Document must be a JSON object | `object` isn't an object.
+Error | - | - | Rejects with that error the passed Promise rejects to.
+
+Example
+
+```javascript
+function isEncrypted (id) {
+  return hoodie.cryptoStore.isEncrypted(
+    hoodie.store.find(id)
+  )
+}
 ```
 
 ### cryptoStore.on()
