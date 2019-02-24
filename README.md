@@ -444,6 +444,8 @@ async function decryptDoc (key, doc) {
 cryptoStore(hoodie, options)
 ```
 
+Setup the __cryptoStore__ and adds it to hoodie.
+
 Argument | Type   | Description | Required
 ---------|--------|-------------|----------
 `hoodie` | Object | Hoodie client instance | Yes
@@ -477,6 +479,8 @@ hoodie.cryptoStore.setup('test')
 ```javascript
 cryptoStore.setup(password)
 ```
+
+Setup an user for encryption.
 
 Argument | Type   | Description                           | Required
 ---------|--------|---------------------------------------|----------
@@ -519,6 +523,8 @@ async function signUp (username, password, cryptoPassword) {
 ```javascript
 cryptoStore.setup(password, salt)
 ```
+
+Setup an user for encryption. But provide your own salt. *This is not recommended*.
 
 Argument | Type   | Description                           | Required
 ---------|--------|---------------------------------------|----------
@@ -564,6 +570,8 @@ async function signUp (username, password, cryptoPassword, salt) {
 cryptoStore.unlock(password)
 ```
 
+Unlock the cryptoStore. It will be ready to be used after it. The user must be `setup` first!
+
 Argument | Type   | Description                           | Required
 ---------|--------|---------------------------------------|----------
 `password` | String | The password used for encrypting the objects | Yes
@@ -602,6 +610,8 @@ async function signIn (username, password, cryptoPassword) {
 ```javascript
 cryptoStore.changePassword(oldPassword, newPassword)
 ```
+
+Changes the encryption password and salt. Then it will update all encrypted documents.
 
 Argument      | Type   | Description    | Required
 --------------|--------|----------------|---------
@@ -649,6 +659,8 @@ The `cryptoStore` listen automatically to [`hoodie.account.on('signout')`](http:
 cryptoStore.add(properties)
 ```
 
+Encrypt and add a document to the users store.
+
 Argument      | Type   | Description                                     | Required
 --------------|--------|-------------------------------------------------|----------
 `properties`  | Object | properties of document                          | Yes
@@ -687,6 +699,8 @@ hoodie.cryptoStore.add({foo: 'bar'}).then(function (doc) {
 ```javascript
 cryptoStore.add([properties])
 ```
+
+Encrypt and add multiple documents to the users store.
 
 Argument          | Type  | Description      | Required
 ------------------|-------|--------------------------|----------
@@ -730,6 +744,8 @@ hoodie.cryptoStore.add([{foo: 'bar'}, {bar: 'baz'}]).then(function (docs) {
 cryptoStore.find(id)
 ```
 
+Find a document in the users store. If the document is encrypted, it will be decrypted.
+
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `id`    | String | Unique id of the document  | Yes
@@ -770,6 +786,8 @@ hoodie.cryptoStore.find('12345678-1234-1234-1234-123456789ABC').then(function (d
 cryptoStore.find(doc)
 ```
 
+Find a document in the users store. If the document is encrypted, it will be decrypted.
+
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `doc`   | Object | Document with `_id` property  | Yes
@@ -809,6 +827,8 @@ hoodie.cryptoStore.find(doc).then(function (doc) {
 ```javascript
 cryptoStore.find([doc])
 ```
+
+Find multiple documents in the users store. If a document is encrypted, it will be decrypted.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -855,6 +875,8 @@ hoodie.cryptoStore.find([
 cryptoStore.findOrAdd(id, doc)
 ```
 
+Find a document in the users store. If the document is encrypted, it will be decrypted. If no document is present: `doc` will be added (and encrypted).
+
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `id`    | String | Unique id of the document  | Yes
@@ -885,6 +907,8 @@ hoodie.cryptoStore.findOrAdd('12345678-1234-1234-1234-123456789ABC', doc).then(f
 cryptoStore.findOrAdd(doc)
 ```
 
+Find a document in the users store. If the document is encrypted, it will be decrypted. If no document is present: `doc` will be added (and encrypted).
+
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `doc`   | Object | Document  with `_id` property | Yes
@@ -913,6 +937,8 @@ hoodie.cryptoStore.findOrAdd(doc).then(function (doc) {
 ```javascript
 cryptoStore.findOrAdd(idsOrDocs)
 ```
+
+Find multiple documents in the users store. If a document is encrypted, it will be decrypted. If a document is not present: a new one will be added (and encrypted).
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -945,6 +971,8 @@ hoodie.cryptoStore.findOrAdd([
 ```javascript
 cryptoStore.findAll(filterFunction)
 ```
+
+Find all documents. And if a document is encrypted, decrypt it.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -991,6 +1019,8 @@ hoodie.cryptoStore.findAll(filter).then(function (docs) {
 cryptoStore.update(id, changedProperties)
 ```
 
+Find a document with `id` and update all changedProperties. Then encrypt it.
+
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `id`    | String | Unique id of the document  | Yes
@@ -1022,6 +1052,10 @@ hoodie.cryptoStore.update('12345678-1234-1234-1234-123456789ABC', {foo: 'bar'}).
 ```javascript
 cryptoStore.update(id, updateFunction)
 ```
+
+Find a document with `id` and update it with an updateFunction. Then encrypt it.
+
+The document will be how the updateFunction changes it.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -1059,6 +1093,8 @@ hoodie.cryptoStore.update('12345678-1234-1234-1234-123456789ABC', updater).then(
 cryptoStore.update(doc)
 ```
 
+Find a document with `_id` of that object. And assigns all properties of this object to the doc. And then encrypts it.
+
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `doc`   | Object | Properties that should be changed with a `_id` property | Yes
@@ -1091,6 +1127,8 @@ hoodie.cryptoStore.update({
 ```javascript
 cryptoStore.update(arrayOfDocs)
 ```
+
+Find multiple documents. To find them the `_id` of every object is used. Then all properties of that object will get assigns to the doc. And then encrypts it.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -1128,6 +1166,8 @@ hoodie.cryptoStore.update([
 cryptoStore.updateOrAdd(id, doc)
 ```
 
+Try to find and update a doc with `id`. If none exist add one with `id` as its `_id' and doc as its properties. The document will be encrypted.
+
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `id`    | String | Unique id of the document  | Yes
@@ -1157,6 +1197,8 @@ hoodie.cryptoStore.updateOrAdd('12345678-1234-1234-1234-123456789ABC', {foo: 'ba
 ```javascript
 cryptoStore.updateOrAdd(doc)
 ```
+
+Try to find and update a doc with `_id`. If none exist add this doc as it. The document will be encrypted.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -1189,6 +1231,8 @@ hoodie.cryptoStore.updateOrAdd({
 ```javascript
 cryptoStore.updateOrAdd(arrayOfDocs)
 ```
+
+Try to find and update multiple documents. The `_id` of every doc in this array will be used. If a document doesn't exist, that document will be added as it. Every document will be encrypted.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -1224,6 +1268,8 @@ hoodie.cryptoStore.updateOrAdd([
 ```javascript
 cryptoStore.updateAll(changedProperties)
 ```
+
+Find all documents and update them. `changedProperties` will be assigned to every document. And then encrypt all documents.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -1263,6 +1309,8 @@ hoodie.cryptoStore.withIdPrefix('foo/').updateAll({foo: 'bar'}).then(function (d
 ```javascript
 cryptoStore.updateAll(updateFunction)
 ```
+
+Find all documents and update them. The `updateFunction` will be get called on every document. And then encrypt all documents.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -1307,6 +1355,8 @@ hoodie.cryptoStore.withIdPrefix('foo/').updateAll(function (doc) {
 cryptoStore.remove(id)
 ```
 
+Find a document with `id` and removes it.
+
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `id`    | String | Unique id of the document  | Yes
@@ -1348,6 +1398,8 @@ hoodie.cryptoStore.remove('12345678-1234-1234-1234-123456789ABC').then(function 
 ```javascript
 cryptoStore.remove(doc)
 ```
+
+Find a document using the `_id` of that doc. It will update, remove, and encrypt the document.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -1395,6 +1447,8 @@ hoodie.cryptoStore.remove({
 cryptoStore.remove(idsOrDocs)
 ```
 
+Find multiple documents using the `_id` of that doc. It will update, remove, and encrypt all those documents.
+
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `idsOrDocs`  | Array | Properties that should be changed with a `_id` property or ids | Yes
@@ -1440,8 +1494,10 @@ hoodie.cryptoStore.remove([
 ### cryptoStore.removeAll()
 
 ```javascript
-cryptoStore.removeAll(updateFunction)
+cryptoStore.removeAll(filterFunction)
 ```
+
+Remove all documents. If a `filterFunction` is passed, it will filter out every document, that should not be removed and encrypted.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -1473,6 +1529,7 @@ unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocke
 Example
 
 ```javascript
+// Just like Array.prototype.filter()
 function filter (doc, index, allDocs) {
   return index % 2 === 0
 }
@@ -1489,6 +1546,8 @@ hoodie.cryptoStore.removeAll(filter).then(function (docs) {
 ```javascript
 cryptoStore.on(eventName, handler)
 ```
+
+Add an event-handler. It behaves like [hoodie-store-client's on](https://github.com/hoodiehq/hoodie-store-client#storeon), but only emits an event if that document is encrypted and could be decrypted. It will also decrypt the document.
 
 Argument| Type  | Description      | Required
 --------|-------|------------------|----------
@@ -1522,6 +1581,8 @@ hoodie.cryptoStore.on('change', changeHandler)
 cryptoStore.one(eventName, handler)
 ```
 
+Add an one-time event-handler. It behaves like [hoodie-store-client's one](https://github.com/hoodiehq/hoodie-store-client#storeone), but only emits an event if that document is encrypted and could be decrypted. It will also decrypt the document.
+
 Argument| Type  | Description      | Required
 --------|-------|------------------|----------
 `eventName` | String | Event type. One of `add`, `update`, `remove` or `change`. | Yes
@@ -1553,6 +1614,8 @@ hoodie.cryptoStore.one('change', changeHandler)
 ```javascript
 cryptoStore.off(eventName, handler)
 ```
+
+Remove an event-handler. It behaves like [hoodie-store-client's off](https://github.com/hoodiehq/hoodie-store-client#storeoff).
 
 Argument| Type  | Description      | Required
 --------|-------|------------------|----------
@@ -1589,7 +1652,7 @@ Argument| Type  | Description      | Required
 --------|-------|------------------|----------
 `prefix` | String | Section that will be added before every `id`. | Yes
 
-Returns the prefixed copy of the `cryptoStore`.
+Returns subset of `cryptoStore` API with `_id` property implicitly prefixed by passed string.
 
 Rejects with:
 
@@ -1633,7 +1696,7 @@ Argument| Type  | Description      | Required
 `password` | String | A password for encrypting the objects | Yes
 `salt`   | String | A second password part, to add another protection lair. If this is missing a salt will be generated. Which will result in a different encryption! | No
 
-Resolves with an `object` containing the used `salt` and a prefixed copy of the `cryptoStore`.
+Resolves with an `object` containing the used `salt` and a subset of `cryptoStore` API with the `encryption key` from `passwor` and `salt` (or the `hoodiePluginCryptoStore/salt` salt).
 
 ```JSON
 {
