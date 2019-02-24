@@ -615,6 +615,8 @@ cryptoStore.changePassword(oldPassword, newPassword)
 
 Changes the encryption password and salt. Then it will update all encrypted documents.
 
+All encrypted documents, that couldn't be decrypted, will not be updated! Their `_id` will be added to `notUpdated` array of the result object.
+
 Argument      | Type   | Description    | Required
 --------------|--------|----------------|---------
 `oldPassword` | String | The old password, that was used up until now | Yes
@@ -974,7 +976,7 @@ hoodie.cryptoStore.findOrAdd([
 cryptoStore.findAll(filterFunction)
 ```
 
-Find all documents. And if a document is encrypted, decrypt it.
+Find all documents. And if a document is encrypted, decrypt it. The `filterFunction` filters out documents, the same way as `Array.prototype.filter` does.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -1057,7 +1059,7 @@ cryptoStore.update(id, updateFunction)
 
 Find a document with `id` and update it with an updateFunction. Then encrypt it.
 
-The document will be how the updateFunction changes it.
+The document will be how the updateFunction changes it. This can add, update and delete field on the document.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -1130,7 +1132,7 @@ hoodie.cryptoStore.update({
 cryptoStore.update(arrayOfDocs)
 ```
 
-Find multiple documents. To find them the `_id` of every object is used. Then all properties of that object will get assigns to the doc. And then encrypts it.
+Find multiple documents. To find them the `_id` of every object is used. Then all properties of that object will get assigned to the doc. And then encrypts it.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -1766,7 +1768,9 @@ Argument| Type  | Description      | Required
 `password` | String | A password for encrypting the objects | Yes
 `salt`   | String | A second password part, to add another protection lair. If this is missing a salt will be generated. Which will result in a different encryption! | No
 
-Resolves with an `object` containing the used `salt` and a subset of `cryptoStore` API with the `encryption key` from `passwor` and `salt` (or the `hoodiePluginCryptoStore/salt` salt).
+Resolves with an `object` containing the used `salt` and a subset of `cryptoStore` API with the `encryption key` from `password` and `salt`. If no `salt` or a now correct one, was passed, a new salt will be created.
+
+This also works if the main instance isn't unlocked!
 
 ```JSON
 {
