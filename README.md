@@ -1549,6 +1549,8 @@ hoodie.cryptoStore.removeAll(filter).then(function (docs) {
 cryptoStore.isEncrypted(object)
 ```
 
+Checks if the object matches the structure of an encrypted document.
+
 Argument| Type  | Description      | Required
 --------|-------|------------------|----------
 `object` | Object | Document or object to be checked if it has the structure of an encrypted document. | Yes
@@ -1583,6 +1585,8 @@ async function test () {
 ```javascript
 cryptoStore.isEncrypted(Promise.resolve(object))
 ```
+
+Resolves the Promise. Then checks if the resulting object matches the structure of an encrypted document.
 
 Argument| Type  | Description      | Required
 --------|-------|------------------|----------
