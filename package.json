@@ -24,8 +24,12 @@
     "hoodie",
     "plugin",
     "storage",
+    "pouchdb",
+    "offlinefirst",
+    "sync",
     "data",
     "crypto",
+    "cryptography",
     "end-to-end",
     "ete"
   ],

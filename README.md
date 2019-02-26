@@ -17,7 +17,7 @@ corresponding methods from Hoodie to save them.
 
 There is no server side to this plugin!
 
-**Everything of a doc will be encrypted, except `_id`, `_rev`, `_deleted`, `_attachments`, `_conflicts` and the `hoodie` object!**
+**Everything of a doc will get encrypted. Except for `_id`, `_rev`, `_deleted`, `_attachments`, `_conflicts` and the `hoodie` object!**
 
 ## Example
 ```js
@@ -38,14 +38,14 @@ hoodie.cryptoStore.setup('secret')
 [Please read the update notes for migrating from v1 to v2!](https://github.com/Terreii/hoodie-plugin-store-crypto/releases/tag/v2.0.0).
 
 ## Acknowledgments
-This project heavily uses code and is inspired by
+This project heavily uses code and inspiration by
 [@calvinmetcalf's crypto-pouch](https://github.com/calvinmetcalf/crypto-pouch)
 and Hoodie's [hoodie-store-client](https://github.com/hoodiehq/hoodie-store-client).
 
-A huge thank you to those projects and their maintainers.
+Thank you to those projects and their maintainers.
 
-- To result the same behavior, many of the tests in this plugin are adjusted versions of [hoodie-store-client](https://github.com/hoodiehq/hoodie-store-client) tests.
-- The Encryption used here are adjusted versions of [@calvinmetcalf's crypto-pouch's](https://github.com/calvinmetcalf/crypto-pouch) encryption functions.
+- To result the same behavior, this plugin uses some adjusted versions of [hoodie-store-client](https://github.com/hoodiehq/hoodie-store-client) tests.
+- The Encryption used here is an inspired versions of [@calvinmetcalf's crypto-pouch's](https://github.com/calvinmetcalf/crypto-pouch) encryption functions.
 
 ## Usage
 
@@ -92,7 +92,7 @@ First, install the plugin as dev-dependency of your Hoodie app:
 npm install --save-dev hoodie-plugin-store-crypto
 ```
 
-Then require it and set it up:
+Then import it and set it up:
 
 ```javascript
 var Hoodie = require('@hoodie/client')
@@ -100,22 +100,19 @@ var PouchDB = require('pouchdb')
 var cryptoStore = require('hoodie-plugin-store-crypto')
 
 var hoodie = new Hoodie({ // create an instance of the hoodie-client
-  url: '',
+  url: window.location.origin,
   PouchDB: PouchDB
 })
 
 cryptoStore(hoodie) // sets up hoodie.cryptoStore
 ```
 
-You only need to do it this way, if you directly require/import the `@hoodie/client`!
-If you get the client with `<script src="/hoodie/client.js"></script>`, then the first way is recommended.
-
 ### Get started
 
 To use the cryptoStore you need to set a password for encryption. This can be your users password to
 your app, or a special password, which they will enter or you generate.
 
-There are 4 use-cases you must implement:
+There are 4 use-cases you must put in place:
 
 - [Sign up / setup / start of using encryption](#setup)
 - [Sign in](#sign-in)
@@ -124,10 +121,10 @@ There are 4 use-cases you must implement:
 
 #### Setup
 
-The first use of the cryptoStore. This is usually in your sign up function, but can also be done if
+The first use of the cryptoStore. Setup can get done in your sign up function, but also if
 you newly added this plugin.
 
-[`cryptoStore.setup(password, [salt])`](#cryptostoresetuppassword) is used to set the
+Use [`cryptoStore.setup(password, [salt])`](#cryptostoresetuppassword) to set the
 encryption password. __`cryptoStore.setup(password, [salt])` will not unlock your cryptoStore instance__
 (just like hoodie.account.signUp)!
 
@@ -152,7 +149,7 @@ async function signUp (username, password, cryptoPassword) {
 
 Every time your user signs in you also need to unlock the cryptoStore.
 
-[`cryptoStore.unlock(password)`](#cryptostoreunlockpassword) is used for unlocking.
+Use [`cryptoStore.unlock(password)`](#cryptostoreunlockpassword) for unlocking.
 
 `unlock` will try to pull `hoodiePluginCryptoStore/salt` from the server, 
 to have the latest version of it.
@@ -173,9 +170,11 @@ async function signIn (username, password, cryptoPassword) {
 
 #### Sign out
 
-The `cryptoStore` listen automatically to [`hoodie.account.on('signout')`](http://docs.hood.ie/en/latest/api/client/hoodie.account.html#events) events and locks itself. You don't need to add any setup for it.
+`cryptoStore` will automatically listen to [`account.on('signout')`](http://docs.hood.ie/en/latest/api/client/hoodie.account.html#events) events. And locks itself if it emits an event. You don't need to add any setup for it.
 
-The [`cryptoStore.lock()`](#cryptostorelock) method is there, so that you can add a lock after a timeout functionality or lock the store in a save way when closing an tab.
+Usecases for the [`cryptoStore.lock()`](#cryptostorelock) method are:
+ - a lock after a timeout functionality
+ - lock the store in a save way when closing an tab.
 
 ```javascript
 window.addEventListener('beforeunload', function (event) {
@@ -202,9 +201,9 @@ async function unlock (cryptoPassword) {
 #### Changing the password
 
 You can change the password and salt used for encryption with [`cryptoStore.changePassword(oldPassword, newPassword)`](#cryptostorechangepasswordoldpassword-newpassword).
-This method also updates all documents, that are encrypted with the old password!
+This method also updates all documents, that got encrypted with the old password!
 
-It is recommended to sync before the password change! To update all documents.
+Please sync before the password change! To update all documents.
 
 Example:
 ```javascript
@@ -225,7 +224,7 @@ async function changePassword (oldPassword, newPassword) {
 
 ### setPassword
 
-`setPassword` was split into `setup` and `unlock`.
+`setPassword` got split into `setup` and `unlock`.
 
 ### Fail if not unlocked
 
@@ -234,7 +233,7 @@ All reading and writing methods fail now if this plugin wasn't unlocked!
 ### Checking the Password
 
 __*v1 didn't check if the entered password was correct!* This version does now!__
-It uses an encrypted random string in the `hoodiePluginCryptoStore/salt` doc. Saved in the `check`-field. With the same encryption as the other docs. It will be added/updated with `setup` and `changePassword`.
+It uses an encrypted random string in the `hoodiePluginCryptoStore/salt` doc. Saved in the `check`-field. With the same encryption as the other docs. It will get added/updated with `setup` and `changePassword`.
 
 ```JSON
 {
@@ -248,11 +247,11 @@ It uses an encrypted random string in the `hoodiePluginCryptoStore/salt` doc. Sa
 }
 ```
 
-__It will still unlock, if no password check is present on the salt-doc!__ But it will add a check as soon as the first encrypted doc is successfully read!
+__It will still unlock, if no password check is present on the salt-doc!__ But it will add a check as soon as the first encrypted doc got read without an error!
 
 This is to ensure backwards compatibility.
 
-__The password check autofix can be deactivated__
+__The password check autofix can get deactivated__
 
 To deactivate the password check autofix add the option `noPasswordCheckAutoFix`.
 
@@ -289,18 +288,18 @@ var hoodie = new Hoodie({ // create an instance of the hoodie-client
 cryptoStore(hoodie, { noPasswordCheckAutoFix: true }) // sets up hoodie.cryptoStore
 ```
 
-Then a password check will only be added on the next password change.
+Then no password check will get added, until the next password change.
 
 ## About the cryptography
 
-This plugin uses the `sha256` and `pbkdf2` algorithm for generating a key from your password. The key is a 32 char Hash. And for encryption and decryption of your docs the `AES-GCM` algorithm is used.
+This plugin uses the `sha256` and `pbkdf2` algorithm for generating a key from your password. The key is a 32 char Hash. And for encryption and decryption of your docs the `AES-GCM` algorithm gets used.
 
 ### What is encrypted
 
 Hoodie, CouchDB and PouchDB need `_id`, `_rev`, `_deleted`, `_attachments` and `_conflicts` to function. They and the content of the `hoodie` object, are **not encrypted**!
-Everything else is run through `JSON.stringify` and encrypted.
+Everything else goes through `JSON.stringify` and gets encrypted.
 
-This includes all fields of old documents. Thouse fields will then be deleted!
+This includes all fields of old documents. Those fields will then get deleted!
 
 **_Please be aware, that the `_id` of a doc is not encrypted! Don't store important or personal information in the `_id`!_**
 
@@ -453,7 +452,7 @@ Argument | Type   | Description | Required
 
 Returns `undefined`
 
-__Only required if you setup your hoodie-client youself!__
+__Required if you setup your hoodie-client yourself! Else Hoodie does it for you!__
 
 Example
 ```javascript
@@ -485,7 +484,7 @@ Argument | Type   | Description                           | Required
 `password` | String | A password for encrypting the objects | Yes
 
 Sets up the encryption and generates a salt and saves it in `hoodiePluginCryptoStore/salt`.
-A salt is a string that will be used with the password together for the encryption.
+A salt is a string that will get used with the password together for the encryption.
 
 __*This will not unlock the cryptoStore!*__
 
@@ -528,7 +527,7 @@ Argument | Type   | Description                           | Required
 `salt`   | String | To add another protection lair, as a second password. If this is missing, a salt will be generated. Which will result in a different encryption! | Yes
 
 Sets up the encryption and saves the salt in `hoodiePluginCryptoStore/salt`.
-A salt is a string that will be used with the password together for the encryption.
+A salt is a string that will get used with the password together for the encryption.
 
 __*This will not unlock the cryptoStore!*__
 
@@ -572,7 +571,7 @@ Argument | Type   | Description                           | Required
 
 Uses the salt in `hoodiePluginCryptoStore/salt` or `_design/cryptoStore/salt` and unlocks the cryptoStore.
 It will pull `hoodiePluginCryptoStore/salt` and `_design/cryptoStore/salt` from the remote and
-reject if they don't exists or are deleted or the password mismatch.
+reject if they don't exists or got deleted or the password mismatch.
 
 Rejects with:
 
@@ -656,7 +655,7 @@ Argument      | Type   | Description                                     | Requi
 `properties`  | Object | properties of document                          | Yes
 `properties._id` | String | If set, the document will be stored at given id | No
 
-Resolves with `properties` unencrypted and adds `id` (unless provided). And adds a `hoodie` property with `createdAt` and `updatedAt` properties. It will be encrypted.
+Resolves with `properties` unencrypted and adds `id` (unless provided). And adds a `hoodie` property with `createdAt` and `updatedAt` properties. It will get encrypted.
 
 ```JSON
 {
@@ -694,7 +693,9 @@ Argument          | Type  | Description      | Required
 ------------------|-------|--------------------------|----------
 `arrayOfProperties` | Array | Array of `properties`, see `cryptoStore.add(properties)`  | Yes
 
-Resolves with an array of `properties` unencrypted in the `arrayOfProperties` and adds `_id` (unless provided). And adds a `hoodie` property with `createdAt` and `updatedAt` properties. It will be encrypted.
+It adds `_id` (unless provided) and a `hoodie` property with `createdAt` and `updatedAt` properties. And encrypts them.
+
+Resolves with an array of the added documents, unencrypted.
 
 ```JSON
 [
@@ -862,7 +863,7 @@ Argument| Type  | Description      | Required
 `id`    | String | Unique id of the document  | Yes
 `doc`   | Object | Document that will be saved if no document with the id exists | Yes
 
-Resolves with `properties` unencrypted. Works on encrypted and unencrypted documents. If doc is added, it will be encrypted and a `hoodie` property with `createdAt` and `updatedAt` properties added.
+Resolves with `properties` unencrypted. Works on encrypted and unencrypted documents. If doc gets added, it will also encrypt it and add a `hoodie` property with `createdAt` and `updatedAt` properties.
 
 Rejects with:
 
@@ -891,7 +892,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `doc`   | Object | Document  with `_id` property | Yes
 
-Resolves with `properties` unencrypted. Works on encrypted and unencrypted documents. If doc is added, it will be encrypted and a `hoodie` property with `createdAt` and `updatedAt` properties added.
+Resolves with `properties` unencrypted. Works on encrypted and unencrypted documents. If doc gets added, it will also encrypt it and add a `hoodie` property with `createdAt` and `updatedAt` properties.
 
 Rejects with:
 
@@ -920,7 +921,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `idsOrDocs` | Array | Array of documents with `_id` property or ids | Yes
 
-Resolves with array of `properties` unencrypted. Works on encrypted and unencrypted documents. If a doc is added, it will be encrypted and a `hoodie` property with `createdAt` and `updatedAt` properties added.
+Resolves with an array of `properties` unencrypted. Works on encrypted and unencrypted documents. If a doc gets added, it will also encrypt it and add a `hoodie` property with `createdAt` and `updatedAt` properties.
 
 Rejects with:
 
@@ -998,7 +999,7 @@ Argument| Type  | Description      | Required
 `id`    | String | Unique id of the document  | Yes
 `changedProperties` | Object | Properties that should be changed | Yes
 
-Resolves with updated `properties` unencrypted. Works on encrypted and unencrypted documents. If the document was unencrypted it will be encrypted.
+Resolves with updated `properties` unencrypted. Works on encrypted and unencrypted documents. Unencrypted documents will get encrypted!
 
 Rejects with:
 
@@ -1030,7 +1031,7 @@ Argument| Type  | Description      | Required
 `id`    | String | Unique id of the document  | Yes
 `updateFunction` | Function | Function that get the document passed and changes the document. | Yes
 
-Resolves with updated `properties` unencrypted. Works on encrypted and unencrypted documents. If the document was unencrypted it will be encrypted.
+Resolves with updated `properties` unencrypted. Works on encrypted and unencrypted documents. Unencrypted documents will get encrypted!
 
 Rejects with:
 
@@ -1065,7 +1066,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `doc`   | Object | Properties that should be changed with a `_id` property | Yes
 
-Resolves with updated `properties` unencrypted. Works on encrypted and unencrypted documents. If the document was unencrypted it will be encrypted.
+Resolves with updated `properties` unencrypted. Works on encrypted and unencrypted documents. Unencrypted documents will get encrypted!
 
 Rejects with:
 
@@ -1098,7 +1099,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `arrayOfDocs` | Array | Array properties that should be changed with a `_id` property | Yes
 
-Resolves with an array of updated `properties` unencrypted. Works on encrypted and unencrypted documents. If the document was unencrypted it will be encrypted.
+Resolves with an array of updated `properties` unencrypted. Works on encrypted and unencrypted documents. Unencrypted documents will get encrypted!
 
 Rejects with:
 
@@ -1135,7 +1136,7 @@ Argument| Type  | Description      | Required
 `id`    | String | Unique id of the document  | Yes
 `doc`   | Object | Properties that should be changed or added if doc doesn't exist | Yes
 
-Resolves with updated `properties` unencrypted. Updates existing documents and adds nonexistent docs. Works on encrypted and unencrypted documents. If the document was unencrypted it will be encrypted. If the doc is added, it will be encrypted and a `hoodie` property with `createdAt` and `updatedAt` properties added.
+Resolves with updated `properties` unencrypted. Updates existing documents and adds nonexistent docs. Works on encrypted and unencrypted documents. Unencrypted documents will get encrypted! If the doc gets added, it will encrypt it and add a `hoodie` property with `createdAt` and `updatedAt` properties added.
 
 Rejects with:
 
@@ -1164,7 +1165,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `doc`   | Object | Properties that should be changed or added with a `_id` property | Yes
 
-Resolves with updated `properties` unencrypted. Updates existing documents and adds nonexistent docs. Works on encrypted and unencrypted documents. If the document was unencrypted it will be encrypted. If the doc is added, it will be encrypted and a `hoodie` property with `createdAt` and `updatedAt` properties added.
+Resolves with updated `properties` unencrypted. Updates existing documents and adds nonexistent docs. Works on encrypted and unencrypted documents. Unencrypted documents will get encrypted! If the doc gets added, it will encrypt it and add a `hoodie` property with `createdAt` and `updatedAt` properties added.
 
 Rejects with:
 
@@ -1196,7 +1197,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `arrayOfDocs` | Array | Array properties that should be changed or added with a `_id` property | Yes
 
-Resolves with an array of updated `properties` unencrypted. Updates existing documents and adds nonexistent docs. Works on encrypted and unencrypted documents. If the document was unencrypted it will be encrypted. If the doc is added, it will be encrypted and a `hoodie` property with `createdAt` and `updatedAt` properties added.
+Resolves with an array of updated `properties` unencrypted. Updates existing documents and adds nonexistent docs. Works on encrypted and unencrypted documents. Unencrypted documents will get encrypted! If the doc gets added, it will encrypt it and add a `hoodie` property with `createdAt` and `updatedAt` properties added.
 
 Rejects with:
 
@@ -1231,7 +1232,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `changedProperties` | Object | Properties that should be changed by all documents | Yes
 
-Resolves with updated `properties` unencrypted. Works on encrypted and unencrypted documents. If the document was unencrypted it will be encrypted.
+Resolves with updated `properties` unencrypted. Works on encrypted and unencrypted documents. Unencrypted documents will get encrypted!
 
 __This updates and encrypts all documents with its idPrefix!__
 
@@ -1270,7 +1271,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `updateFunction` | Function | Function that get the document passed and changes the document. | Yes
 
-Resolves with updated `properties` unencrypted. Works on encrypted and unencrypted documents. If the document was unencrypted it will be encrypted.
+Resolves with updated `properties` unencrypted. Works on encrypted and unencrypted documents. Unencrypted documents will get encrypted!
 
 __This updates and encrypts all documents with its idPrefix!__
 
@@ -1313,7 +1314,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `id`    | String | Unique id of the document  | Yes
 
-Resolves with `properties` unencrypted. Works on encrypted and unencrypted documents. It set the document to deleted. If the document was unencrypted it will be encrypted. It adds `deletedAt` to the `hoodie` property.
+Resolves with `properties` unencrypted. Works on encrypted and unencrypted documents. It set the document to deleted. Unencrypted documents will get encrypted! It adds `deletedAt` to the `hoodie` property.
 
 ```JSON
 {
@@ -1355,7 +1356,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `doc`   | Object | Properties that should be changed with a `_id` property | Yes
 
-Resolves with `properties` unencrypted. Works on encrypted and unencrypted documents. It set the document to deleted and updates `properties`. If the document was unencrypted it will be encrypted. It adds `deletedAt` to the `hoodie` property.
+Resolves with `properties` unencrypted. Works on encrypted and unencrypted documents. It set the document to deleted and updates `properties`. Unencrypted documents will get encrypted! It adds `deletedAt` to the `hoodie` property.
 
 ```JSON
 {
@@ -1401,7 +1402,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `idsOrDocs`  | Array | Properties that should be changed with a `_id` property or ids | Yes
 
-Resolves with `properties` unencrypted. Works on encrypted and unencrypted documents. It set the document to deleted and updates `properties`. If the document was unencrypted it will be encrypted. It adds `deletedAt` to the `hoodie` property.
+Resolves with `properties` unencrypted. Works on encrypted and unencrypted documents. It set the document to deleted and updates `properties`. Unencrypted documents will get encrypted! It adds `deletedAt` to the `hoodie` property.
 
 ```JSON
 [
@@ -1449,7 +1450,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `filterFunction` | Function | Function that will be called for every doc with `doc`, `index` and `arrayOfAllDocs`. And returns `true` if `doc` should be returned, `false` if not. | No
 
-Resolves with updated `properties` unencrypted. Works on encrypted and unencrypted documents. If the document was unencrypted it will be encrypted.
+Resolves with updated `properties` unencrypted. Works on encrypted and unencrypted documents. Unencrypted documents will get encrypted!
 
 ```JSON
 [
@@ -1496,7 +1497,7 @@ Argument| Type  | Description      | Required
 --------|-------|------------------|----------
 `object` | Object | Document or object to be checked if it has the structure of an encrypted document. | Yes
 
-Returns a Boolean. Returns `true` if the passed object is encrypted, and `false` if it is not.
+Returns a Boolean. Returns `true` if the passed object matches and encrypted document, and `false` if it is not.
 
 Rejects with:
 
@@ -1531,7 +1532,7 @@ Argument| Type  | Description      | Required
 --------|-------|------------------|----------
 `Promise` | Promise<Object> | Promise that will resolve into an Object. That object will then be check if it has the structure of an encrypted document. | Yes
 
-Resolves a Boolean. Resolves `true` if the resolved object is encrypted, and `false` if it is not.
+Resolves a Boolean. Resolves `true` if the passed object matches and encrypted document, and `false` if it is not.
 
 Rejects with:
 
@@ -1561,7 +1562,7 @@ Argument| Type  | Description      | Required
 `eventName` | String | Event type. One of `add`, `update`, `remove` or `change`. | Yes
 `handler` | Function | Event Handler, that will be called every time that event emits. | Yes
 
-Returns the `cryptoStore`. `hander` will be called with an updated doc. If the event is `change`, than the first argument is a `eventName`.
+Returns the `cryptoStore`. `handler` will get called with an updated doc. If the event is `change`, than the first argument is a `eventName`.
 
 Rejects with:
 
@@ -1593,7 +1594,7 @@ Argument| Type  | Description      | Required
 `eventName` | String | Event type. One of `add`, `update`, `remove` or `change`. | Yes
 `handler` | Function | Event Handler, that will be called one time that event emits. | Yes
 
-Returns the `cryptoStore`. `hander` will be called with an updated doc. If the event is `change`, than the first argument is a `eventName`. After that event is emitted, that handler will be removed.
+Returns the `cryptoStore`. `handler` will get called with an updated doc. If the event is `change`, than the first argument is a `eventName`. After that event get emitted, that handler will get removed.
 
 Rejects with:
 

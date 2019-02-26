@@ -2,7 +2,10 @@
   "filters": {},
   "rules": {
     "alex": {
-      "allow": []
+      "allow": [
+        reject,
+        rejects
+      ]
     },
     "common-misspellings": true,
     "rousseau": {
