@@ -128,8 +128,7 @@ Use [`cryptoStore.setup(password, [salt])`](#cryptostoresetuppassword) to set th
 encryption password. __`cryptoStore.setup(password, [salt])` will not unlock your cryptoStore instance__
 (just like hoodie.account.signUp)!
 
-A salt is a second part of a password. `cryptoStore.setup(password, [salt])` will save the generated salt in `hoodiePluginCryptoStore/salt`,
-and use it.
+A salt is a second part of a password. `cryptoStore.setup(password, [salt])` will save the generated salt in `hoodiePluginCryptoStore/salt`, and use it. [More about what the salt is](http://www.passwordbreeder.com/page/salt).
 
 Example:
 ```javascript
@@ -450,7 +449,7 @@ Setup the __cryptoStore__ and adds it to hoodie.
 Argument | Type   | Description | Required
 ---------|--------|-------------|----------
 `hoodie` | Object | Hoodie client instance | Yes
-`options.noPasswordCheckAutoFix` | Boolean | [Deactivate password-check autofix](#v2-update-notes). Default is `False` | No
+`options.noPasswordCheckAutoFix` | Boolean | [Deactivate password-check autofix](#v2-update-notes). Default is `false` | No
 
 Returns `undefined`
 
@@ -463,7 +462,7 @@ var PouchDB = require('pouchdb')
 var cryptoStore = require('hoodie-plugin-store-crypto')
 
 var hoodie = new Hoodie({ // create an instance of the hoodie-client
-  url: '',
+  url: window.location.origin,
   PouchDB: PouchDB
 })
 
@@ -481,14 +480,14 @@ hoodie.cryptoStore.setup('test')
 cryptoStore.setup(password)
 ```
 
-Setup an user for encryption.
+Setup an users encryption.
 
 Argument | Type   | Description                           | Required
 ---------|--------|---------------------------------------|----------
 `password` | String | A password for encrypting the objects | Yes
 
-Sets up the encryption and generates a salt and saves it in `hoodiePluginCryptoStore/salt`.
-A salt is a string that will get used with the password together for the encryption.
+Sets up the encryption, generates a salt and saves it in `hoodiePluginCryptoStore/salt`.
+A salt is a string that will get used with the password together for the encryption. [More about what the salt is](http://www.passwordbreeder.com/page/salt).
 
 __*This will not unlock the cryptoStore!*__
 
@@ -525,7 +524,7 @@ async function signUp (username, password, cryptoPassword) {
 cryptoStore.setup(password, salt)
 ```
 
-Setup an user for encryption. But provide your own salt. *This is not recommended*.
+Setup an user for encryption. But provide your own salt. *This is not recommended!*
 
 Argument | Type   | Description                           | Required
 ---------|--------|---------------------------------------|----------
@@ -534,6 +533,7 @@ Argument | Type   | Description                           | Required
 
 Sets up the encryption and saves the salt in `hoodiePluginCryptoStore/salt`.
 A salt is a string that will get used with the password together for the encryption.
+[More about what the salt is](http://www.passwordbreeder.com/page/salt).
 
 __*This will not unlock the cryptoStore!*__
 
@@ -571,7 +571,7 @@ async function signUp (username, password, cryptoPassword, salt) {
 cryptoStore.unlock(password)
 ```
 
-Unlock the cryptoStore. It will be ready to get used after it. The user must be `setup` first!
+Unlock the cryptoStore. It will be ready for usage after it. The user must be `setup` first!
 
 Argument | Type   | Description                           | Required
 ---------|--------|---------------------------------------|----------
