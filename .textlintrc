@@ -1,0 +1,16 @@
+{
+  "filters": {},
+  "rules": {
+    "alex": {
+      "allow": [
+        reject,
+        rejects
+      ]
+    },
+    "common-misspellings": true,
+    "rousseau": {
+      "severity" : "warning",
+      "ignoreTypes": ["sentence:uppercase","sentence:start"]
+    }
+  }
+}

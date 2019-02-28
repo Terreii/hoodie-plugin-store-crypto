@@ -11,7 +11,9 @@
     "update-contrib": "weallcontribute -o . && git add CONTRIBUTING.md && git commit -m 'docs(contributing): updated CONTRIBUTING.md'",
     "pretest": "standard",
     "test": "node tests | tap-spec",
-    "standard:fix": "standard --fix",
+    "textlint": "textlint README.md",
+    "fix:docs": "textlint --fix README.md",
+    "fix:style": "standard --fix",
     "start": "hoodie"
   },
   "repository": {
@@ -22,8 +24,12 @@
     "hoodie",
     "plugin",
     "storage",
+    "pouchdb",
+    "offlinefirst",
+    "sync",
     "data",
     "crypto",
+    "cryptography",
     "end-to-end",
     "ete"
   ],
@@ -46,6 +52,10 @@
     "standard": "^12.0.1",
     "tap-spec": "^5.0.0",
     "tape": "^4.10.1",
+    "textlint": "^11.2.3",
+    "textlint-rule-alex": "^1.3.1",
+    "textlint-rule-common-misspellings": "^1.0.1",
+    "textlint-rule-rousseau": "^1.4.5",
     "weallbehave": "^1.2.0",
     "weallcontribute": "^1.0.8"
   },
