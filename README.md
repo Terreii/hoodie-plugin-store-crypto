@@ -571,7 +571,7 @@ async function signUp (username, password, cryptoPassword, salt) {
 cryptoStore.unlock(password)
 ```
 
-Unlock the cryptoStore. It will be ready to be used after it. The user must be `setup` first!
+Unlock the cryptoStore. It will be ready to get used after it. The user must be `setup` first!
 
 Argument | Type   | Description                           | Required
 ---------|--------|---------------------------------------|----------
@@ -614,7 +614,7 @@ cryptoStore.changePassword(oldPassword, newPassword)
 
 Changes the encryption password and salt. Then it will update all encrypted documents.
 
-All encrypted documents, that couldn't be decrypted, will not be updated! Their `_id` will be added to `notUpdated` array of the result object.
+All encrypted documents, that couldn't get decrypted, will not get updated! The Array, at the `notUpdated` field, will include all their `_id`s.
 
 Argument      | Type   | Description    | Required
 --------------|--------|----------------|---------
@@ -703,7 +703,7 @@ hoodie.cryptoStore.add({foo: 'bar'}).then(function (doc) {
 cryptoStore.add([properties])
 ```
 
-Encrypt and add multiple documents to the users store.
+Encrypt and add one or more documents to the users store.
 
 Argument          | Type  | Description      | Required
 ------------------|-------|--------------------------|----------
@@ -749,7 +749,7 @@ hoodie.cryptoStore.add([{foo: 'bar'}, {bar: 'baz'}]).then(function (docs) {
 cryptoStore.find(id)
 ```
 
-Find a document in the users store. If the document is encrypted, it will be decrypted.
+Find a document in the users store. And decrypt encrypted documents.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -791,7 +791,7 @@ hoodie.cryptoStore.find('12345678-1234-1234-1234-123456789ABC').then(function (d
 cryptoStore.find(doc)
 ```
 
-Find a document in the users store. If the document is encrypted, it will be decrypted.
+Find a document in the users store. And decrypt encrypted documents.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -833,7 +833,7 @@ hoodie.cryptoStore.find(doc).then(function (doc) {
 cryptoStore.find([doc])
 ```
 
-Find multiple documents in the users store. If a document is encrypted, it will be decrypted.
+Find one or more documents in the users store. And decrypt encrypted documents.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -880,7 +880,7 @@ hoodie.cryptoStore.find([
 cryptoStore.findOrAdd(id, doc)
 ```
 
-Find a document in the users store. If the document is encrypted, it will be decrypted. If no document is present: `doc` will be added (and encrypted).
+Find a document in the users store. And decrypt encrypted documents. If no document is present: `doc` will get added (and encrypted).
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -912,7 +912,7 @@ hoodie.cryptoStore.findOrAdd('12345678-1234-1234-1234-123456789ABC', doc).then(f
 cryptoStore.findOrAdd(doc)
 ```
 
-Find a document in the users store. If the document is encrypted, it will be decrypted. If no document is present: `doc` will be added (and encrypted).
+Find a document in the users store. And decrypt encrypted documents. If no document is present: `doc` will get added (and encrypted).
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -943,7 +943,7 @@ hoodie.cryptoStore.findOrAdd(doc).then(function (doc) {
 cryptoStore.findOrAdd(idsOrDocs)
 ```
 
-Find multiple documents in the users store. If a document is encrypted, it will be decrypted. If a document is not present: a new one will be added (and encrypted).
+Find one or more documents in the users store. And decrypt encrypted documents. If a document is not present: a new one will get added (and encrypted).
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -977,7 +977,7 @@ hoodie.cryptoStore.findOrAdd([
 cryptoStore.findAll(filterFunction)
 ```
 
-Find all documents. And if a document is encrypted, decrypt it. The `filterFunction` filters out documents, the same way as `Array.prototype.filter` does.
+Find all documents. And decrypt encrypted documents. The `filterFunction` filters out documents, the same way as `Array.prototype.filter` does.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -1133,7 +1133,7 @@ hoodie.cryptoStore.update({
 cryptoStore.update(arrayOfDocs)
 ```
 
-Find multiple documents. To find them the `_id` of every object is used. Then all properties of that object will get assigned to the doc. And then encrypts it.
+Find one or more documents. It uses the `_id` of every object to find the document. Then all properties of that object will get assigned to the doc. And then encrypts it.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -1171,7 +1171,7 @@ hoodie.cryptoStore.update([
 cryptoStore.updateOrAdd(id, doc)
 ```
 
-Try to find and update a doc with `id`. If none exist add one with `id` as its `_id' and doc as its properties. The document will be encrypted.
+Try to find and update a doc with `id`. If none exist add one with `id` as its `_id' and doc as its properties. And encrypt the document.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -1203,7 +1203,7 @@ hoodie.cryptoStore.updateOrAdd('12345678-1234-1234-1234-123456789ABC', {foo: 'ba
 cryptoStore.updateOrAdd(doc)
 ```
 
-Try to find and update a doc with `_id`. If none exist add this doc as it. The document will be encrypted.
+Try to find and update a doc with `_id`. If none exist add this doc as it. And encrypt the document.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -1237,7 +1237,7 @@ hoodie.cryptoStore.updateOrAdd({
 cryptoStore.updateOrAdd(arrayOfDocs)
 ```
 
-Try to find and update multiple documents. The `_id` of every doc in this array will be used. If a document doesn't exist, that document will be added as it. Every document will be encrypted.
+Try to find and update one or more documents. It uses the `_id` of every object to find the document. If a document doesn't exist, that object will get added as it. And encrypt the document.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -1274,7 +1274,7 @@ hoodie.cryptoStore.updateOrAdd([
 cryptoStore.updateAll(changedProperties)
 ```
 
-Find all documents and update them. `changedProperties` will be assigned to every document. And then encrypt all documents.
+Find all documents and update them. Assign `changedProperties` to every document. And then encrypt all documents.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -1452,7 +1452,7 @@ hoodie.cryptoStore.remove({
 cryptoStore.remove(idsOrDocs)
 ```
 
-Find multiple documents using the `_id` of that doc. It will update, remove, and encrypt all those documents.
+Find one or more documents using the `_id` of that doc. It will update, remove, and encrypt all those documents.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -1502,7 +1502,7 @@ hoodie.cryptoStore.remove([
 cryptoStore.removeAll(filterFunction)
 ```
 
-Remove all documents. If a `filterFunction` is passed, it will filter out every document, that should not be removed and encrypted.
+Remove all documents. If a `filterFunction` gets passed, it will behave like Array.prototype.filter. The resulting documents will get then removed and encrypted.
 
 Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
@@ -1620,7 +1620,7 @@ function isEncrypted (id) {
 cryptoStore.on(eventName, handler)
 ```
 
-Add an event-handler. It behaves like [hoodie-store-client's on](https://github.com/hoodiehq/hoodie-store-client#storeon), but only emits an event if that document is encrypted and could be decrypted. It will also decrypt the document.
+Add an event-handler. It behaves like [hoodie-store-client's on](https://github.com/hoodiehq/hoodie-store-client#storeon). But will not emit events for unencrypted documents or documents it couldn't decrypted. It will also decrypt the document.
 
 Argument| Type  | Description      | Required
 --------|-------|------------------|----------
@@ -1654,7 +1654,7 @@ hoodie.cryptoStore.on('change', changeHandler)
 cryptoStore.one(eventName, handler)
 ```
 
-Add an one-time event-handler. It behaves like [hoodie-store-client's one](https://github.com/hoodiehq/hoodie-store-client#storeone), but only emits an event if that document is encrypted and could be decrypted. It will also decrypt the document.
+Add an one-time event-handler. It behaves like [hoodie-store-client's one](https://github.com/hoodiehq/hoodie-store-client#storeone). But will not emit events for unencrypted documents or documents it couldn't decrypted. It will also decrypt the document.
 
 Argument| Type  | Description      | Required
 --------|-------|------------------|----------
@@ -1769,7 +1769,7 @@ Argument| Type  | Description      | Required
 `password` | String | A password for encrypting the objects | Yes
 `salt`   | String | A second password part, to add another protection lair. If this is missing a salt will be generated. Which will result in a different encryption! | No
 
-Resolves with an `object` containing the used `salt` and a subset of `cryptoStore` API with the `encryption key` from `password` and `salt`. If no `salt` or a now correct one, was passed, a new salt will be created.
+Resolves with an `object` containing the used `salt` and a subset of `cryptoStore` API. This API will have the `encryption key` from `password` and `salt`. If no `salt` or a now correct one, got passed, a new salt will get created.
 
 This also works if the main instance isn't unlocked!
 
