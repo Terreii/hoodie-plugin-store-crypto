@@ -5,6 +5,8 @@ var Promise = require('lie')
 var pouchdbErrors = require('pouchdb-errors')
 
 var createCryptoStore = require('../utils/createCryptoStore')
+var createKey = require('../../lib/create-key')
+var decrypt = require('../../lib/decrypt')
 
 test('cryptoStore.changePassword should only exist on the root api', function (t) {
   t.plan(3)
@@ -36,9 +38,9 @@ test('cryptoStore.changePassword should only exist on the root api', function (t
 
 test(
   'cryptoStore.changePassword(oldPassword, newPassword) should resolve with a report, including' +
-    ' the new salt and an array of not updated ids',
+    ' the new salt and an array of not updated ids and new reset keys',
   function (t) {
-    t.plan(5)
+    t.plan(7)
 
     var hoodie = createCryptoStore()
 
@@ -57,6 +59,11 @@ test(
         t.is(report.salt.length, 32, 'salt has the correct length')
         t.ok(Array.isArray(report.notUpdated), 'has a array of not updated IDs')
         t.is(report.notUpdated.length, 0, 'array has a length of 0')
+
+        t.is(report.resetKeys.length, 10, 'results with reset keys')
+        t.ok(report.resetKeys.every(function (key) {
+          return typeof key === 'string' && key.length === 32
+        }), 'every key has a length of 32')
 
         return hoodie.store.find('hoodiePluginCryptoStore/salt')
 
@@ -121,6 +128,88 @@ test(
       })
   }
 )
+
+test('cryptoStore.changePassword(oldPassword, newPassword) should update reset docs', function (t) {
+  t.plan(16)
+
+  var hoodie = createCryptoStore()
+
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.changePassword('test', 'otherPassword')
+    })
+
+    .then(function (result) {
+      return hoodie.store.withIdPrefix('hoodiePluginCryptoStore/pwReset').findAll()
+
+        .then(function (docs) {
+          return {
+            keys: result.resetKeys,
+            docs: docs
+          }
+        })
+    })
+
+    .then(function (result) {
+      var docs = result.docs
+      var keys = result.keys
+
+      t.ok(docs.every(function (doc, index) {
+        return doc._id === 'hoodiePluginCryptoStore/pwReset_' + index
+      }), 'have correct _id\'s')
+
+      t.ok(docs.every(function (doc) {
+        return /^2-/.test(doc._rev)
+      }), 'reset docs were updated')
+
+      t.ok(docs.every(function (doc) {
+        return doc.salt.length === 32
+      }), 'have correct salt lengths')
+
+      t.ok(docs.every(function (doc) {
+        return doc.tag.length === 32
+      }), 'have a tag part with a length of 32')
+
+      t.ok(docs.every(function (doc) {
+        return doc.data.length > 0
+      }), 'should have encrypted data')
+
+      t.ok(docs.every(function (doc) {
+        return doc.nonce.length === 24
+      }), 'should have nonce with a length of 24')
+
+      return Promise.all(docs.map(function (doc, index) {
+        return createKey(keys[index], doc.salt)
+
+          .then(function (keyObj) {
+            return decrypt(keyObj.key, doc)
+          })
+      }))
+    })
+
+    .then(function (decrypted) {
+      return hoodie.store.find('hoodiePluginCryptoStore/salt')
+
+        .then(function (saltDoc) {
+          return createKey('otherPassword', saltDoc.salt)
+        })
+
+        .then(function (keyObj) {
+          decrypted.forEach(function (resetDoc) {
+            t.equal(resetDoc.key, keyObj.key.toString('hex'), 'encrypted data is equal to key')
+          })
+        })
+    })
+
+    .catch(function (err) {
+      t.end(err)
+    })
+})
 
 test('cryptoStore.changePassword(oldPassword, newPassword) should update existing objects', function (t) {
   t.plan(6)
