@@ -200,8 +200,10 @@ test('cryptoStore.changePassword(oldPassword, newPassword) should update reset d
         })
 
         .then(function (keyObj) {
+          var key = keyObj.key.toString('hex')
+
           decrypted.forEach(function (resetDoc) {
-            t.equal(resetDoc.key, keyObj.key.toString('hex'), 'encrypted data is equal to key')
+            t.equal(resetDoc.key, key, 'encrypted data is equal to key')
           })
         })
     })
