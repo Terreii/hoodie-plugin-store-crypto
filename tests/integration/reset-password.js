@@ -177,7 +177,7 @@ test('cryptoStore.resetPassword(resetKey, newPassword) changes the encryption', 
         })
 
         .then(function (key) {
-          newKey = key
+          newKey = key.key
         })
     })
 
@@ -269,7 +269,7 @@ test('cryptoStore.resetPassword() fails if no new password was passed', function
       },
       function (err) {
         t.equal(err.status, pouchDbErrors.BAD_ARG.status, 'fails with bar args')
-        t.equal(err.reason, 'Missing new password', 'Fails with custom reason')
+        t.equal(err.reason, 'New password must be a string!', 'Fails with custom reason')
       }
     )
 
@@ -286,6 +286,88 @@ test('cryptoStore.resetPassword() fails if no new password was passed', function
         t.equal(err.reason, 'password is to short!', 'Fails with custom reason')
       }
     )
+})
+
+test('cryptoStore.resetPassword(resetKey, newPassword) should update reset docs', function (t) {
+  t.plan(16)
+
+  var hoodie = createCryptoStore()
+
+  hoodie.cryptoStore.setup('test')
+
+    .then(function (resetKeys) {
+      var resetKey = getRandomItemOfArray(resetKeys)
+
+      return hoodie.cryptoStore.resetPassword(resetKey, 'otherPassword')
+    })
+
+    .then(function (result) {
+      return hoodie.store.withIdPrefix('hoodiePluginCryptoStore/pwReset').findAll()
+
+        .then(function (docs) {
+          return {
+            keys: result.resetKeys,
+            docs: docs
+          }
+        })
+    })
+
+    .then(function (result) {
+      var docs = result.docs
+      var keys = result.keys
+
+      t.ok(docs.every(function (doc, index) {
+        return doc._id === 'hoodiePluginCryptoStore/pwReset_' + index
+      }), 'have correct _id\'s')
+
+      t.ok(docs.every(function (doc) {
+        return /^2-/.test(doc._rev)
+      }), 'reset docs were updated')
+
+      t.ok(docs.every(function (doc) {
+        return doc.salt.length === 32
+      }), 'have correct salt lengths')
+
+      t.ok(docs.every(function (doc) {
+        return doc.tag.length === 32
+      }), 'have a tag part with a length of 32')
+
+      t.ok(docs.every(function (doc) {
+        return doc.data.length > 0
+      }), 'should have encrypted data')
+
+      t.ok(docs.every(function (doc) {
+        return doc.nonce.length === 24
+      }), 'should have nonce with a length of 24')
+
+      return Promise.all(docs.map(function (doc, index) {
+        return createKey(keys[index], doc.salt)
+
+          .then(function (keyObj) {
+            return decrypt(keyObj.key, doc)
+          })
+      }))
+    })
+
+    .then(function (decrypted) {
+      return hoodie.store.find('hoodiePluginCryptoStore/salt')
+
+        .then(function (saltDoc) {
+          return createKey('otherPassword', saltDoc.salt)
+        })
+
+        .then(function (keyObj) {
+          var key = keyObj.key.toString('hex')
+
+          decrypted.forEach(function (resetDoc) {
+            t.equal(resetDoc.key, key, 'encrypted data is equal to key')
+          })
+        })
+    })
+
+    .catch(function (err) {
+      t.end(err)
+    })
 })
 
 // Utils
