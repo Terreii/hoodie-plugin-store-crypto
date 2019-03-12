@@ -288,6 +288,69 @@ test('cryptoStore.resetPassword() fails if no new password was passed', function
     )
 })
 
+test(
+  'cryptoStore.resetPassword(resetKey, newPassword) should fail if the new password is to short',
+  function (t) {
+    t.plan(2)
+
+    var hoodie = createCryptoStore()
+
+    hoodie.cryptoStore.setup('test')
+
+      .then(function (resetKeys) {
+        var resetKey = getRandomItemOfArray(resetKeys)
+
+        return hoodie.cryptoStore.resetPassword(resetKey, 'a')
+      })
+
+      .then(function () {
+        t.fail('should throw an Error')
+      })
+
+      .catch(function (error) {
+        t.is(error.reason, 'password is to short!', 'fails with error message')
+        t.is(error.status, pouchDbErrors.BAD_ARG.status, 'fails with a PouchDB error')
+      })
+  }
+)
+
+test(
+  'cryptoStore.resetPassword(resetKey, newPassword) should update the check in the salt object', function (t) {
+    t.plan(3)
+
+    var hoodie = createCryptoStore()
+    var resetKeys = []
+
+    hoodie.cryptoStore.setup('test')
+
+      .then(function (resetKeysResult) {
+        resetKeys = resetKeysResult
+
+        return hoodie.store.find('hoodiePluginCryptoStore/salt')
+      })
+
+      .then(function (oldSaltDoc) {
+        var resetKey = getRandomItemOfArray(resetKeys)
+
+        return hoodie.cryptoStore.resetPassword(resetKey, 'otherPassword')
+
+          .then(function () {
+            return hoodie.store.find('hoodiePluginCryptoStore/salt')
+          })
+
+          .then(function (newSaltDoc) {
+            t.notEqual(newSaltDoc.check.tag, oldSaltDoc.check.tag, 'tag should not be equal')
+            t.notEqual(newSaltDoc.check.data, oldSaltDoc.check.data, 'data should not be equal')
+            t.notEqual(newSaltDoc.check.nonce, oldSaltDoc.check.nonce, 'nonce should not be equal')
+          })
+      })
+
+      .catch(function (err) {
+        t.end(err)
+      })
+  }
+)
+
 test('cryptoStore.resetPassword(resetKey, newPassword) should update reset docs', function (t) {
   t.plan(16)
 
@@ -363,6 +426,68 @@ test('cryptoStore.resetPassword(resetKey, newPassword) should update reset docs'
             t.equal(resetDoc.key, key, 'encrypted data is equal to key')
           })
         })
+    })
+
+    .catch(function (err) {
+      t.end(err)
+    })
+})
+
+test('cryptoStore.resetPassword() should only update objects that it can decrypt', function (t) {
+  t.plan(7)
+
+  var hoodie = createCryptoStore()
+  var resetKeys = []
+
+  hoodie.cryptoStore.setup('test')
+
+    .then(function (resetKeysResult) {
+      resetKeys = resetKeysResult
+
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      var adding = hoodie.cryptoStore.add({
+        _id: 'shouldUpdate',
+        test: 'value'
+      })
+
+      var withPassword = hoodie.cryptoStore.withPassword('otherPassword')
+        .then(function (result) {
+          return result.store.add({
+            _id: 'notUpdate',
+            value: 'other'
+          })
+        })
+
+      return Promise.all([adding, withPassword])
+    })
+
+    .then(function () {
+      var resetKey = getRandomItemOfArray(resetKeys)
+
+      return hoodie.cryptoStore.resetPassword(resetKey, 'nextPassword')
+    })
+
+    .then(function (report) {
+      t.is(report.notUpdated.length, 1, 'notUpdated array has a length of 1')
+      t.is(report.notUpdated[0], 'notUpdate', 'notUpdated array has the IDs')
+
+      var updated = hoodie.cryptoStore.find('shouldUpdate')
+
+      var notUpdated = hoodie.store.find('notUpdate')
+
+      return Promise.all([updated, notUpdated])
+    })
+
+    .then(function (docs) {
+      t.is(docs[0]._id, 'shouldUpdate', 'correct id')
+      t.ok(/^2-/.test(docs[0]._rev), 'revision is 2')
+      t.is(docs[0].test, 'value', 'doc can be decrypted')
+
+      t.is(docs[1]._id, 'notUpdate', 'correct id')
+      t.ok(/^1-/.test(docs[1]._rev), 'revision is 1')
     })
 
     .catch(function (err) {
