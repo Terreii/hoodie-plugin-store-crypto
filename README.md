@@ -406,6 +406,7 @@ async function decryptDoc (key, doc) {
 - [cryptoStore.setup(password, salt)](#cryptostoresetuppassword-salt)
 - [cryptoStore.unlock(password)](#cryptostorelock)
 - [cryptoStore.changePassword(oldPassword, newPassword)](#cryptostorechangepasswordoldpassword-newpassword)
+- [cryptoStore.resetPassword(resetKey, newPassword)](#cryptostoreresetpasswordresetkey-newpassword)
 - [cryptoStore.lock()](#cryptostorelock)
 - [cryptoStore.add(properties)](#cryptostoreaddproperties)
 - [cryptoStore.add(arrayOfProperties)](#cryptostoreaddarrayofproperties)
@@ -486,6 +487,9 @@ Argument | Type   | Description                           | Required
 ---------|--------|---------------------------------------|----------
 `password` | String | A password for encrypting the objects | Yes
 
+Results with an Array of 10 `resetKeys` (Strings). `crytoStore.resetPassword()` requires them, in case the
+user did forget their encryption-password.
+
 Sets up the encryption, generates a salt and saves it in `hoodiePluginCryptoStore/salt`.
 A salt is a string that will get used with the password together for the encryption. [More about what the salt is](http://www.passwordbreeder.com/page/salt).
 
@@ -512,7 +516,11 @@ async function signUp (username, password, cryptoPassword) {
   if (cryptoPassword == null) { // Use a separate password for encryption or the same
     cryptoPassword = password
   }
-  await hoodie.cryptoStore.setup(cryptoPassword)
+  const resetKeys = await hoodie.cryptoStore.setup(cryptoPassword)
+
+  // This can be: displaying the 10 keys to the user
+  // or/and generate a text-file for the user to download.
+  displayResetKeys(resetKeys)
 
   return signIn(username, password, cryptoPassword) // Call your signIn function
 }
@@ -530,6 +538,9 @@ Argument | Type   | Description                           | Required
 ---------|--------|---------------------------------------|----------
 `password` | String | A password for encrypting the objects | Yes
 `salt`   | String | To add another protection lair, as a second password. If this is missing, a salt will be generated. Which will result in a different encryption! | Yes
+
+Results with an Array of 10 `resetKeys` (Strings). `crytoStore.resetPassword()` requires them, in case the
+user did forget their encryption-password.
 
 Sets up the encryption and saves the salt in `hoodiePluginCryptoStore/salt`.
 A salt is a string that will get used with the password together for the encryption.
@@ -559,7 +570,11 @@ async function signUp (username, password, cryptoPassword, salt) {
   if (cryptoPassword == null) { // Use a separate password for encryption or the same
     cryptoPassword = password
   }
-  await hoodie.cryptoStore.setup(cryptoPassword, salt)
+  const resetKeys = await hoodie.cryptoStore.setup(cryptoPassword, salt)
+
+  // This can be: displaying the 10 keys to the user
+  // or/and generate a text-file for the user to download.
+  displayResetKeys(resetKeys)
 
   return signIn(username, password, cryptoPassword) // Call your signIn function
 }
@@ -621,7 +636,9 @@ Argument      | Type   | Description    | Required
 `oldPassword` | String | The old password, that was used up until now | Yes
 `newPassword` | String | New password, with which the docs will be encrypted | Yes
 
-Resolves with an object with the new `salt` and an array (`notUpdated`) with the ids of not updated docs.
+Resolves with an object with the new `salt`, an array (`notUpdated`) with the ids of not updated docs and
+an Array of 10 new `resetKeys`.
+
 It will update all with `oldPassword` encrypted documents. And encrypt them with with the help of
 the `newPassword`. It also updates the `salt` in `hoodiePluginCryptoStore/salt`.
 
@@ -630,7 +647,7 @@ Rejects with:
 Name 	| Status | Description | Why
 ------|--------|-------------|----
 badarg | 500 | New password must be a string! | The new password wasn't a string.
-badarg | 500 | password is to short! | The password must be longer than 2 chars.
+badarg | 500 | password is to short! | The new password must be longer than 2 chars.
 unauthorized | 401 | Name or password is incorrect. | The entered old password is wrong.
 
 Example
@@ -639,9 +656,62 @@ hoodie.cryptoStore.changePassword('my-old-password', 'secret').then(function (re
   console.log('all documents are updated!')
   console.log(report.salt) // the new salt
   console.log(report.notUpdated) // array with all ids of encrypted docs that have not been updated
+
+  // This can be: displaying the 10 keys to the user
+  // or/and generate a text-file for the user to download.
+  displayResetKeys(report.resetKeys)
 }).catch(function (error) {
   console.error(error)
 })
+```
+
+### cryptoStore.resetPassword(resetKey, newPassword)
+
+```javascript
+cryptoStore.resetPassword(resetKey, newPassword)
+```
+
+This is for when the __user did forget their password__.
+
+Changes the encryption password and salt. Then it will update all encrypted documents.
+
+All encrypted documents, that couldn't get decrypted, will not get updated! The Array, at the `notUpdated` field, will include all their `_id`s.
+
+Argument      | Type   | Description    | Required
+--------------|--------|----------------|---------
+`resetKey` | String | One of the `resetKeys` generated by `setup()`, `changePassword()` and `resetPassword()` | Yes
+`newPassword` | String | New password, with which the docs will be encrypted | Yes
+
+Resolves with an object with the new `salt`, an array (`notUpdated`) with the ids of not updated docs and
+an Array of 10 new `resetKeys`.
+It will update all with the main password encrypted documents. And encrypt them with with the help of
+the `newPassword`. It also updates the `salt` in `hoodiePluginCryptoStore/salt`.
+
+Rejects with:
+
+Name 	| Status | Description | Why
+------|--------|-------------|----
+badarg | 500 | New password must be a string! | The new password wasn't a string.
+badarg | 500 | password is to short! | The new password must be longer than 2 chars.
+unauthorized | 401 | Name or password is incorrect. | The entered old password is wrong.
+
+Example
+```javascript
+async function userDidForgetPassword (resetKey) {
+  try {
+    const report = await hoodie.cryptoStore.resetPassword('my-old-password', 'secret')
+
+    console.log('all documents are updated!')
+    console.log(report.salt) // the new salt
+    console.log(report.notUpdated) // array with all ids of encrypted docs that have not been updated
+
+    // This can be: displaying the 10 keys to the user
+    // or/and generate a text-file for the user to download.
+    displayResetKeys(report.resetKeys)
+  } catch (error) {
+    console.error(error)
+  }
+}
 ```
 
 ### cryptoStore.lock()
