@@ -22,14 +22,14 @@ There is no server side to this plugin!
 ## Example
 ```js
 hoodie.store.add({foo: 'bar'})
-  .then(function (obj) {console.log(obj)})
+  .then(function (obj) { console.log(obj) })
 
 hoodie.cryptoStore.setup('secret')
   .then(async () => {
-    const salt = await hoodie.cryptoStore.unlock('secret')
+    await hoodie.cryptoStore.unlock('secret')
 
-    const obj = await hoodie.cryptoStore.add({foo: 'bar'})  // adds the object encrypted
-    console.log(obj)                                        // returns it unencrypted!
+    const obj = await hoodie.cryptoStore.add({ foo: 'bar' }) // add the object encrypted
+    console.log(obj)                                         // returns it unencrypted!
   })
 ```
 
@@ -112,7 +112,7 @@ cryptoStore(hoodie) // sets up hoodie.cryptoStore
 To use the cryptoStore you need to set a password for encryption. This can be your users password to
 your app, or a special password, which they will enter or you generate.
 
-There are 4 use-cases you must put in place:
+There are 5 use-cases you must put in place:
 
 - [Sign up / setup / start of using encryption](#setup)
 - [Sign in](#sign-in)
@@ -153,8 +153,7 @@ Every time your user signs in you also need to unlock the cryptoStore.
 
 Use [`cryptoStore.unlock(password)`](#cryptostoreunlockpassword) for unlocking.
 
-`unlock` will try to pull `hoodiePluginCryptoStore/salt` from the server, 
-to have the latest version of it.
+`unlock` will try to pull `hoodiePluginCryptoStore/salt` from the server, to have the latest version of it.
 
 Example:
 ```javascript
@@ -181,8 +180,9 @@ Usecases for the [`cryptoStore.lock()`](#cryptostorelock) method are:
 ```javascript
 window.addEventListener('beforeunload', function (event) {
   // do your cleanup
-  hoodie.cryptoStore.lock() // lock the cryptoStore in an cryptographic saver way.
-                            // It overwrites the key data 10 times.
+  // lock the cryptoStore in an cryptographic saver way.
+  // It overwrites the key data 10 times.
+  hoodie.cryptoStore.lock()
 })
 ```
 
@@ -241,7 +241,7 @@ function generateResetKeysFile (resetKeys) {
 
   const a = document.getElementById('yourDownloadLink')
   a.href = url
-  a.download = '[Your app name] reset-keys'
+  a.download = '[Your app name] reset-keys.txt' // This will be the standard file name.
 
   // then call later URL.revokeObjectURL(url) with the url of the file.
   // To remove it from memory.
@@ -322,7 +322,7 @@ cryptoStore(hoodie, { noPasswordCheckAutoFix: true }) // sets up hoodie.cryptoSt
 
 Then no password check will get added, until the next password change.
 
-## v2 Update Notes
+## v2.2 Update Notes
 
 This version adds __password-resetKeys__. Display them to your user. If the user forgets their password, they can
 reset their password, using one of the 10 reset keys.
@@ -738,7 +738,7 @@ Name 	| Status | Description | Why
 ------|--------|-------------|----
 badarg | 500 | New password must be a string! | The new password wasn't a string.
 badarg | 500 | password is to short! | The new password must be longer than 2 chars.
-unauthorized | 401 | Name or password is incorrect. | The entered old password is wrong.
+unauthorized | 401 | Reset-key is incorrect. | The entered `resetKey` is wrong.
 
 Example
 ```javascript
