@@ -64,9 +64,10 @@ test('cryptoStore.removeAll()', function (t) {
 })
 
 test('cryptoStore.removeAll(filterFunction)', function (t) {
-  t.plan(2)
+  t.plan(3)
 
   var hoodie = createCryptoStore()
+  var cryptoStoreDocs = []
 
   hoodie.cryptoStore.setup('test')
 
@@ -75,6 +76,12 @@ test('cryptoStore.removeAll(filterFunction)', function (t) {
     })
 
     .then(function () {
+      return hoodie.store.withIdPrefix('hoodiePluginCryptoStore/').findAll()
+    })
+
+    .then(function (foundCryptoStoreDocs) {
+      cryptoStoreDocs = foundCryptoStoreDocs
+
       return hoodie.cryptoStore.add([{
         foo: 0
       }, {
@@ -107,7 +114,15 @@ test('cryptoStore.removeAll(filterFunction)', function (t) {
     })
 
     .then(function (objects) {
-      t.is(objects.length, 4, 'does not remove other 3 objects')
+      var otherDocs = objects.filter(function (doc) {
+        return !/^hoodiePluginCryptoStore/.test(doc._id)
+      })
+      t.is(otherDocs.length, 3, 'does not remove other 3 objects')
+
+      var ids = objects.map(function (doc) { return doc._id })
+      t.ok(cryptoStoreDocs.length > 0 && cryptoStoreDocs.every(function (doc) {
+        return ids.indexOf(doc._id) !== -1
+      }), 'does not remove "hoodiePluginCryptoStore/" docs')
     })
 
     .catch(function (err) {
