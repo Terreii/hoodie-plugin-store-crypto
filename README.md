@@ -1,3 +1,6 @@
+| index | [api] | [about cryptography] | [update] |
+|-------|-------|----------------------|----------|
+
 # hoodie-plugin-store-crypto
 > End-to-end crypto plugin for the Hoodie client store.
 

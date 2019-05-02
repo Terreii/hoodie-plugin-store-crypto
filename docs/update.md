@@ -1,3 +1,6 @@
+| [index] | [api] | [about cryptography] | update |
+|---------|-------|----------------------|--------|
+
 # Update Notes
 
 This document will provide an update path for you.

@@ -1,3 +1,6 @@
+| [index] | api | [about cryptography] | [update] |
+|---------|-----|----------------------|----------|
+
 # API
 
 - [cryptoStore (setup function)](#cryptostore-setup-function)
