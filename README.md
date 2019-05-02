@@ -1,4 +1,4 @@
-| index | [api] | [about cryptography] | [update] |
+| index | [API] | [about cryptography] | [update] |
 |-------|-------|----------------------|----------|
 
 # hoodie-plugin-store-crypto
@@ -254,3 +254,7 @@ function generateResetKeysFile (resetKeys) {
 Then, when the user did forget their encryption password, call `cryptoStore.resetPassword(aResetKey, newPassword)`.
 
 Every resetKey has a doc. Their `_id` starts with `hoodiePluginCryptoStore/pwReset_`, followed with the number 0 to 9. Please don't change them!
+
+[API]: docs/api.md
+[about cryptography]: docs/about_cryptography.md
+[update]: docs/update.md

@@ -1,5 +1,5 @@
-| [index] | api | [about cryptography] | [update] |
-|---------|-----|----------------------|----------|
+| [index](../README.md) | API | [about cryptography](./about_cryptography.md) | [update](./update.md) |
+|-----------------------|-----|-----------------------------------------------|-----------------------|
 
 # API
 
