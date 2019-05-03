@@ -1,5 +1,5 @@
-| [index](../README.md) | [API](./api.md) | [about cryptography](./about_cryptography.md) | update |
-|-----------------------|-----------------|-----------------------------------------------|--------|
+| [index](../README.md) | [API](./api.md) | [about cryptography](./about_cryptography.md) | update | [Contributing](../CONTRIBUTING.md) | [Code of Conduct](../CODE_OF_CONDUCT.md) |
+|-----------------------|-----------------|-----------------------------------------------|--------|-----------------------------------|------------------------------------------|
 
 # Update Notes
 

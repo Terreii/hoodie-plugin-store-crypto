@@ -1,5 +1,5 @@
-| index | [API] | [about cryptography] | [update] |
-|-------|-------|----------------------|----------|
+| index | [API] | [about cryptography] | [update] | [Contributing] | [Code of Conduct] |
+|-------|-------|----------------------|----------|----------------|-------------------|
 
 # hoodie-plugin-store-crypto
 > End-to-end crypto plugin for the Hoodie client store.
@@ -11,7 +11,7 @@
 [![Greenkeeper badge](https://badges.greenkeeper.io/Terreii/hoodie-plugin-store-crypto.svg)](https://greenkeeper.io/)
 
 This [Hoodie](http://hood.ie/) plugin adds methods, to add, read, update and delete encrypted
-documents in your users store, while still being able to add, read, update and delete unencrypted
+documents in your users store, while still being able to add, read, update and delete un-encrypted
 documents.
 
 It does this by adding an object to your Hoodie-client, with similar methods
@@ -35,10 +35,6 @@ hoodie.cryptoStore.setup('secret')
     console.log(obj)                                         // returns it unencrypted!
   })
 ```
-
-## Update notes
-
-[Please read the update notes for migrating from v1 to v2!](https://github.com/Terreii/hoodie-plugin-store-crypto/releases/tag/v2.0.0).
 
 ## Acknowledgments
 This project heavily uses code and inspiration by
@@ -176,7 +172,7 @@ async function signIn (username, password, cryptoPassword) {
 
 `cryptoStore` will automatically listen to [`account.on('signout')`](http://docs.hood.ie/en/latest/api/client/hoodie.account.html#events) events. And locks itself if it emits an event. You don't need to add any setup for it.
 
-Usecases for the [`cryptoStore.lock()`](#cryptostorelock) method are:
+Use-cases for the [`cryptoStore.lock()`](#cryptostorelock) method are:
  - a lock after a timeout functionality
  - lock the store in a save way when closing an tab.
 
@@ -255,6 +251,40 @@ Then, when the user did forget their encryption password, call `cryptoStore.rese
 
 Every resetKey has a doc. Their `_id` starts with `hoodiePluginCryptoStore/pwReset_`, followed with the number 0 to 9. Please don't change them!
 
+## Contributing
+
+Contributions in all forms are welcome♡
+
+[Contributing] might answer your questions about Contributing.
+
+To create a welcoming project to all, this project uses a [Code of Conduct]. Please read it.
+
+### Setup
+
+hoodie-plugin-store-crypto is a [node.js](https://nodejs.org/) package. You need node version 6 or higher and npm version 5 or higher. Check your installed version with `node -v`and `npm -v`.
+
+```
+git clone https://github.com/Terreii/hoodie-plugin-store-crypto.git
+cd hoodie-plugin-store-crypto
+npm install
+```
+
+### npm scripts
+
+Scripts for development.
+
+Command | What it does
+--------|-------
+`npm start` | Starts a Hoodie-server with this plugin attached.
+`npm test` | Run all tests.
+`npm run textlint` | Lint the documentation.
+`npm run fix:docs` | Fix some lint errors in the documentation.
+`npm run fix:style` | Fix some code-style errors.
+`npm run update-coc` | Update the __Code of Conduct.md__.
+`npm run update-contrib` | Update the __Contributing.md__.
+
 [API]: docs/api.md
 [about cryptography]: docs/about_cryptography.md
 [update]: docs/update.md
+[Contributing]: CONTRIBUTING.md
+[Code of Conduct]: CODE_OF_CONDUCT.md

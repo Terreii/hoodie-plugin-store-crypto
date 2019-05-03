@@ -1,3 +1,6 @@
+| [index](../README.md) | [API](./api.md) | [about cryptography](./about_cryptography.md) | [update](./update.md) |Contributing | [Code of Conduct](../CODE_OF_CONDUCT.md) |
+|-----------------------|-----------------|--------------------|-----------------------|----------------|------------------------------------------|
+
 # Contributing
 
 ## How do I... <a name="toc"></a>
