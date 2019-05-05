@@ -3,6 +3,59 @@
 
 # API
 
+## General concepts
+
+Those concepts/rules apply to all methods.
+
+### What gets encrypted
+
+**Everything of a doc will get encrypted. Except for `_id`, `_rev`, `_deleted`, `_attachments`, `_conflicts` and the `hoodie` object!**
+
+**Don't save private data in the `_id`**!
+
+### Handling of un-encrypted documents
+
+All methods can read un-encrypted documents.
+
+Un-encrypted documents get fully encrypted, if they get updated using one of the methods! All data will get encrypted and and then the un-encrypted data will get deleted!
+
+```JSON
+{
+  "_id": "e261b431-9f8b-44d8-9835-97be550088d5",
+  "_rev": "1-e66d7e8ddf584d0fa56e34105b5b1752",
+  "hoodie": {
+    "createdAt": "An ISO-Date"
+  },
+  "foo": "bar"
+}
+```
+
+After `hoodie.cryptoStore.update(await hoodie.store.find('e261b431-9f8b-44d8-9835-97be550088d5'))` becomes:
+
+```JSON
+{
+  "_id": "e261b431-9f8b-44d8-9835-97be550088d5",
+  "_rev": "2-b9c5a6b9353e4dfcaf5a9183da02a647",
+  "hoodie": {
+    "createdAt": "An ISO-Date",
+    "updatedAt": "Another ISO-Date"
+  },
+  "data": "09ae27028776974ef291030b85",
+  "nonce": "f04ad8243a5ab2f59cc4a174",
+  "tag": "9b01f13a765ed9351d97a11bba48e7b4"
+}
+```
+
+### Documents from this plugin
+
+Settings, reset-keys, and the salt-document get saved using a prefix of `hoodiePluginCryptoStore/`.
+
+### cryptoStore.withPassword
+
+You can use `cryptoStore.withPassword()` even if the cryptoStore isn't unlocked!
+
+It allows to encrypt documents with a different password (and salt). It is like `cryptoStore.withIdPrefix()` but for passwords.
+
 - [cryptoStore (setup function)](#cryptostore-setup-function)
 - [cryptoStore.setup(password)](#cryptostoresetuppassword)
 - [cryptoStore.setup(password, salt)](#cryptostoresetuppassword-salt)

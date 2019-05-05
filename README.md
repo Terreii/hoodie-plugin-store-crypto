@@ -57,7 +57,7 @@ hoodie.cryptoStore.setup('secret')
 
 - [Acknowledgments](#acknowledgments)
 - Usage
-  - Add it to your Hoodie-Client
+  - [Add it to your Hoodie-Client](#add-it-to-your-hoodie-client)
     - [with the Hoodie Plugin API](#usage-with-the-hoodie-plugin-api)
     - [with Browserify or Webpack](#usage-with-browserify-or-webpack)
   - [Get started](#get-started)
@@ -67,7 +67,7 @@ hoodie.cryptoStore.setup('secret')
     - [changing the password for encryption](#changing-the-password)
     - [reset the password](#reset-the-password)
 - [Contributing](#contributing)
-  - [Setup](#setup)
+  - [Setup for development](#setup-development)
   - [npm scripts](#npm-scripts)
 
 ## Acknowledgments
@@ -116,6 +116,8 @@ You can now start your app with `npm start`. There should now be an `cryptoStore
 property on your client `hoodie` instance. You can access it with
 `hoodie.cryptoStore`.
 
+[Back to top](#table-of-contents)
+
 #### Usage with Browserify or Webpack
 
 If you are using a client bundler (e.g. [Browserify](http://browserify.org/)
@@ -141,6 +143,8 @@ var hoodie = new Hoodie({ // create an instance of the hoodie-client
 
 cryptoStore(hoodie) // sets up hoodie.cryptoStore
 ```
+
+[Back to top](#table-of-contents)
 
 ### Get started
 
@@ -182,6 +186,8 @@ async function signUp (username, password, cryptoPassword) {
 }
 ```
 
+[Back to top](#table-of-contents)
+
 #### Sign in
 
 Every time your user signs in you also need to unlock the cryptoStore.
@@ -204,6 +210,8 @@ async function signIn (username, password, cryptoPassword) {
 }
 ```
 
+[Back to top](#table-of-contents)
+
 #### Sign out
 
 `cryptoStore` will automatically listen to [`account.on('signout')`](http://docs.hood.ie/en/latest/api/client/hoodie.account.html#events) events. And locks itself if it emits an event. You don't need to add any setup for it.
@@ -221,6 +229,8 @@ window.addEventListener('beforeunload', function (event) {
 })
 ```
 
+[Back to top](#table-of-contents)
+
 #### Open your app while signed in
 
 This plugin doesn't save your users password! That results in you having to unlock the cryptoStore
@@ -234,6 +244,8 @@ async function unlock (cryptoPassword) {
   // now do what you do after unlocking
 }
 ```
+
+[Back to top](#table-of-contents)
 
 #### Changing the password
 
@@ -258,6 +270,8 @@ async function changePassword (oldPassword, newPassword) {
   displayResetKeys(result.resetKeys)
 }
 ```
+
+[Back to top](#table-of-contents)
 
 #### Reset the password
 
@@ -287,6 +301,8 @@ Then, when the user did forget their encryption password, call `cryptoStore.rese
 
 Every resetKey has a doc. Their `_id` starts with `hoodiePluginCryptoStore/pwReset_`, followed with the number 0 to 9. Please don't change them!
 
+[Back to top](#table-of-contents)
+
 ## Contributing
 
 Contributions in all forms are welcome♡
@@ -295,7 +311,7 @@ Contributions in all forms are welcome♡
 
 To create a welcoming project to all, this project uses a [Code of Conduct]. Please read it.
 
-### Setup
+### Setup development
 
 hoodie-plugin-store-crypto is a [node.js](https://nodejs.org/) package. You need node version 6 or higher and npm version 5 or higher. Check your installed version with `node -v`and `npm -v`.
 
@@ -318,6 +334,8 @@ Command | What it does
 `npm run fix:style` | Fix some code-style errors.
 `npm run update-coc` | Update the __Code of Conduct.md__.
 `npm run update-contrib` | Update the __Contributing.md__.
+
+[Back to top](#table-of-contents)
 
 [API]: docs/api.md
 [about cryptography]: docs/about_cryptography.md

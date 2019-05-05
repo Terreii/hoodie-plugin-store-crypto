@@ -1,4 +1,4 @@
-| [index](../README.md) | [API](./api.md) | [about cryptography](./about_cryptography.md) | [update](./update.md) | [Contributing](../CONTRIBUTING.md) | Code of Conduct |
+| [index](./README.md) | [API](./docs/api.md) | [about cryptography](./docs/about_cryptography.md) | [update](./docs/update.md) | [Contributing](./CONTRIBUTING.md) | Code of Conduct |
 |-----------------------|-----------------|--------------------|-----------------------|-----------------------------------|-----------------|
 
 # Code of Conduct
