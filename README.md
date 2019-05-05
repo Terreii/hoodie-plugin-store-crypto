@@ -32,9 +32,43 @@ hoodie.cryptoStore.setup('secret')
     await hoodie.cryptoStore.unlock('secret')
 
     const obj = await hoodie.cryptoStore.add({ foo: 'bar' }) // add the object encrypted
-    console.log(obj)                                         // returns it unencrypted!
+    console.log(obj)                                         // returns it un-encrypted!
+
+    const encrypted = await hoodie.store.find(obj._id) // returns the encrypted version of the object.
+    /*
+    encrypted = {
+      // Added by Hoodie:
+      _id: 'e261b431-9f8b-44d8-9835-97be550088d5',
+      _rev: '1-b9c5a6b9353e4dfcaf5a9183da02a647',
+      hoodie: {
+        createdAt: 'An ISO-Date'
+      },
+
+      // Encrypted data:
+      data: '09ae27028776974ef291030b85',
+      nonce: 'f04ad8243a5ab2f59cc4a174',
+      tag: '9b01f13a765ed9351d97a11bba48e7b4'
+    }
+    */
   })
 ```
+
+## Table of Contents
+
+- [Acknowledgments](#acknowledgments)
+- Usage
+  - Add it to your Hoodie-Client
+    - [with the Hoodie Plugin API](#usage-with-the-hoodie-plugin-api)
+    - [with Browserify or Webpack](#usage-with-browserify-or-webpack)
+  - [Get started](#get-started)
+    - [Sign up / setup / start of using encryption](#setup)
+    - [Sign in / unlocking](#sign-in)
+    - [Open a tap/instance of your web-app if they are already signed in](#open-your-app-while-signed-in)
+    - [changing the password for encryption](#changing-the-password)
+    - [reset the password](#reset-the-password)
+- [Contributing](#contributing)
+  - [Setup](#setup)
+  - [npm scripts](#npm-scripts)
 
 ## Acknowledgments
 This project heavily uses code and inspiration by
@@ -48,11 +82,13 @@ Thank you to those projects and their maintainers.
 
 ## Usage
 
+### Add it to your Hoodie-Client
+
 There are 2 ways to use this plugin in your app:
 - Use it with the Hoodie Plugin API
 - Use it with a bundler (Webpack or Browserify)
 
-### Usage with the Hoodie Plugin API
+#### Usage with the Hoodie Plugin API
 
 This will add the cryptoStore to your `/hoodie/client.js` if you use the `hoodie` package.
 
@@ -80,7 +116,7 @@ You can now start your app with `npm start`. There should now be an `cryptoStore
 property on your client `hoodie` instance. You can access it with
 `hoodie.cryptoStore`.
 
-### Usage with Browserify or Webpack
+#### Usage with Browserify or Webpack
 
 If you are using a client bundler (e.g. [Browserify](http://browserify.org/)
 or [Webpack](https://webpack.js.org)), then you can import it manually.
@@ -114,7 +150,7 @@ your app, or a special password, which they will enter or you generate.
 There are 5 use-cases you must put in place:
 
 - [Sign up / setup / start of using encryption](#setup)
-- [Sign in](#sign-in)
+- [Sign in / unlocking](#sign-in)
 - [Open a tap/instance of your web-app if they are already signed in](#open-your-app-while-signed-in)
 - [changing the password for encryption](#changing-the-password)
 - [reset the password](#reset-the-password)
