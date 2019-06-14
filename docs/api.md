@@ -3,6 +3,52 @@
 
 # API
 
+## Table of Contents
+
+- [General concepts](#general-concepts)
+  - [What gets encrypted](#what-gets-encrypted)
+  - [Handling of un-encrypted documents](#handling-of-un-encrypted-documents)
+  - [Documents from this plugin](#documents-from-this-plugin)
+  - [Concepts of cryptoStore.withPassword](#concepts-of-cryptostorewithpassword)
+- [Methods](#methods)
+  - [cryptoStore (setup function)](#cryptostore-setup-function)
+  - [cryptoStore.setup(password)](#cryptostoresetuppassword)
+  - [cryptoStore.setup(password, salt)](#cryptostoresetuppassword-salt)
+  - [cryptoStore.unlock(password)](#cryptostorelock)
+  - [cryptoStore.changePassword(oldPassword, newPassword)](#cryptostorechangepasswordoldpassword-newpassword)
+  - [cryptoStore.resetPassword(resetKey, newPassword)](#cryptostoreresetpasswordresetkey-newpassword)
+  - [cryptoStore.lock()](#cryptostorelock)
+  - [cryptoStore.add(properties)](#cryptostoreaddproperties)
+  - [cryptoStore.add(arrayOfProperties)](#cryptostoreaddarrayofproperties)
+  - [cryptoStore.find(id)](#cryptostorefindid)
+  - [cryptoStore.find(doc)](#cryptostorefinddoc)
+  - [cryptoStore.find(idsOrDocs)](#cryptostorefindidsordocs)
+  - [cryptoStore.findOrAdd(id, doc)](#cryptostorefindoraddid-doc)
+  - [cryptoStore.findOrAdd(doc)](#cryptostorefindoradddoc)
+  - [cryptoStore.findOrAdd(idsOrDocs)](#cryptostorefindoraddidsordocs)
+  - [cryptoStore.findAll()](#cryptostorefindall)
+  - [cryptoStore.update(id, changedProperties)](#cryptostoreupdateid-changedproperties)
+  - [cryptoStore.update(id, updateFunction)](#cryptostoreupdateid-updatefunction)
+  - [cryptoStore.update(doc)](#cryptostoreupdatedoc)
+  - [cryptoStore.update(arrayOfDocs)](#cryptostoreupdatearrayofdocs)
+  - [cryptoStore.updateOrAdd(id, doc)](#cryptostoreupdateoraddid-doc)
+  - [cryptoStore.updateOrAdd(doc)](#cryptostoreupdateoradddoc)
+  - [cryptoStore.updateOrAdd(arrayOfDocs)](#cryptostoreupdateoraddarrayofdocs)
+  - [cryptoStore.updateAll(changedProperties)](#cryptostoreupdateallchangedproperties)
+  - [cryptoStore.updateAll(updateFunction)](#cryptostoreupdateallupdatefunction)
+  - [cryptoStore.remove(id)](#cryptostoreremoveid)
+  - [cryptoStore.remove(doc)](#cryptostoreremovedoc)
+  - [cryptoStore.remove(idsOrDocs)](#cryptostoreremoveidsordocs)
+  - [cryptoStore.removeAll()](#cryptostoreremoveall)
+  - [cryptoStore.isEncrypted(object)](#cryptostoreisencryptedobject)
+  - [cryptoStore.isEncrypted(Promise)](#cryptostoreisencryptedpromise)
+  - [cryptoStore.on()](#cryptostoreon)
+  - [cryptoStore.one()](#cryptostoreone)
+  - [cryptoStore.off()](#cryptostoreoff)
+  - [cryptoStore.withIdPrefix](#cryptostorewithidprefix)
+  - [cryptoStore.withPassword](#cryptostorewithpassword)
+  - [Events](#events)
+
 ## General concepts
 
 Those concepts/rules apply to all methods.
@@ -50,49 +96,13 @@ After `hoodie.cryptoStore.update(await hoodie.store.find('e261b431-9f8b-44d8-983
 
 Settings, reset-keys, and the salt-document get saved using a prefix of `hoodiePluginCryptoStore/`.
 
-### cryptoStore.withPassword
+### Concepts of cryptoStore.withPassword
 
 You can use `cryptoStore.withPassword()` even if the cryptoStore isn't unlocked!
 
 It allows to encrypt documents with a different password (and salt). It is like `cryptoStore.withIdPrefix()` but for passwords.
 
-- [cryptoStore (setup function)](#cryptostore-setup-function)
-- [cryptoStore.setup(password)](#cryptostoresetuppassword)
-- [cryptoStore.setup(password, salt)](#cryptostoresetuppassword-salt)
-- [cryptoStore.unlock(password)](#cryptostorelock)
-- [cryptoStore.changePassword(oldPassword, newPassword)](#cryptostorechangepasswordoldpassword-newpassword)
-- [cryptoStore.resetPassword(resetKey, newPassword)](#cryptostoreresetpasswordresetkey-newpassword)
-- [cryptoStore.lock()](#cryptostorelock)
-- [cryptoStore.add(properties)](#cryptostoreaddproperties)
-- [cryptoStore.add(arrayOfProperties)](#cryptostoreaddarrayofproperties)
-- [cryptoStore.find(id)](#cryptostorefindid)
-- [cryptoStore.find(doc)](#cryptostorefinddoc)
-- [cryptoStore.find(idsOrDocs)](#cryptostorefindidsordocs)
-- [cryptoStore.findOrAdd(id, doc)](#cryptostorefindoraddid-doc)
-- [cryptoStore.findOrAdd(doc)](#cryptostorefindoradddoc)
-- [cryptoStore.findOrAdd(idsOrDocs)](#cryptostorefindoraddidsordocs)
-- [cryptoStore.findAll()](#cryptostorefindall)
-- [cryptoStore.update(id, changedProperties)](#cryptostoreupdateid-changedproperties)
-- [cryptoStore.update(id, updateFunction)](#cryptostoreupdateid-updatefunction)
-- [cryptoStore.update(doc)](#cryptostoreupdatedoc)
-- [cryptoStore.update(arrayOfDocs)](#cryptostoreupdatearrayofdocs)
-- [cryptoStore.updateOrAdd(id, doc)](#cryptostoreupdateoraddid-doc)
-- [cryptoStore.updateOrAdd(doc)](#cryptostoreupdateoradddoc)
-- [cryptoStore.updateOrAdd(arrayOfDocs)](#cryptostoreupdateoraddarrayofdocs)
-- [cryptoStore.updateAll(changedProperties)](#cryptostoreupdateallchangedproperties)
-- [cryptoStore.updateAll(updateFunction)](#cryptostoreupdateallupdatefunction)
-- [cryptoStore.remove(id)](#cryptostoreremoveid)
-- [cryptoStore.remove(doc)](#cryptostoreremovedoc)
-- [cryptoStore.remove(idsOrDocs)](#cryptostoreremoveidsordocs)
-- [cryptoStore.removeAll()](#cryptostoreremoveall)
-- [cryptoStore.isEncrypted(object)](#cryptostoreisencryptedobject)
-- [cryptoStore.isEncrypted(Promise)](#cryptostoreisencryptedpromise)
-- [cryptoStore.on()](#cryptostoreon)
-- [cryptoStore.one()](#cryptostoreone)
-- [cryptoStore.off()](#cryptostoreoff)
-- [cryptoStore.withIdPrefix](#cryptostorewithidprefix)
-- [cryptoStore.withPassword](#cryptostorewithpassword)
-- [Events](#events)
+## Methods
 
 ### cryptoStore (setup function)
 

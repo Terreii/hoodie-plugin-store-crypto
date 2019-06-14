@@ -3,7 +3,7 @@
 
 # About the cryptography
 
-This plugin uses the `sha256` and `pbkdf2` algorithm for generating a key from your password. The key is a 32 char Hash. And for encryption and decryption of your docs the `AES-GCM` algorithm gets used.
+This plugin uses the `sha256` and `pbkdf2` algorithms for generating a key from your password. The key is a 32 char Hash. And for encryption and decryption of your docs the `AES-GCM` algorithm gets used.
 
 ## What is encrypted
 
