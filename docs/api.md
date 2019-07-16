@@ -63,11 +63,11 @@ Those concepts/rules apply to all methods.
 
 All methods can read un-encrypted documents.
 
-Un-encrypted documents get fully encrypted, if they get updated using one of the methods! All data will get encrypted and and then the un-encrypted data will get deleted!
+Un-encrypted documents get fully encrypted, if they get updated using one of the methods! All data will then get encrypted and and the un-encrypted data will get deleted!
 
 ```JSON
 {
-  "_id": "e261b431-9f8b-44d8-9835-97be550088d5",
+  "_id": "something",
   "_rev": "1-e66d7e8ddf584d0fa56e34105b5b1752",
   "hoodie": {
     "createdAt": "An ISO-Date"
@@ -76,11 +76,11 @@ Un-encrypted documents get fully encrypted, if they get updated using one of the
 }
 ```
 
-After `hoodie.cryptoStore.update(await hoodie.store.find('e261b431-9f8b-44d8-9835-97be550088d5'))` becomes:
+After `hoodie.cryptoStore.update(await hoodie.store.find('something'))` becomes:
 
 ```JSON
 {
-  "_id": "e261b431-9f8b-44d8-9835-97be550088d5",
+  "_id": "something",
   "_rev": "2-b9c5a6b9353e4dfcaf5a9183da02a647",
   "hoodie": {
     "createdAt": "An ISO-Date",
@@ -95,6 +95,11 @@ After `hoodie.cryptoStore.update(await hoodie.store.find('e261b431-9f8b-44d8-983
 ### Documents from this plugin
 
 Settings, reset-keys, and the salt-document get saved using a prefix of `hoodiePluginCryptoStore/`.
+
+Those are:
+
+- **hoodiePluginCryptoStore/salt** - for storing the salt and password check
+- **hoodiePluginCryptoStore/pwReset_[0-9]** - for storing the reset-keys. They are 10 documents.
 
 ### Concepts of cryptoStore.withPassword
 
