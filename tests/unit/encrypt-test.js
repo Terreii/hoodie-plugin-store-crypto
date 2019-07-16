@@ -92,9 +92,9 @@ test('should ignore properties in ignore', function (t) {
     _deleted: false,
     _attachments: {
       'info.txt': {
-        'content_type': 'text/plain',
-        'digest': 'd5ccfd24a8748bed4e2c9a279a2b6089',
-        'data': 'SXMgdGhlcmUgbGlmZSBvbiBNYXJzPw=='
+        content_type: 'text/plain',
+        digest: 'd5ccfd24a8748bed4e2c9a279a2b6089',
+        data: 'SXMgdGhlcmUgbGlmZSBvbiBNYXJzPw=='
       }
     },
     _conflicts: [
