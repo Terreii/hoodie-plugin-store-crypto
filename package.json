@@ -11,8 +11,8 @@
     "update-contrib": "weallcontribute -o . && git add CONTRIBUTING.md && git commit -m 'docs(contributing): updated CONTRIBUTING.md'",
     "pretest": "standard",
     "test": "node tests | tap-spec",
-    "textlint": "textlint README.md",
-    "fix:docs": "textlint --fix README.md",
+    "textlint": "textlint README.md docs/*",
+    "fix:docs": "textlint --fix README.md docs/*",
     "fix:style": "standard --fix",
     "start": "hoodie"
   },

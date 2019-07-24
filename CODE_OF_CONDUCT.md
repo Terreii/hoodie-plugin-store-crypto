@@ -1,3 +1,6 @@
+| [index](./README.md) | [API](./docs/api.md) | [about cryptography](./docs/about_cryptography.md) | [update](./docs/update.md) | [Contributing](./CONTRIBUTING.md) | Code of Conduct |
+|-----------------------|-----------------|--------------------|-----------------------|-----------------------------------|-----------------|
+
 # Code of Conduct
 
 ## When Something Happens
