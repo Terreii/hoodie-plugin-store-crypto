@@ -49,7 +49,7 @@
     "pouchdb-adapter-memory": "^7.1.1",
     "pouchdb-core": "^7.1.1",
     "pouchdb-replication": "^7.1.1",
-    "standard": "^13.1.0",
+    "standard": "^14.0.0",
     "tap-spec": "^5.0.0",
     "tape": "^4.11.0",
     "textlint": "^11.3.1",
