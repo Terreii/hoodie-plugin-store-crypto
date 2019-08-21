@@ -7,8 +7,8 @@ This document will provide an update path for you.
 
 It will list all changes, you have to make, if you update to:
 
-- [v2](#v2updatenotes)
-- [v2.2](#v22updatenotes)
+- [v2](#v2-update-notes)
+- [v2.2](#v22-update-notes)
 
 ## v2 Update Notes
 
