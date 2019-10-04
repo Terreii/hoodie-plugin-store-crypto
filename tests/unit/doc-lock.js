@@ -57,14 +57,23 @@ test('docLock should work with a string and an object', function (t) {
 test('docLock should throw an conflict error if a document was already locked', function (t) {
   var locked = docLock(null, 'test')
 
-  try {
+  t.throws(function () {
     docLock(null, 'test').unlock()
-    t.fail("shouldn't fail with same prefix")
-  } catch (err) {
-    t.ok('does throw')
-  } finally {
-    locked.unlock()
-  }
+  }, 'throws when an id was already locked')
+
+  locked.unlock()
+
+  t.end()
+})
+
+test('docLock should fail if null is passed as second arg', function (t) {
+  t.throws(function () {
+    docLock(null, null).unlock()
+  }, 'throws if prefix and second arg are null')
+
+  t.throws(function () {
+    docLock('user/', null).unlock()
+  }, 'throws if prefix is present but second arg is null')
 
   t.end()
 })
@@ -74,18 +83,21 @@ test('docLock should handle multiple docs', function (t) {
 
   t.deepEqual(locked.failed, [null, null], 'has an array with errors or null by id index')
 
-  try {
+  t.throws(function () {
     docLock(null, 'test').unlock()
-    t.fail('should throw with same prefix')
-  } catch (err) {
-    t.ok('does throw')
-  }
+  }, 'second lock of id "test" throws')
+
+  t.throws(function () {
+    docLock(null, 'other').unlock()
+  }, 'second lock of id "other" throws')
 
   try {
-    docLock(null, 'other').unlock()
-    t.fail('should throw with same prefix')
+    var lockedNull = docLock(null, ['test123', null])
+    t.deepEqual(lockedNull.failed, [null, null], "didn't fail with null as document")
   } catch (err) {
-    t.ok('does throw')
+    t.fail("shouldn't fail when one doc of an array is null")
+  } finally {
+    lockedNull.unlock()
   }
 
   var otherLocked = docLock(null, ['test', 'notLocked'])
@@ -145,4 +157,36 @@ test('docLock should return the error it was passed as document or id', function
   t.is(locked.failed[1], null, "correct doc doesn't fail")
 
   locked.unlock()
+})
+
+test('docLock should handle documents with no _id', function (t) {
+  t.plan(7)
+
+  var lockedNoPrefix1 = docLock(null, { value: 42 })
+  var lockedNoPrefix2 = docLock(null, { other: 'value' })
+  var lockedNoPrefix3 = docLock(null, [{ other: 'value' }, { value: 42 }])
+
+  var lockedPrefix1 = docLock('user/', { value: 42 })
+  var lockedPrefix2 = docLock('user/', { other: 'value' })
+  var lockedPrefix3 = docLock('user/', [{ other: 'value' }, { value: 42 }])
+
+  t.deepEqual(lockedNoPrefix1.failed, [null], "didn't fail if prefix is null and no id is present")
+  t.deepEqual(lockedNoPrefix2.failed, [null], "didn't fail by second doc with no id and prefix")
+  t.deepEqual(lockedNoPrefix3.failed, [null, null], "didn't fail with array of docs with no ids")
+
+  t.deepEqual(lockedPrefix1.failed, [null], "didn't fail if prefix is present but no id")
+  t.deepEqual(lockedPrefix2.failed, [null], "didn't fail by second doc with no id but a prefix")
+  t.deepEqual(lockedPrefix3.failed, [null, null], "didn't fail with array of docs with no ids but")
+
+  try {
+    lockedNoPrefix1.unlock()
+    lockedNoPrefix2.unlock()
+    lockedNoPrefix3.unlock()
+    lockedPrefix1.unlock()
+    lockedPrefix2.unlock()
+    lockedPrefix3.unlock()
+    t.pass('did unlock all')
+  } catch (err) {
+    t.end(err)
+  }
 })
