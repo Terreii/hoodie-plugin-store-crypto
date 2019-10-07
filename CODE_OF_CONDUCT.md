@@ -1,6 +1,3 @@
-| [index](./README.md) | [API](./docs/api.md) | [about cryptography](./docs/about_cryptography.md) | [update](./docs/update.md) | [Contributing](./CONTRIBUTING.md) | Code of Conduct |
-|-----------------------|-----------------|--------------------|-----------------------|-----------------------------------|-----------------|
-
 # Code of Conduct
 
 ## When Something Happens
@@ -68,6 +65,10 @@ Once the maintainers get involved, they will follow a documented series of steps
 
 ### Contacting Maintainers
 
+You may get in touch with the maintainer team through any of the following methods:
+
+  * Through email:
+    * [christopher.astfalk@icloud.com](mailto:christopher.astfalk@icloud.com) (Christopher Astfalk)
 
 ### Further Enforcement
 
