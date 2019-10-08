@@ -9,6 +9,8 @@
 [![dependencies Status](https://david-dm.org/Terreii/hoodie-plugin-store-crypto/status.svg)](https://david-dm.org/Terreii/hoodie-plugin-store-crypto)
 [![devDependencies Status](https://david-dm.org/Terreii/hoodie-plugin-store-crypto/dev-status.svg)](https://david-dm.org/Terreii/hoodie-plugin-store-crypto?type=dev)
 [![Greenkeeper badge](https://badges.greenkeeper.io/Terreii/hoodie-plugin-store-crypto.svg)](https://greenkeeper.io/)
+[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
+[![npm](https://img.shields.io/npm/v/hoodie-plugin-store-crypto)](https://www.npmjs.com/package/hoodie-plugin-store-crypto)
 
 This [Hoodie](http://hood.ie/) plugin adds methods, to add, read, update and delete encrypted
 documents in your users store, while still being able to add, read, update and delete un-encrypted
