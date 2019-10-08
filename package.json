@@ -1,6 +1,6 @@
 {
   "name": "hoodie-plugin-store-crypto",
-  "version": "2.2.3",
+  "version": "0.0.0-development",
   "description": "End-to-end crypto plugin for the Hoodie client store.",
   "main": "index.js",
   "engines": {
@@ -14,11 +14,12 @@
     "textlint": "textlint README.md docs/*",
     "fix:docs": "textlint --fix README.md docs/*",
     "fix:style": "standard --fix",
-    "start": "hoodie"
+    "start": "hoodie",
+    "semantic-release": "semantic-release"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Terreii/hoodie-plugin-store-crypto.git"
+    "url": "https://github.com/Terreii/hoodie-plugin-store-crypto.git"
   },
   "keywords": [
     "hoodie",
@@ -57,7 +58,8 @@
     "textlint-rule-common-misspellings": "^1.0.1",
     "textlint-rule-rousseau": "^1.4.6",
     "weallbehave": "^1.2.0",
-    "weallcontribute": "^1.0.9"
+    "weallcontribute": "^1.0.9",
+    "semantic-release": "^15.13.24"
   },
   "dependencies": {
     "@hoodie/store-client": "^8.3.0",
