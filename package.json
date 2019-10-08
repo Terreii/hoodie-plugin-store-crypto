@@ -15,7 +15,7 @@
     "fix:docs": "textlint --fix README.md docs/*",
     "fix:style": "standard --fix",
     "start": "hoodie",
-    "semantic-release": "semantic-release --branch latest"
+    "semantic-release": "semantic-release -b latest"
   },
   "repository": {
     "type": "git",
