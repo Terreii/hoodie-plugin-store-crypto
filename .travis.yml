@@ -27,6 +27,6 @@ jobs:
 
 stages:
   - test
-  - name: docs
+  - docs
   - name: release
-    if: branch = latest
+    if: branch = latest AND type != pull_request
