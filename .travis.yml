@@ -18,4 +18,9 @@ jobs:
         provider: script
         skip_cleanup: true
         script:
-          - npx semantic-release -b latest --debug
+          - npm run semantic-release
+
+stages:
+  - test
+  - name: release
+    if: branch = latest
