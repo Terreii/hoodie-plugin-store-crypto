@@ -8,19 +8,25 @@ node_js:
 
 jobs:
   include:
+    - stage: docs
+      node_js: lts/*
+      script:
+        - npm run textlint
     # Define the release stage that runs semantic-release
     - stage: release
       node_js: lts/*
       # Advanced: optionally overwrite your default `script` step to skip the tests
       # script: skip
       deploy:
-        branch: latest
         provider: script
         skip_cleanup: true
+        on:
+          branch: latest
         script:
           - npm run semantic-release
 
 stages:
   - test
+  - docs
   - name: release
-    if: branch = latest
+    if: branch = latest AND type != pull_request
