@@ -14,7 +14,8 @@ jobs:
       # Advanced: optionally overwrite your default `script` step to skip the tests
       # script: skip
       deploy:
+        branch: latest
         provider: script
         skip_cleanup: true
         script:
-          - npx semantic-release -b latest
+          - npx semantic-release -b latest --debug
