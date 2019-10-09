@@ -1,15 +1,13 @@
 language: node_js
 
+node_js:
+  - "6"
+  - "8"
+  - "10"
+  - "node"
+
 jobs:
   include:
-    - stage: test
-      node_js:
-        - "6"
-        - "8"
-        - "10"
-        - "12"
-      script:
-        - npm run test
     - stage: docs
       node_js: lts/*
       script:
