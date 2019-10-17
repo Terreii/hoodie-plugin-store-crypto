@@ -266,6 +266,7 @@ test("cryptoStore.findOrAdd() shouldn't encrypt fields in cy_ignore and __cy_ign
 
     .then(function () {
       return hoodie.cryptoStore.findOrAdd({
+        _id: 'an_id',
         value: 42,
         notEncrypted: 'other',
         notEncryptedTemp: true,
@@ -285,7 +286,7 @@ test("cryptoStore.findOrAdd() shouldn't encrypt fields in cy_ignore and __cy_ign
       t.is(obj.notEncrypted, 'other', 'field in cy_ignore was not encrypted')
       t.is(obj.notEncryptedTemp, true, 'field in __cy_ignore was not encrypted')
 
-      return hoodie.cryptoStore.findOrAdd(obj._id)
+      return hoodie.cryptoStore.findOrAdd(obj)
     })
 
     .then(function (obj) {

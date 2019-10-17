@@ -7,7 +7,7 @@
 
 - [General concepts](#general-concepts)
   - [What gets encrypted](#what-gets-encrypted)
-    - [Select fields that shouldn't get encrypted](select-fields-that-shouldnt-get-encrypted)
+    - [Select fields that shouldn't get encrypted](#select-fields-that-shouldnt-get-encrypted)
   - [Handling of un-encrypted documents](#handling-of-un-encrypted-documents)
   - [Documents from this plugin](#documents-from-this-plugin)
   - [Concepts of cryptoStore.withPassword](#concepts-of-cryptostorewithpassword)

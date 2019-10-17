@@ -298,6 +298,7 @@ test(
 
       .then(function () {
         return hoodie.cryptoStore.updateOrAdd({
+          _id: 'an_id',
           value: 42,
           notEncrypted: 'other',
           notEncryptedTemp: true,
