@@ -7,6 +7,7 @@
 
 - [General concepts](#general-concepts)
   - [What gets encrypted](#what-gets-encrypted)
+    - [Select fields that shouldn't get encrypted](select-fields-that-shouldnt-get-encrypted)
   - [Handling of un-encrypted documents](#handling-of-un-encrypted-documents)
   - [Documents from this plugin](#documents-from-this-plugin)
   - [Concepts of cryptoStore.withPassword](#concepts-of-cryptostorewithpassword)
@@ -58,6 +59,42 @@ Those concepts/rules apply to all methods.
 **Everything of a doc will get encrypted. Except for `_id`, `_rev`, `_deleted`, `_attachments`, `_conflicts` and the `hoodie` object!**
 
 **Don't save private data in the `_id`**!
+
+#### Select fields that shouldn't get encrypted
+
+You can also define your own fields that shouldn't get encrypted. This works on all methods.
+
+There are two ways for it:
+- add an array of field-names as `cy_ignore`
+- add an array of field-names as `__cy_ignore`
+
+Both work the same way: Every field listed in one of them, won't get encrypted. They differentiate in that `cy_ignore` will get saved (encrypted) in the document. While `__cy_ignore` is temporary, and won't get saved.
+
+```javascript
+hoodie.cryptoStore.add({
+  secretValue: 'this will get encrypted',
+  publicValue: 'this will not get encrypted', // will get saved in plain text
+  cy_ignore: ['publicValue'], // list all fields that shouldn't get encrypted
+  __cy_ignore: [ // both can be used at the same time!
+    'other' // Not existing fields are not an error!
+  ]
+})
+
+// results in:
+// {
+//   _id: '123456',
+//   _rev: '1-1234567890',
+//   hoodie: { createdAt: 'some date' },
+//   tag: '6bc503f508a8...',
+//   data: '1b16dfd59038808511...',
+//   nonce: '433d5b039fb...',
+//   publicValue: 'this will not get encrypted'
+// }
+```
+
+##### Some tips:
+- On reading a document all not encrypted fields will get merged in the final object. But on a conflict the encrypted fields will overwrite the un-encrypted ones!
+- `cy_ignore` gets also encrypted. But if it gets listed in `cy_ignore` or `__cy_ignore`, then it will not get encrypted.
 
 ### Handling of un-encrypted documents
 
