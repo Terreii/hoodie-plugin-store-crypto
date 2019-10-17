@@ -239,6 +239,47 @@ test('cryptoStore.find(array) with non-existing', function (t) {
     })
 })
 
+test('cryptoStore.find() should merge not encrypt fields into the result object', function (t) {
+  t.plan(6)
+
+  var hoodie = createCryptoStore()
+
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.add({
+        value: 42,
+        notEncrypted: 'other',
+        notEncryptedTemp: true,
+        cy_ignore: ['notEncrypted'],
+        __cy_ignore: ['notEncryptedTemp']
+      })
+    })
+
+    .then(function (obj) {
+      return hoodie.store.update(obj._id, { other: 'something public' })
+    })
+
+    .then(function (obj) {
+      return hoodie.cryptoStore.find(obj._id)
+    })
+
+    .then(function (obj) {
+      t.is(obj.value, 42, 'encrypted value was decrypted')
+      t.is(obj.notEncrypted, 'other', 'not encrypted field listed in cy_ignore')
+      t.is(obj.notEncryptedTemp, true, 'not encrypted field listed in __cy_ignore')
+      t.deepEqual(obj.cy_ignore, ['notEncrypted'], 'cy_ignore was saved')
+      t.is(obj.__cy_ignore, undefined, '__cy_ignore was not saved')
+      t.is(obj.other, 'something public', 'later added not encrypted value was merged in')
+    })
+
+    .catch(t.end)
+})
+
 test('cryptoStore.find() should throw if plugin isn\'t unlocked', function (t) {
   t.plan(4)
 

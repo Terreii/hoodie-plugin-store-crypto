@@ -232,6 +232,76 @@ test('cryptoStore.removeAll([objects]) creates deletedAt timestamps', function (
     })
 })
 
+test("cryptoStore.removeAll() shouldn't encrypt fields in cy_ignore and __cy_ignore", function (t) {
+  t.plan(4)
+
+  var hoodie = createCryptoStore()
+
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.add([
+        {
+          _id: 'a_with_cy_ignore',
+          value: 42,
+          notEncrypted: 'other',
+          cy_ignore: ['notEncrypted']
+        },
+        {
+          _id: 'b_with___cy_ignore',
+          value: 42,
+          notEncrypted: true,
+          __cy_ignore: ['notEncrypted']
+        },
+        {
+          _id: 'c_with_both',
+          notEncrypted: 'other',
+          notEncryptedTemp: true,
+          cy_ignore: ['notEncrypted'],
+          __cy_ignore: ['notEncryptedTemp']
+        }
+      ])
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.removeAll()
+    })
+
+    .catch(t.end)
+
+  hoodie.store.on('remove', function (obj) {
+    switch (obj._id) {
+      case 'a_with_cy_ignore':
+        t.is(
+          obj.notEncrypted,
+          'other',
+          'field listed in cy_ignore is not encrypted after an update'
+        )
+        break
+
+      case 'b_with___cy_ignore':
+        t.is(obj.notEncrypted, undefined, 'not encrypted value was encrypted and deleted')
+        break
+
+      case 'c_with_both':
+        t.is(
+          obj.notEncrypted,
+          'other',
+          'field listed in cy_ignore is not encrypted after an update'
+        )
+        t.is(obj.notEncryptedTemp, undefined, 'not encrypted value was encrypted and deleted')
+        break
+
+      default:
+        t.fail('unknown id')
+    }
+  })
+})
+
 test('cryptoStore.removeAll() should throw if plugin isn\'t unlocked', function (t) {
   t.plan(4)
 

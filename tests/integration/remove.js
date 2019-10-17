@@ -424,6 +424,42 @@ test('cryptoStore.remove([objects]) creates deletedAt timestamps', function (t) 
     })
 })
 
+test("cryptoStore.remove() shouldn't encrypt fields in cy_ignore and __cy_ignore", function (t) {
+  t.plan(3)
+
+  var hoodie = createCryptoStore()
+
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.add({
+        value: 42,
+        notEncrypted: 'other',
+        notEncryptedTemp: true,
+        cy_ignore: ['notEncrypted'],
+        __cy_ignore: ['notEncryptedTemp']
+      })
+    })
+
+    .then(function (obj) {
+      return hoodie.cryptoStore.remove(obj._id, {
+        __cy_ignore: ['value']
+      })
+    })
+
+    .catch(t.end)
+
+  hoodie.store.on('remove', function (obj) {
+    t.is(obj.value, 42, 'field listed in __cy_ignore was decrypted')
+    t.is(obj.notEncrypted, 'other', 'field listed is cy_ignore was not encrypted')
+    t.is(obj.notEncryptedTemp, undefined, 'not encrypted fields got encrypted and removed')
+  })
+})
+
 test('cryptoStore.remove() should throw if plugin isn\'t unlocked', function (t) {
   t.plan(4)
 

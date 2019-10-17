@@ -557,6 +557,55 @@ test('cryptoStore.update(array)', function (t) {
     })
 })
 
+test("cryptoStore.update() shouldn't encrypt fields in cy_ignore and __cy_ignore", function (t) {
+  t.plan(9)
+
+  var hoodie = createCryptoStore()
+
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.add({
+        value: 42,
+        notEncrypted: 'other',
+        notEncryptedTemp: true,
+        cy_ignore: ['notEncrypted'],
+        __cy_ignore: ['notEncryptedTemp']
+      })
+    })
+
+    .then(function (obj) {
+      return hoodie.cryptoStore.update(obj._id, {
+        other: 789,
+        __cy_ignore: ['value']
+      })
+    })
+
+    .then(function (obj) {
+      t.is(obj.value, 42, 'value exists')
+      t.is(obj.other, 789, 'later added value exists')
+      t.is(obj.notEncrypted, 'other', 'notEncrypted value as merged')
+      t.is(obj.notEncryptedTemp, true, 'notEncryptedTemp exists')
+
+      t.deepEqual(obj.cy_ignore, ['notEncrypted'], 'cy_ignore was saved')
+      t.is(obj.__cy_ignore, undefined, '__cy_ignore was not saved')
+
+      return hoodie.store.find(obj._id)
+    })
+
+    .then(function (obj) {
+      t.is(obj.value, 42, 'encrypted value listed in __cy_ignore was decrypted')
+      t.is(obj.notEncryptedTemp, undefined, 'not encrypted value was encrypted and deleted')
+      t.is(obj.other, undefined, 'later added value was saved encrypted')
+    })
+
+    .catch(t.end)
+})
+
 test('cryptoStore.update() should throw if plugin isn\'t unlocked', function (t) {
   t.plan(4)
 

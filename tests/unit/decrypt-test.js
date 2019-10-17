@@ -90,7 +90,7 @@ test('should throw with a TypeError if no key is passed', function (t) {
 })
 
 test('decrypt merges all not encrypted fields into the result object', function (t) {
-  t.plan(1)
+  t.plan(2)
 
   var hoodiePart = { createdAt: new Date().toJSON() }
 
@@ -121,6 +121,23 @@ test('decrypt merges all not encrypted fields into the result object', function 
         value: 42,
         greetings: 'To you!'
       }, 'decrypted and merged doc')
+
+      // testing overwriting of not encrypted fields
+      doc.hello = 'Greetings'
+      return decrypt(key, doc)
+    })
+
+    .then(function (decrypted) {
+      t.deepEqual(decrypted, {
+        _id: 'hello',
+        _rev: '1-1234567890',
+        hoodie: hoodiePart,
+        foo: 'bar',
+        hello: 'world',
+        day: 1,
+        value: 42,
+        greetings: 'To you!'
+      }, 'decrypted and merged doc with overwritten field')
     })
 
     .catch(t.end)

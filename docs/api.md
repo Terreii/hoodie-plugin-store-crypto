@@ -79,17 +79,19 @@ hoodie.cryptoStore.add({
     'other' // Not existing fields are not an error!
   ]
 })
+```
 
-// results in:
-// {
-//   _id: '123456',
-//   _rev: '1-1234567890',
-//   hoodie: { createdAt: 'some date' },
-//   tag: '6bc503f508a8...',
-//   data: '1b16dfd59038808511...',
-//   nonce: '433d5b039fb...',
-//   publicValue: 'this will not get encrypted'
-// }
+Results in:
+```JSON
+{
+  "_id": "12345678-1234-1234-1234-123456789ABC",
+  "_rev": "1-1234567890",
+  "hoodie": { "createdAt": "2018-05-26T18:38:32.920Z" },
+  "tag": "6bc503f508a8...",
+  "data": "1b16dfd59038808511...",
+  "nonce": "433d5b039fb...",
+  "publicValue": "this will not get encrypted"
+}
 ```
 
 ##### Some tips:
