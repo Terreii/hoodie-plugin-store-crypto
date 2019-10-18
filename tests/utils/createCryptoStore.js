@@ -9,7 +9,7 @@ var uniqueName = require('./unique-name')
 
 module.exports = createCryptoStore
 
-function createCryptoStore () {
+function createCryptoStore (options) {
   var name = uniqueName()
 
   var store = new Store(name, {
@@ -24,7 +24,7 @@ function createCryptoStore () {
     store: store
   }
 
-  cryptoStore(hoodie)
+  cryptoStore(hoodie, options)
 
   return hoodie
 }

@@ -205,3 +205,24 @@ test(
       .catch(t.end)
   }
 )
+
+test('encrypt does not encrypt fields starting with _ if ignoreUnderscore is true', function (t) {
+  t.plan(3)
+
+  var doc = {
+    _access: ['user_id'],
+    value: 42,
+    _shouldBePublic: 128
+  }
+  var key = Buffer.from('8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c', 'hex')
+
+  encrypt(key, doc, null)
+
+    .then(function (result) {
+      t.deepEqual(result._access, ['user_id'], '_access is not encrypted')
+      t.is(result.value, undefined, 'values are encrypted')
+      t.is(result._shouldBePublic, 128, 'value starting with _ is not encrypted')
+    })
+
+    .catch(t.end)
+})

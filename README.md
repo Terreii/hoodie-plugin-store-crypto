@@ -22,7 +22,7 @@ corresponding methods from Hoodie to save them.
 
 There is no server side to this plugin!
 
-**Everything of a doc will get encrypted. Except for `_id`, `_rev`, `_deleted`, `_attachments`, `_conflicts` and the `hoodie` object!**
+**Everything of a doc will get encrypted. Except for `_id`, `_rev`, `_deleted`, `_attachments`, `_conflicts` and the `hoodie` object! Also _all fields (members/keys) that start with an underscore (\_) will not get encrypted_!**
 
 ## Example
 ```js

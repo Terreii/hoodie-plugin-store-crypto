@@ -58,6 +58,8 @@ Those concepts/rules apply to all methods.
 
 **Everything of a doc will get encrypted. Except for `_id`, `_rev`, `_deleted`, `_attachments`, `_conflicts` and the `hoodie` object!**
 
+**Also _all fields (members/keys) that start with an underscore (\_) will not get encrypted_! Because they are _special members_ used by CouchDB and PouchDB!**
+
 **Don't save private data in the `_id`**!
 
 #### Select fields that shouldn't get encrypted
