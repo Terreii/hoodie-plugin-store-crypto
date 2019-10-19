@@ -345,6 +345,81 @@ test(
   }
 )
 
+test(
+  "cryptoStore.updateOrAdd() doesn't encrypt fields starting with _ if option is set",
+  function (t) {
+    t.plan(5)
+
+    var hoodie = createCryptoStore({ handleSpecialDocumentMembers: true })
+    var hoodie2 = createCryptoStore()
+
+    hoodie.cryptoStore.setup('test')
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('test')
+      })
+
+      .then(function () {
+        return hoodie.cryptoStore.updateOrAdd({
+          _id: 'an_id',
+          other: 42
+        })
+      })
+
+      .then(function (obj) {
+        return hoodie.cryptoStore.updateOrAdd(obj._id, {
+          _value: 'test value'
+        })
+      })
+
+      .then(
+        function (obj) {
+          t.fail(new Error('should have thrown with doc_validation'))
+        },
+        function (err) {
+          t.is(err.name, 'doc_validation', 'value with _ was passed on')
+        }
+      )
+
+      .then(function () {
+        return hoodie2.cryptoStore.setup('test')
+      })
+
+      .then(function () {
+        return hoodie2.cryptoStore.unlock('test')
+      })
+
+      .then(function () {
+        return hoodie2.cryptoStore.updateOrAdd({
+          _id: 'an_id',
+          _something: true,
+          other: 42
+        })
+      })
+
+      .then(function (obj) {
+        t.is(obj._something, true, 'members with _ are added')
+
+        return hoodie2.cryptoStore.updateOrAdd(obj._id, {
+          _value: 'test value'
+        })
+      })
+
+      .then(function (obj) {
+        t.is(obj._value, 'test value', 'members with _ are added')
+
+        return hoodie2.store.find(obj._id)
+      })
+
+      .then(function (obj) {
+        t.is(obj.other, undefined, 'members still get encrypted')
+        t.is(obj._value, undefined, 'members starting with _ are encrypted')
+      })
+
+      .catch(t.end)
+  }
+)
+
 test('cryptoStore.updateOrAdd() should throw if plugin isn\'t unlocked', function (t) {
   t.plan(4)
 

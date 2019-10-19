@@ -20,7 +20,7 @@ test('encrypt should encrypt a document', function (t) {
   }
   var key = Buffer.from('8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c', 'hex')
 
-  encrypt(key, doc, null)
+  encrypt({ key: key }, doc, null)
 
     .then(function (encrypted) {
       t.equal(encrypted._id, 'hello', 'unchanged _id')
@@ -47,7 +47,7 @@ test('should throw with a TypeError if no key is passed', function (t) {
     day: 1
   }
 
-  encrypt(Buffer.from([]), doc)
+  encrypt({ key: Buffer.from([]) }, doc)
 
     .then(function (decrypted) {
       t.fail('should throw an TypeError')
@@ -74,7 +74,7 @@ test("shouldn't change the original object", function (t) {
   var key = Buffer.from('8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c', 'hex')
   var docData = JSON.stringify(doc)
 
-  encrypt(key, doc)
+  encrypt({ key: key }, doc)
 
     .then(function (result) {
       t.equal(JSON.stringify(doc), docData, 'unchanged')
@@ -109,7 +109,7 @@ test('should ignore properties in ignore of this package', function (t) {
   }
   var key = Buffer.from('8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c', 'hex')
 
-  encrypt(key, doc)
+  encrypt({ key: key }, doc)
 
     .then(function (result) {
       t.equal(result._id, 'hello', "_id didn't change")
@@ -133,7 +133,7 @@ test('encrypt should ignore fields that are listed in the passed obj.cy_ignore',
   }
   var key = Buffer.from('8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c', 'hex')
 
-  encrypt(key, doc)
+  encrypt({ key: key }, doc)
 
     .then(function (result) {
       t.equal(result.value, 42, "didn't encrypt value")
@@ -144,7 +144,7 @@ test('encrypt should ignore fields that are listed in the passed obj.cy_ignore',
       t.equal(result.cy_ignore, undefined, 'cy_ignore is encrypted')
 
       doc.cy_ignore.push('cy_ignore')
-      return encrypt(key, doc)
+      return encrypt({ key: key }, doc)
     })
 
     .then(function (result) {
@@ -177,7 +177,7 @@ test(
     }
     var key = Buffer.from('8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c', 'hex')
 
-    encrypt(key, doc)
+    encrypt({ key: key }, doc)
 
       .then(function (result) {
         t.equal(result.value, 42, "didn't encrypt value")
@@ -189,7 +189,7 @@ test(
 
         doc.__cy_ignore.push('cy_ignore')
         doc.__cy_ignore.push('__cy_ignore')
-        return encrypt(key, doc)
+        return encrypt({ key: key }, doc)
       })
 
       .then(function (result) {
@@ -206,23 +206,26 @@ test(
   }
 )
 
-test('encrypt does not encrypt fields starting with _ if ignoreUnderscore is true', function (t) {
-  t.plan(3)
+test(
+  'encrypt does not encrypt fields starting with _ if handleSpecialMembers is true',
+  function (t) {
+    t.plan(3)
 
-  var doc = {
-    _access: ['user_id'],
-    value: 42,
-    _shouldBePublic: 128
+    var doc = {
+      _access: ['user_id'],
+      value: 42,
+      _shouldBePublic: 128
+    }
+    var key = Buffer.from('8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c', 'hex')
+
+    encrypt({ key: key, handleSpecialMembers: true }, doc, null)
+
+      .then(function (result) {
+        t.deepEqual(result._access, ['user_id'], '_access is not encrypted')
+        t.is(result.value, undefined, 'values are encrypted')
+        t.is(result._shouldBePublic, 128, 'value starting with _ is not encrypted')
+      })
+
+      .catch(t.end)
   }
-  var key = Buffer.from('8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c', 'hex')
-
-  encrypt(key, doc, null)
-
-    .then(function (result) {
-      t.deepEqual(result._access, ['user_id'], '_access is not encrypted')
-      t.is(result.value, undefined, 'values are encrypted')
-      t.is(result._shouldBePublic, 128, 'value starting with _ is not encrypted')
-    })
-
-    .catch(t.end)
-})
+)

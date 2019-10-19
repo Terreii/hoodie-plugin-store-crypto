@@ -27,7 +27,7 @@ test('test generating a key and encrypt and decrypt a doc with it', function (t)
     .then(function (result) {
       var key = result.key
 
-      return encrypt(key, doc, null)
+      return encrypt({ key: key }, doc, null)
 
         .then(function (encrypted) {
           return {

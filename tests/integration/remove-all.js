@@ -302,6 +302,98 @@ test("cryptoStore.removeAll() shouldn't encrypt fields in cy_ignore and __cy_ign
   })
 })
 
+test(
+  "cryptoStore.removeAll() shouldn't encrypt fields starting with _ if option is set",
+  function (t) {
+    t.plan(6)
+
+    var hoodie = createCryptoStore({ handleSpecialDocumentMembers: true })
+    var hoodie2 = createCryptoStore()
+
+    hoodie.cryptoStore.setup('test')
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('test')
+      })
+
+      .then(function () {
+        return hoodie.cryptoStore.add([
+          {
+            _id: 'a',
+            value: 42,
+            _other: 'test value'
+          },
+          {
+            _id: 'b',
+            _value: 42,
+            other: 'test value'
+          }
+        ])
+      })
+
+      .then(function () {
+        return hoodie.cryptoStore.removeAll()
+      })
+
+      .then(
+        function (objects) {
+          t.ok(objects instanceof Error, 'Update should have failed')
+          t.fail('Update should have failed')
+        },
+        function (err) {
+          t.ok(err instanceof Error, 'Update did fail')
+          t.is(err.name, 'doc_validation', 'value with _ was passed on')
+        }
+      )
+
+      .then(function () {
+        return hoodie2.cryptoStore.setup('test')
+      })
+
+      .then(function () {
+        return hoodie2.cryptoStore.unlock('test')
+      })
+
+      .then(function () {
+        return hoodie2.cryptoStore.add([
+          {
+            _id: 'a',
+            value: 42,
+            _other: 'test value'
+          },
+          {
+            _id: 'b',
+            _value: 42,
+            other: 'test value'
+          }
+        ])
+      })
+
+      .then(function () {
+        return hoodie2.cryptoStore.removeAll()
+      })
+
+      .catch(t.end)
+
+    hoodie2.store.on('remove', function (obj) {
+      switch (obj._id) {
+        case 'a':
+          t.is(obj.value, undefined, 'values still get encrypted')
+          t.is(obj._other, undefined, 'values starting with _ are encrypted')
+          break
+
+        case 'b':
+          t.is(obj.other, undefined, 'values still get encrypted')
+          t.is(obj._value, undefined, 'values starting with _ are encrypted')
+          break
+
+        default:
+          t.fail('unknown id')
+      }
+    })
+  }
+)
+
 test('cryptoStore.removeAll() should throw if plugin isn\'t unlocked', function (t) {
   t.plan(4)
 
