@@ -180,6 +180,98 @@ test('adds multiple objects to db', function (t) {
     })
 })
 
+test("cryptoStore.add() shouldn't encrypt fields in cy_ignore and __cy_ignore", function (t) {
+  t.plan(4)
+
+  var hoodie = createCryptoStore()
+
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.add({
+        value: 42,
+        notEncrypted: 'other',
+        notEncryptedTemp: true,
+        cy_ignore: ['notEncrypted'],
+        __cy_ignore: ['notEncryptedTemp']
+      })
+    })
+
+    .then(function (obj) {
+      t.deepEqual(obj.cy_ignore, ['notEncrypted'], 'cy_ignore was saved')
+      t.is(obj.__cy_ignore, undefined, '__cy_ignore was not saved')
+
+      return hoodie.store.find(obj._id)
+    })
+
+    .then(function (obj) {
+      t.is(obj.notEncrypted, 'other', 'field in cy_ignore was not encrypted')
+      t.is(obj.notEncryptedTemp, true, 'field in __cy_ignore was not encrypted')
+    })
+
+    .catch(t.end)
+})
+
+test("cryptoStore.add() doesn't encrypt fields starting with _ if option is set", function (t) {
+  t.plan(3)
+
+  var hoodie = createCryptoStore({ handleSpecialDocumentMembers: true })
+  var hoodie2 = createCryptoStore()
+
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.add({
+        value: 42,
+        _other: 'test value'
+      })
+    })
+
+    .then(
+      function (obj) {
+        t.fail(new Error('should have thrown with doc_validation'))
+      },
+      function (err) {
+        t.is(err.name, 'doc_validation', 'value with _ was passed on')
+      }
+    )
+
+    .then(function () {
+      return hoodie2.cryptoStore.setup('test')
+    })
+
+    .then(function () {
+      return hoodie2.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      return hoodie2.cryptoStore.add({
+        value: 42,
+        _other: 'test value'
+      })
+    })
+
+    .then(function (obj) {
+      t.is(obj._other, 'test value', 'members with _ are added')
+
+      return hoodie2.store.find(obj._id)
+    })
+
+    .then(function (obj) {
+      t.is(obj._other, undefined, 'member with _ was encrypted')
+    })
+
+    .catch(t.end)
+})
+
 test('cryptoStore.add() should throw if plugin isn\'t unlocked', function (t) {
   t.plan(4)
 

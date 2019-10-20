@@ -283,6 +283,143 @@ test('cryptoStore.updateOrAdd(array) updates existing, adds new', function (t) {
     })
 })
 
+test(
+  "cryptoStore.updateOrAdd() shouldn't encrypt fields in cy_ignore and __cy_ignore",
+  function (t) {
+    t.plan(12)
+
+    var hoodie = createCryptoStore()
+
+    hoodie.cryptoStore.setup('test')
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('test')
+      })
+
+      .then(function () {
+        return hoodie.cryptoStore.updateOrAdd({
+          _id: 'an_id',
+          value: 42,
+          notEncrypted: 'other',
+          notEncryptedTemp: true,
+          cy_ignore: ['notEncrypted'],
+          __cy_ignore: ['notEncryptedTemp']
+        })
+      })
+
+      .then(function (obj) {
+        t.is(obj.__cy_ignore, undefined, '__cy_ignore was not saved')
+
+        return hoodie.store.find(obj._id)
+      })
+
+      .then(function (obj) {
+        t.is(obj.notEncrypted, 'other', 'fields listed in cy_ignore was not encrypted')
+        t.is(obj.notEncryptedTemp, true, 'fields listed in __cy_ignore was not encrypted')
+
+        return hoodie.cryptoStore.updateOrAdd(obj._id, {
+          other: 789,
+          __cy_ignore: ['value']
+        })
+      })
+
+      .then(function (obj) {
+        t.is(obj.value, 42, 'value exists')
+        t.is(obj.other, 789, 'later added value exists')
+        t.is(obj.notEncrypted, 'other', 'notEncrypted value as merged')
+        t.is(obj.notEncryptedTemp, true, 'notEncryptedTemp exists')
+
+        t.deepEqual(obj.cy_ignore, ['notEncrypted'], 'cy_ignore was saved')
+        t.is(obj.__cy_ignore, undefined, '__cy_ignore was not saved')
+
+        return hoodie.store.find(obj._id)
+      })
+
+      .then(function (obj) {
+        t.is(obj.value, 42, 'encrypted value listed in __cy_ignore was decrypted')
+        t.is(obj.notEncryptedTemp, undefined, 'not encrypted value was encrypted and deleted')
+        t.is(obj.other, undefined, 'later added value was saved encrypted')
+      })
+
+      .catch(t.end)
+  }
+)
+
+test(
+  "cryptoStore.updateOrAdd() doesn't encrypt fields starting with _ if option is set",
+  function (t) {
+    t.plan(5)
+
+    var hoodie = createCryptoStore({ handleSpecialDocumentMembers: true })
+    var hoodie2 = createCryptoStore()
+
+    hoodie.cryptoStore.setup('test')
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('test')
+      })
+
+      .then(function () {
+        return hoodie.cryptoStore.updateOrAdd({
+          _id: 'an_id',
+          other: 42
+        })
+      })
+
+      .then(function (obj) {
+        return hoodie.cryptoStore.updateOrAdd(obj._id, {
+          _value: 'test value'
+        })
+      })
+
+      .then(
+        function (obj) {
+          t.fail(new Error('should have thrown with doc_validation'))
+        },
+        function (err) {
+          t.is(err.name, 'doc_validation', 'value with _ was passed on')
+        }
+      )
+
+      .then(function () {
+        return hoodie2.cryptoStore.setup('test')
+      })
+
+      .then(function () {
+        return hoodie2.cryptoStore.unlock('test')
+      })
+
+      .then(function () {
+        return hoodie2.cryptoStore.updateOrAdd({
+          _id: 'an_id',
+          _something: true,
+          other: 42
+        })
+      })
+
+      .then(function (obj) {
+        t.is(obj._something, true, 'members with _ are added')
+
+        return hoodie2.cryptoStore.updateOrAdd(obj._id, {
+          _value: 'test value'
+        })
+      })
+
+      .then(function (obj) {
+        t.is(obj._value, 'test value', 'members with _ are added')
+
+        return hoodie2.store.find(obj._id)
+      })
+
+      .then(function (obj) {
+        t.is(obj.other, undefined, 'members still get encrypted')
+        t.is(obj._value, undefined, 'members starting with _ are encrypted')
+      })
+
+      .catch(t.end)
+  }
+)
+
 test('cryptoStore.updateOrAdd() should throw if plugin isn\'t unlocked', function (t) {
   t.plan(4)
 

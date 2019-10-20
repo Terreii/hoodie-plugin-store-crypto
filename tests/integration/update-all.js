@@ -284,6 +284,166 @@ test('cryptoStore.updateAll([objects]) updates all updatedAt timestamps', functi
   })
 })
 
+test("cryptoStore.updateAll() shouldn't encrypt fields in cy_ignore and __cy_ignore", function (t) {
+  t.plan(10)
+
+  var hoodie = createCryptoStore()
+
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.add([
+        {
+          _id: 'a_with_cy_ignore',
+          value: 42,
+          notEncrypted: 'other',
+          cy_ignore: ['notEncrypted']
+        },
+        {
+          _id: 'b_with___cy_ignore',
+          value: 42,
+          notEncrypted: true,
+          __cy_ignore: ['notEncrypted']
+        },
+        {
+          _id: 'c_with_both',
+          notEncrypted: 'other',
+          notEncryptedTemp: true,
+          cy_ignore: ['notEncrypted'],
+          __cy_ignore: ['notEncryptedTemp']
+        }
+      ])
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.updateAll({
+        other: 'newValue',
+        __cy_ignore: ['value']
+      })
+    })
+
+    .then(function (objects) {
+      objects.forEach(function (obj) {
+        t.is(obj.other, 'newValue', 'new field was added')
+      })
+
+      return hoodie.store.findAll()
+    })
+
+    .then(function (objects) {
+      t.is(
+        objects[0].notEncrypted,
+        'other',
+        'field listed in cy_ignore is not encrypted after an update'
+      )
+      t.is(objects[0].value, 42, 'field listed in __cy_ignore was decrypted and saved')
+
+      t.is(objects[1].notEncrypted, undefined, 'not encrypted value was encrypted and deleted')
+      t.is(objects[1].value, 42, 'field listed in __cy_ignore was decrypted and saved')
+
+      t.is(
+        objects[2].notEncrypted,
+        'other',
+        'field listed in cy_ignore is not encrypted after an update'
+      )
+      t.is(objects[2].notEncryptedTemp, undefined, 'not encrypted value was encrypted and deleted')
+      t.is(objects[2].value, undefined, 'not existing field listed in __cy_ignore is not an error')
+    })
+
+    .catch(t.end)
+})
+
+test(
+  "cryptoStore.updateAll() doesn't encrypt fields starting with _ if option is set",
+  function (t) {
+    t.plan(6)
+
+    var hoodie = createCryptoStore({ handleSpecialDocumentMembers: true })
+    var hoodie2 = createCryptoStore()
+
+    hoodie.cryptoStore.setup('test')
+
+      .then(function () {
+        return hoodie.cryptoStore.unlock('test')
+      })
+
+      .then(function () {
+        return hoodie.cryptoStore.add([
+          {
+            _id: 'a',
+            value: 42
+          },
+          {
+            _id: 'b',
+            other: 'not public'
+          }
+        ])
+      })
+
+      .then(function () {
+        return hoodie.cryptoStore.updateAll({
+          _other: 'test value'
+        })
+      })
+
+      .then(
+        function (objects) {
+          t.ok(objects instanceof Error, 'Update should have failed')
+          t.fail('Update should have failed')
+        },
+        function (err) {
+          t.ok(err instanceof Error, 'Update did fail')
+          t.is(err.name, 'doc_validation', 'value with _ was passed on')
+        }
+      )
+
+      .then(function () {
+        return hoodie2.cryptoStore.setup('test')
+      })
+
+      .then(function () {
+        return hoodie2.cryptoStore.unlock('test')
+      })
+
+      .then(function () {
+        return hoodie2.cryptoStore.add([
+          {
+            _id: 'a',
+            value: 42
+          },
+          {
+            _id: 'b',
+            other: 'not public'
+          }
+        ])
+      })
+
+      .then(function () {
+        return hoodie2.cryptoStore.updateAll({
+          _other: 'test value'
+        })
+      })
+
+      .then(function () {
+        return hoodie2.store.findAll()
+      })
+
+      .then(function (objects) {
+        t.is(objects[0].value, undefined, 'values still get encrypted')
+        t.is(objects[0]._other, undefined, 'members starting with _ are encrypted')
+
+        t.is(objects[1].other, undefined, 'values still get encrypted')
+        t.is(objects[1]._value, undefined, 'members starting with _ are encrypted')
+      })
+
+      .catch(t.end)
+  }
+)
+
 test('cryptoStore.updateAll() should throw if plugin isn\'t unlocked', function (t) {
   t.plan(4)
 

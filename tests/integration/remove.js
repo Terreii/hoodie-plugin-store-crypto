@@ -424,6 +424,107 @@ test('cryptoStore.remove([objects]) creates deletedAt timestamps', function (t) 
     })
 })
 
+test("cryptoStore.remove() shouldn't encrypt fields in cy_ignore and __cy_ignore", function (t) {
+  t.plan(3)
+
+  var hoodie = createCryptoStore()
+
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.add({
+        value: 42,
+        notEncrypted: 'other',
+        notEncryptedTemp: true,
+        cy_ignore: ['notEncrypted'],
+        __cy_ignore: ['notEncryptedTemp']
+      })
+    })
+
+    .then(function (obj) {
+      return hoodie.cryptoStore.remove(obj._id, {
+        __cy_ignore: ['value']
+      })
+    })
+
+    .catch(t.end)
+
+  hoodie.store.on('remove', function (obj) {
+    t.is(obj.value, 42, 'field listed in __cy_ignore was decrypted')
+    t.is(obj.notEncrypted, 'other', 'field listed is cy_ignore was not encrypted')
+    t.is(obj.notEncryptedTemp, undefined, 'not encrypted fields got encrypted and removed')
+  })
+})
+
+test("cryptoStore.remove() doesn't encrypt fields starting with _ if option is set", function (t) {
+  t.plan(4)
+
+  var hoodie = createCryptoStore({ handleSpecialDocumentMembers: true })
+  var hoodie2 = createCryptoStore()
+
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.add({
+        value: 42
+      })
+    })
+
+    .then(function (obj) {
+      return hoodie.cryptoStore.remove(obj._id, {
+        _other: 'test value'
+      })
+    })
+
+    .then(
+      function (obj) {
+        t.fail(new Error('should have thrown with doc_validation'))
+      },
+      function (err) {
+        t.is(err.name, 'doc_validation', 'value with _ was passed on')
+      }
+    )
+
+    .then(function () {
+      return hoodie2.cryptoStore.setup('test')
+    })
+
+    .then(function () {
+      return hoodie2.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      return hoodie2.cryptoStore.add({
+        value: 42
+      })
+    })
+
+    .then(function (obj) {
+      return hoodie2.cryptoStore.remove(obj._id, {
+        _other: 'test value'
+      })
+    })
+
+    .then(function (obj) {
+      t.is(obj._other, 'test value', 'values starting with _ are added')
+    })
+
+    .catch(t.end)
+
+  hoodie2.store.on('remove', function (obj) {
+    t.is(obj.value, undefined, 'members still get encrypted')
+    t.is(obj._other, undefined, 'members starting with _ are encrypted')
+  })
+})
+
 test('cryptoStore.remove() should throw if plugin isn\'t unlocked', function (t) {
   t.plan(4)
 

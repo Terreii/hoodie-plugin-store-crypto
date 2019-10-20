@@ -700,18 +700,7 @@ test(
   function (t) {
     t.plan(2)
 
-    var name = uniqueName()
-    var store = new Store(name, {
-      PouchDB: PouchDB,
-      remote: 'remote-' + name
-    })
-    var hoodie = {
-      account: {
-        on: function () {}
-      },
-      store: store
-    }
-    cryptoStore(hoodie, { noPasswordCheckAutoFix: true })
+    var hoodie = createCryptoStore({ noPasswordCheckAutoFix: true })
 
     hoodie.store.add([
       {

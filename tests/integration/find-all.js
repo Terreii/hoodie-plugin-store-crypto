@@ -140,6 +140,62 @@ test('cryptoStore.findAll() doesnt return _design docs', function (t) {
     })
 })
 
+test('cryptoStore.findAll() should merge not encrypt fields into the result object', function (t) {
+  t.plan(8)
+
+  var hoodie = createCryptoStore()
+
+  hoodie.cryptoStore.setup('test')
+
+    .then(function () {
+      return hoodie.cryptoStore.unlock('test')
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.add([
+        {
+          _id: 'a_with_cy_ignore',
+          value: 42,
+          notEncrypted: 'other',
+          cy_ignore: ['notEncrypted']
+        },
+        {
+          _id: 'b_with___cy_ignore',
+          value: 42,
+          notEncrypted: true,
+          __cy_ignore: ['notEncrypted']
+        },
+        {
+          _id: 'c_with_both',
+          value: 42,
+          notEncrypted: 'other',
+          notEncryptedTemp: true,
+          cy_ignore: ['notEncrypted'],
+          __cy_ignore: ['notEncryptedTemp']
+        }
+      ])
+    })
+
+    .then(function () {
+      return hoodie.cryptoStore.findAll()
+    })
+
+    .then(function (objects) {
+      t.is(objects[0].notEncrypted, 'other', 'not encrypted value is merged in')
+      t.deepEqual(objects[0].cy_ignore, ['notEncrypted'], 'cy_ignore is saved')
+
+      t.is(objects[1].notEncrypted, true, 'temp not encrypted value is merged in')
+      t.is(objects[1].__cy_ignore, undefined, '__cy_ignore is not saved')
+
+      t.is(objects[2].notEncrypted, 'other', 'not encrypted value is merged in')
+      t.is(objects[2].notEncryptedTemp, true, 'temp not encrypted value is merged in')
+      t.deepEqual(objects[2].cy_ignore, ['notEncrypted'], 'cy_ignore is saved')
+      t.is(objects[2].__cy_ignore, undefined, '__cy_ignore is not saved')
+    })
+
+    .catch(t.end)
+})
+
 test('cryptoStore.findAll() should throw if plugin isn\'t unlocked', function (t) {
   t.plan(4)
 
