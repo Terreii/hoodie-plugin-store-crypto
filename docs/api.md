@@ -68,7 +68,7 @@ You can also define your own fields that shouldn't get encrypted. This works on 
 
 There are two ways for it:
 - add an array of field-names as `cy_ignore`
-- add an array of field-names as `__cy_ignore`
+- add an array of field-names as `__cy_ignore` (please note the 2 `_` at the beginning!)
 
 Both work the same way: Every field listed in one of them, won't get encrypted. They differentiate in that `cy_ignore` will get saved (encrypted) in the document. While `__cy_ignore` is temporary, and won't get saved.
 
