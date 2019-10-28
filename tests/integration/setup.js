@@ -1,130 +1,106 @@
 'use strict'
 
-var test = require('tape')
-var Store = require('@hoodie/store-client')
-var Promise = require('lie')
-var pouchdbErrors = require('pouchdb-errors')
+const test = require('tape')
+const Store = require('@hoodie/store-client')
+const pouchdbErrors = require('pouchdb-errors')
 
-var cryptoStore = require('../../')
-var createKey = require('../../lib/create-key')
-var decrypt = require('../../lib/decrypt')
+const cryptoStore = require('../../')
+const createKey = require('../../lib/create-key')
+const decrypt = require('../../lib/decrypt')
 
-var createCryptoStore = require('../utils/createCryptoStore')
-var PouchDB = require('../utils/pouchdb.js')
-var uniqueName = require('../utils/unique-name')
+const createCryptoStore = require('../utils/createCryptoStore')
+const PouchDB = require('../utils/pouchdb.js')
+const uniqueName = require('../utils/unique-name')
 
-test('cryptoStore.setup(password) should generate a salt if non is passed', function (t) {
+test('cryptoStore.setup(password) should generate a salt if non is passed', async t => {
   t.plan(2)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  await hoodie.cryptoStore.setup('test')
 
-    .then(function () {
-      return hoodie.store.find('hoodiePluginCryptoStore/salt')
-    })
+  try {
+    const obj = await hoodie.store.find('hoodiePluginCryptoStore/salt')
 
-    .then(function (obj) {
-      t.is(typeof obj.salt, 'string', 'salt exists')
-      t.is(obj.salt.length, 32, 'salt has correct length')
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+    t.is(typeof obj.salt, 'string', 'salt exists')
+    t.is(obj.salt.length, 32, 'salt has correct length')
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test('cryptoStore.setup(password, salt) should use the passed salt', function (t) {
+test('cryptoStore.setup(password, salt) should use the passed salt', async t => {
   t.plan(1)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test', 'bf11fa9bafca73586e103d60898989d4')
+  await hoodie.cryptoStore.setup('test', 'bf11fa9bafca73586e103d60898989d4')
 
-    .then(function () {
-      return hoodie.store.find('hoodiePluginCryptoStore/salt')
-    })
-
-    .then(function (obj) {
-      t.is(obj.salt, 'bf11fa9bafca73586e103d60898989d4', 'returns same salt')
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+  try {
+    const obj = await hoodie.store.find('hoodiePluginCryptoStore/salt')
+    t.is(obj.salt, 'bf11fa9bafca73586e103d60898989d4', 'returns same salt')
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test('cryptoStore.setup(password) should create an encrypted check for the password', function (t) {
+test('cryptoStore.setup(password) should create an encrypted check for the password', async t => {
   t.plan(6)
 
-  var hoodie = createCryptoStore()
-  var hoodie2 = createCryptoStore()
+  const hoodie = createCryptoStore()
+  const hoodie2 = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  await hoodie.cryptoStore.setup('test')
 
-    .then(function () {
-      return hoodie.store.find('hoodiePluginCryptoStore/salt')
-    })
+  try {
+    const saltDoc = await hoodie.store.find('hoodiePluginCryptoStore/salt')
 
-    .then(function (saltDoc) {
-      t.ok(saltDoc.check.tag.length === 32, 'tag part should have a length of 32')
-      t.ok(saltDoc.check.data.length > 0, 'encrypted data')
-      t.ok(saltDoc.check.nonce.length === 24, 'nonce should have a length of 24')
+    t.ok(saltDoc.check.tag.length === 32, 'tag part should have a length of 32')
+    t.ok(saltDoc.check.data.length > 0, 'encrypted data')
+    t.ok(saltDoc.check.nonce.length === 24, 'nonce should have a length of 24')
 
-      // setup with salt passed
-      return hoodie2.cryptoStore.setup('test', 'bf11fa9bafca73586e103d60898989d4')
-    })
+    // setup with salt passed
+    await hoodie2.cryptoStore.setup('test', 'bf11fa9bafca73586e103d60898989d4')
+    const saltDoc2 = await hoodie2.store.find('hoodiePluginCryptoStore/salt')
 
-    .then(function () {
-      return hoodie2.store.find('hoodiePluginCryptoStore/salt')
-    })
-
-    .then(function (saltDoc) {
-      t.ok(saltDoc.check.tag.length === 32, 'tag part should have a length of 32')
-      t.ok(saltDoc.check.data.length > 0, 'encrypted data')
-      t.ok(saltDoc.check.nonce.length === 24, 'nonce should have a length of 24')
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+    t.ok(saltDoc2.check.tag.length === 32, 'tag part should have a length of 32')
+    t.ok(saltDoc2.check.data.length > 0, 'encrypted data')
+    t.ok(saltDoc2.check.nonce.length === 24, 'nonce should have a length of 24')
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test('cryptoStore.setup(password) should throw if a salt doc exists', function (t) {
+test('cryptoStore.setup(password) should throw if a salt doc exists', async t => {
   t.plan(1)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.store.add({
-    _id: '_design/cryptoStore/salt',
+  await hoodie.store.add({
+    _id: 'hoodiePluginCryptoStore/salt',
     salt: 'bf11fa9bafca73586e103d60898989d4'
   })
 
-    .then(function () {
-      return hoodie.cryptoStore.setup('test')
-    })
-
-    .then(function (salt) {
-      t.fail("setup didn't fail")
-    })
-
-    .catch(function (err) {
-      t.equal(err.name, pouchdbErrors.UNAUTHORIZED.name, 'fails with PouchDB unauthorized error')
-    })
+  try {
+    await hoodie.cryptoStore.setup('test')
+    t.fail("setup didn't fail")
+  } catch (err) {
+    t.equal(err.name, pouchdbErrors.UNAUTHORIZED.name, 'fails with PouchDB unauthorized error')
+  }
 })
 
-test('cryptoStore.setup(password) should throw if a salt doc exists on remote', function (t) {
+test('cryptoStore.setup(password) should throw if a salt doc exists on remote', async t => {
   t.plan(1)
 
-  var name = uniqueName()
-  var remoteDbName = 'remote-' + name
-  var remoteDb = new PouchDB(remoteDbName)
-  var store = new Store(name, {
+  const name = uniqueName()
+  const remoteDbName = 'remote-' + name
+  const remoteDb = new PouchDB(remoteDbName)
+  const store = new Store(name, {
     PouchDB: PouchDB,
     remote: remoteDb
   })
 
-  var hoodie = {
+  const hoodie = {
     account: {
       on: function () {}
     },
@@ -132,7 +108,42 @@ test('cryptoStore.setup(password) should throw if a salt doc exists on remote', 
   }
   cryptoStore(hoodie)
 
-  remoteDb.put({
+  await remoteDb.put({
+    _id: 'hoodiePluginCryptoStore/salt',
+    salt: 'bf11fa9bafca73586e103d60898989d4',
+    hoodie: {
+      createdAt: new Date().toJSON()
+    }
+  })
+
+  try {
+    await hoodie.cryptoStore.setup('test')
+    t.fail("setup didn't fail")
+  } catch (err) {
+    t.equal(err.name, pouchdbErrors.UNAUTHORIZED.name, 'fails with PouchDB unauthorized error')
+  }
+})
+
+test('cryptoStore.setup(password) should ignore old salt doc', async t => {
+  t.plan(1)
+
+  const name = uniqueName()
+  const remoteDbName = 'remote-' + name
+  const remoteDb = new PouchDB(remoteDbName)
+  const store = new Store(name, {
+    PouchDB: PouchDB,
+    remote: remoteDb
+  })
+
+  const hoodie = {
+    account: {
+      on: function () {}
+    },
+    store: store
+  }
+  cryptoStore(hoodie)
+
+  await remoteDb.put({
     _id: '_design/cryptoStore/salt',
     salt: 'bf11fa9bafca73586e103d60898989d4',
     hoodie: {
@@ -140,158 +151,116 @@ test('cryptoStore.setup(password) should throw if a salt doc exists on remote', 
     }
   })
 
-    .then(function () {
-      return hoodie.cryptoStore.setup('test')
-    })
-
-    .then(function (salt) {
-      t.fail("setup didn't fail")
-    })
-
-    .catch(function (err) {
-      t.equal(err.name, pouchdbErrors.UNAUTHORIZED.name, 'fails with PouchDB unauthorized error')
-    })
+  try {
+    await hoodie.cryptoStore.setup('test')
+    const saltDoc = await hoodie.store.find('hoodiePluginCryptoStore/salt')
+    t.ok(saltDoc.salt.length > 0, 'it did ignore the old salt doc.')
+  } catch (err) {
+    t.fail('it should have ignored the old salt doc!')
+  }
 })
 
-test('cryptoStore.setup(password, salt) should throw if the salt is wrong', function (t) {
+test('cryptoStore.setup(password, salt) should throw if the salt is wrong', async t => {
   t.plan(2)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test', 4)
+  try {
+    await hoodie.cryptoStore.setup('test', 4)
+    t.fail('it should have thrown on number as a salt')
+  } catch (err) {
+    t.equal(err.reason, 'salt must be a 32 char string!', 'should fail on wrong type')
+  }
 
-    .then(
-      function () {
-        t.fail('it should have thrown on number as a salt')
-      },
-      function (err) {
-        t.equal(err.reason, 'salt must be a 32 char string!', 'should fail on wrong type')
-      }
-    )
-
-    .then(function () {
-      return hoodie.cryptoStore.setup('test', 'hello world!')
-    })
-
-    .then(
-      function () {
-        t.fail('it should have thrown on string that is to short')
-      },
-      function (err) {
-        t.equal(err.reason, 'salt must be a 32 char string!', 'should fail if length !== 32')
-      }
-    )
+  try {
+    await hoodie.cryptoStore.setup('test', 'hello world!')
+    t.fail('it should have thrown on string that is to short')
+  } catch (err) {
+    t.equal(err.reason, 'salt must be a 32 char string!', 'should fail if length !== 32')
+  }
 })
 
-test('cryptoStore.setup(password) should not unlock', function (t) {
+test('cryptoStore.setup(password) should not unlock', async t => {
   t.plan(1)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  await hoodie.cryptoStore.setup('test')
 
-    .then(function () {
-      return hoodie.cryptoStore.add({
-        _id: 'hello',
-        test: 2
-      })
+  try {
+    await hoodie.cryptoStore.add({
+      _id: 'hello',
+      test: 2
     })
-
-    .then(function () {
-      t.fail('it did unlock!')
-    })
-
-    .catch(function () {
-      t.pass("it didn't unlock!")
-    })
+    t.fail('it did unlock!')
+  } catch (err) {
+    t.pass("it didn't unlock!")
+  }
 })
 
-test('cryptoStore.setup(password) should result an array of reset keys', function (t) {
+test('cryptoStore.setup(password) should result an array of reset keys', async t => {
   t.plan(2)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  try {
+    const reset = await hoodie.cryptoStore.setup('test')
 
-    .then(function (reset) {
-      t.equal(reset.length, 10, 'there are 10 reset keys')
-
-      t.ok(reset.every(function (key) {
-        return typeof key === 'string' && key.length === 32
-      }), 'every key has a length of 32')
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+    t.equal(reset.length, 10, 'there are 10 reset keys')
+    t.ok(
+      reset.every(key => typeof key === 'string' && key.length === 32),
+      'every key has a length of 32'
+    )
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test('cryptoStore.setup(password) should save ten reset docs', function (t) {
+test('cryptoStore.setup(password) should save ten reset docs', async t => {
   t.plan(15)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  try {
+    const keys = await hoodie.cryptoStore.setup('test')
 
-    .then(function (reset) {
-      return hoodie.store.withIdPrefix('hoodiePluginCryptoStore/pwReset').findAll()
+    const docs = await hoodie.store.withIdPrefix('hoodiePluginCryptoStore/pwReset').findAll()
 
-        .then(function (docs) {
-          return {
-            keys: reset,
-            docs: docs
-          }
-        })
-    })
+    t.ok(
+      docs.every((doc, index) => doc._id === 'hoodiePluginCryptoStore/pwReset_' + index),
+      'have correct _id\'s'
+    )
 
-    .then(function (result) {
-      var docs = result.docs
-      var keys = result.keys
+    t.ok(
+      docs.every(doc => doc.salt.length === 32),
+      'have correct salt lengths'
+    )
 
-      t.ok(docs.every(function (doc, index) {
-        return doc._id === 'hoodiePluginCryptoStore/pwReset_' + index
-      }), 'have correct _id\'s')
+    t.ok(
+      docs.every(doc => doc.tag.length === 32),
+      'have a tag part with a length of 32'
+    )
 
-      t.ok(docs.every(function (doc) {
-        return doc.salt.length === 32
-      }), 'have correct salt lengths')
+    t.ok(
+      docs.every(doc => doc.data.length > 0),
+      'should have encrypted data'
+    )
 
-      t.ok(docs.every(function (doc) {
-        return doc.tag.length === 32
-      }), 'have a tag part with a length of 32')
+    t.ok(
+      docs.every(doc => doc.nonce.length === 24),
+      'should have nonce with a length of 24'
+    )
 
-      t.ok(docs.every(function (doc) {
-        return doc.data.length > 0
-      }), 'should have encrypted data')
+    const saltDoc = await hoodie.store.find('hoodiePluginCryptoStore/salt')
+    const key = await createKey('test', saltDoc.salt)
 
-      t.ok(docs.every(function (doc) {
-        return doc.nonce.length === 24
-      }), 'should have nonce with a length of 24')
+    await Promise.all(docs.map(async (doc, index) => {
+      const keyObj = await createKey(keys[index], doc.salt)
+      const decrypted = await decrypt(keyObj.key, doc)
 
-      return Promise.all(docs.map(function (doc, index) {
-        return createKey(keys[index], doc.salt)
-
-          .then(function (keyObj) {
-            return decrypt(keyObj.key, doc)
-          })
-      }))
-    })
-
-    .then(function (decrypted) {
-      return hoodie.store.find('hoodiePluginCryptoStore/salt')
-
-        .then(function (saltDoc) {
-          return createKey('test', saltDoc.salt)
-        })
-
-        .then(function (keyObj) {
-          decrypted.forEach(function (resetDoc) {
-            t.equal(resetDoc.key, keyObj.key.toString('hex'), 'encrypted data is equal to key')
-          })
-        })
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+      t.equal(decrypted.key, key.key.toString('hex'), 'encrypted data is equal to key')
+    }))
+  } catch (err) {
+    t.end(err)
+  }
 })
