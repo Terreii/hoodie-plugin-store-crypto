@@ -4,7 +4,7 @@
   "description": "End-to-end crypto plugin for the Hoodie client store.",
   "main": "index.js",
   "engines": {
-    "node": ">=6"
+    "node": ">=8"
   },
   "scripts": {
     "update-coc": "weallbehave -o . && git add CODE_OF_CONDUCT.md && git commit -m 'docs(coc): updated CODE_OF_CONDUCT.md'",
@@ -50,7 +50,7 @@
     "pouchdb-adapter-memory": "^7.1.1",
     "pouchdb-core": "^7.1.1",
     "pouchdb-replication": "^7.1.1",
-    "semantic-release": "^15.13.27",
+    "semantic-release": "^15.13.28",
     "standard": "^14.3.1",
     "tap-spec": "^5.0.0",
     "tape": "^4.11.0",

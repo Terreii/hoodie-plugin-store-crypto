@@ -10,6 +10,7 @@ It will list all changes, you have to make, if you update to:
 - [v2](#v2-update-notes)
 - [v2.2](#v22-update-notes)
 - [v2.3](#v23-update-notes)
+- [v3](#v3-update-notes)
 
 ## v2 Update Notes
 
@@ -95,7 +96,7 @@ __If the user was already setup, then no reset key will get generated, until the
 
 ## v2.3 Update Notes
 
-Bigging from v2.3 you can mark document-members to be not encrypted! They will get saved in plain text!
+Beginning from v2.3 you can mark document-members to be not encrypted! They will get saved in plain text!
 
 This is useful for example if you wand to put in place a search or document relationship.
 
@@ -137,4 +138,40 @@ var hoodie = new Hoodie({ // create an instance of the hoodie-client
 cryptoStore(hoodie, { handleSpecialDocumentMembers: true }) // sets up hoodie.cryptoStore
 ```
 
-**In a future update this will become the default!**
+[**Version 3 did change handling of special document members!**](#handling-special-document-members-is-now-the-default)
+
+## v3 Update Notes
+
+### Old salt doc
+
+The old salt doc (`_design/cryptoStore/salt`) is now ignored!
+
+If an user still has the old salt doc, then you can move it to `hoodiePluginCryptoStore/salt`.
+
+```javascript
+const salt = await hoodie.store.find('_design/cryptoStore/salt')
+salt._id = `hoodiePluginCryptoStore/salt`
+delete salt._rev
+hoodie.store.add(salt)
+hoodie.store.remove('_design/cryptoStore/salt')
+```
+
+### Salt doc without a password check is deprecated
+
+A future major version will no longer add a missing password check and fail!
+
+Please have your *users change their password* or/and don't set `noPasswordCheckAutoFix` to `true`.
+
+You are all set, if all your users `hoodiePluginCryptoStore/salt` doc contain a `check`-field!
+
+### Dropping of support for node v6
+
+Because Node version 6 is end-of-life, it is now no longer supported!
+
+If you are still using node v6: please migrate to a newer version! Node version 8 will also be end-of-life by the end of this year.
+
+### Handling special document members is now the default
+
+All document members/fields that start with an `_` will now not encrypted.
+
+To deactivate it set the option `notHandleSpecialDocumentMembers` to `true`.
