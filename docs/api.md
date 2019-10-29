@@ -58,7 +58,7 @@ Those concepts/rules apply to all methods.
 
 **Everything of a doc will get encrypted. Except for `_id`, `_rev`, `_deleted`, `_attachments`, `_conflicts` and the `hoodie` object!**
 
-Also optionally _all keys that start with an underscore (\_) will not get encrypted_! Because they are __special document members__ used by CouchDB and PouchDB! To deactivated this set the *plugin option* `notHandleSpecialDocumentMembers` to `true`.
+Also _all keys that start with an underscore (\_) will not get encrypted_! Because they are __special document members__ used by CouchDB and PouchDB! To deactivated this set the *plugin option* `notHandleSpecialDocumentMembers` to `true`.
 
 **Don't save private data in the `_id`**!
 
@@ -206,7 +206,7 @@ A salt is a string that will get used with the password together for the encrypt
 
 __*This will not unlock the cryptoStore!*__
 
-Rejects if there is already a local or remote `hoodiePluginCryptoStore/salt` or `_design/cryptoStore/salt` doc!
+Rejects if there is already a local or remote `hoodiePluginCryptoStore/salt` doc!
 
 Rejects with:
 
@@ -259,7 +259,7 @@ A salt is a string that will get used with the password together for the encrypt
 
 __*This will not unlock the cryptoStore!*__
 
-Rejects if there is already a local or remote `hoodiePluginCryptoStore/salt` or `_design/cryptoStore/salt` doc!
+Rejects if there is already a local or remote `hoodiePluginCryptoStore/salt` doc!
 
 Rejects with:
 
@@ -303,9 +303,9 @@ Argument | Type   | Description                           | Required
 ---------|--------|---------------------------------------|----------
 `password` | String | The password used for encrypting the objects | Yes
 
-Uses the salt in `hoodiePluginCryptoStore/salt` or `_design/cryptoStore/salt` and unlocks the cryptoStore.
-It will pull `hoodiePluginCryptoStore/salt` and `_design/cryptoStore/salt` from the remote and
-reject if they don't exists or got deleted or the password mismatch.
+Uses the salt in `hoodiePluginCryptoStore/salt` and unlocks the cryptoStore.
+It will pull `hoodiePluginCryptoStore/salt` from the remote and
+reject if it doesn't exists or got deleted or the password mismatch.
 
 Rejects with:
 

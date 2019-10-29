@@ -138,7 +138,7 @@ var hoodie = new Hoodie({ // create an instance of the hoodie-client
 cryptoStore(hoodie, { handleSpecialDocumentMembers: true }) // sets up hoodie.cryptoStore
 ```
 
-**In a future update this will become the default!**
+[**Version 3 did change handling of special document members!**](#handling-special-document-members-is-now-the-default)
 
 ## v3 Update Notes
 
@@ -160,13 +160,15 @@ hoodie.store.remove('_design/cryptoStore/salt')
 
 A future major version will no longer add a missing password check and fail!
 
-Please don't set `noPasswordCheckAutoFix` to `true` and/or have your *users change their password*.
+Please have your *users change their password* or/and don't set `noPasswordCheckAutoFix` to `true`.
+
+You are all set, if all your users `hoodiePluginCryptoStore/salt` doc contain a `check`-field!
 
 ### Dropping of support for node v6
 
 Because Node version 6 is end-of-life, it is now no longer supported!
 
-If you are still using node v6: please migrate to a newer version! Node version 8 will also be end-of-life at the end of this year.
+If you are still using node v6: please migrate to a newer version! Node version 8 will also be end-of-life by the end of this year.
 
 ### Handling special document members is now the default
 
