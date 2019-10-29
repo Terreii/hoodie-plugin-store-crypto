@@ -683,59 +683,40 @@ test('cryptoStore.withIdPrefix("test/").on("change", handler) events', function 
     })
 })
 
-test('cryptoStore.withIdPrefix("test/") should pass _ option on', function (t) {
+test('cryptoStore.withIdPrefix("test/") should pass _ option on', async t => {
   t.plan(4)
 
-  var hoodie = createCryptoStore({ handleSpecialDocumentMembers: true })
-  var hoodie2 = createCryptoStore()
+  const hoodie = createCryptoStore()
+  const hoodie2 = createCryptoStore({ notHandleSpecialDocumentMembers: true })
 
-  hoodie.cryptoStore.setup('test')
+  try {
+    await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
 
-    .then(function () {
-      return hoodie.cryptoStore.unlock('test')
+    await hoodie.cryptoStore.withIdPrefix('test/').add({
+      value: 42,
+      _other: 'public'
     })
 
-    .then(function () {
-      return hoodie.cryptoStore.withIdPrefix('test/').add({
-        value: 42,
-        _other: 'public'
-      })
+    t.fail(new Error('should have thrown with doc_validation'))
+  } catch (err) {
+    t.is(err.name, 'doc_validation', 'value with _ was passed on')
+  }
+
+  try {
+    await hoodie2.cryptoStore.setup('test')
+    await hoodie2.cryptoStore.unlock('test')
+
+    const obj = await hoodie2.cryptoStore.withIdPrefix('test/').add({
+      value: 42,
+      _other: 'test value'
     })
+    t.is(obj._other, 'test value', 'members with _ are added')
 
-    .then(
-      function (obj) {
-        t.fail(new Error('should have thrown with doc_validation'))
-      },
-      function (err) {
-        t.is(err.name, 'doc_validation', 'value with _ was passed on')
-      }
-    )
-
-    .then(function () {
-      return hoodie2.cryptoStore.setup('test')
-    })
-
-    .then(function () {
-      return hoodie2.cryptoStore.unlock('test')
-    })
-
-    .then(function () {
-      return hoodie2.cryptoStore.withIdPrefix('test/').add({
-        value: 42,
-        _other: 'test value'
-      })
-    })
-
-    .then(function (obj) {
-      t.is(obj._other, 'test value', 'members with _ are added')
-
-      return hoodie2.store.find(obj._id)
-    })
-
-    .then(function (obj) {
-      t.is(obj.value, undefined, 'members still get encrypted')
-      t.is(obj._other, undefined, 'members starting with _ are encrypted')
-    })
-
-    .catch(t.end)
+    const encrypted = await hoodie2.store.find(obj._id)
+    t.is(encrypted.value, undefined, 'members still get encrypted')
+    t.is(encrypted._other, undefined, 'members starting with _ are encrypted')
+  } catch (err) {
+    t.end(err)
+  }
 })

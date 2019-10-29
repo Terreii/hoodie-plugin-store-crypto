@@ -6,7 +6,7 @@ var cryptoStore = require('../../')
 var PouchDB = require('../utils/pouchdb.js')
 var uniqueName = require('../utils/unique-name')
 
-test('cryptoStore should listen to account/signout events', function (t) {
+test('cryptoStore should listen to account/signout events', t => {
   t.plan(3)
 
   var name = uniqueName()
@@ -33,7 +33,7 @@ test('cryptoStore should listen to account/signout events', function (t) {
   }
 })
 
-test('cryptoStore should work with a not complete Hoodie-client', function (t) {
+test('cryptoStore should work with a not complete Hoodie-client', t => {
   t.plan(1)
 
   var name = uniqueName()
@@ -55,15 +55,45 @@ test('cryptoStore should work with a not complete Hoodie-client', function (t) {
   }
 })
 
+test('cryptoStore does not encrypt fields starting with _', async t => {
+  t.plan(1)
+
+  var name = uniqueName()
+
+  var hoodie = {
+    account: { on: function () {} },
+    store: new Store(name, {
+      PouchDB: PouchDB,
+      remote: 'remote-' + name
+    })
+  }
+
+  cryptoStore(hoodie)
+
+  try {
+    await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
+
+    await hoodie.cryptoStore.add({
+      value: 42,
+      _other: 'public'
+    })
+
+    t.fail(new Error('should have thrown with doc_validation'))
+  } catch (err) {
+    t.is(err.name, 'doc_validation', 'value with _ was passed on')
+  }
+})
+
 test(
-  'cryptoStore does not encrypt fields starting with _ if handleSpecialDocumentMembers' +
-    ' is set to true',
-  function (t) {
-    t.plan(1)
+  'cryptoStore does encrypt fields starting with _ if notHandleSpecialDocumentMembers is ' +
+  'set to true',
+  async t => {
+    t.plan(2)
 
-    var name = uniqueName()
+    const name = uniqueName()
 
-    var hoodie = {
+    const hoodie = {
       account: { on: function () {} },
       store: new Store(name, {
         PouchDB: PouchDB,
@@ -71,28 +101,22 @@ test(
       })
     }
 
-    cryptoStore(hoodie, { handleSpecialDocumentMembers: true })
+    cryptoStore(hoodie, { notHandleSpecialDocumentMembers: true })
 
-    hoodie.cryptoStore.setup('test')
+    try {
+      await hoodie.cryptoStore.setup('test')
+      await hoodie.cryptoStore.unlock('test')
 
-      .then(function () {
-        return hoodie.cryptoStore.unlock('test')
+      const doc = await hoodie.cryptoStore.add({
+        value: 42,
+        _other: 'not public'
       })
+      t.is(doc._other, 'not public', 'member starting with _ was encrypted')
 
-      .then(function () {
-        return hoodie.cryptoStore.add({
-          value: 42,
-          _other: 'public'
-        })
-      })
-
-      .then(
-        function (obj) {
-          t.fail(new Error('should have thrown with doc_validation'))
-        },
-        function (err) {
-          t.is(err.name, 'doc_validation', 'value with _ was passed on')
-        }
-      )
+      const encryptedDoc = await hoodie.store.find(doc._id)
+      t.is(encryptedDoc._other, undefined, 'member starting with _ is not public')
+    } catch (err) {
+      t.end(err)
+    }
   }
 )

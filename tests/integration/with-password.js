@@ -371,51 +371,37 @@ test(
   }
 )
 
-test('cryptoStore.withPassword("test") should pass _ option on', function (t) {
+test('cryptoStore.withPassword("test") should pass _ option on', async t => {
   t.plan(4)
 
-  var hoodie = createCryptoStore({ handleSpecialDocumentMembers: true })
-  var hoodie2 = createCryptoStore()
+  const hoodie = createCryptoStore()
+  const hoodie2 = createCryptoStore({ notHandleSpecialDocumentMembers: true })
 
-  hoodie.cryptoStore.withPassword('test')
-
-    .then(function (result) {
-      return result.store.add({
-        value: 42,
-        _other: 'public'
-      })
+  try {
+    const { store } = await hoodie.cryptoStore.withPassword('test')
+    await store.add({
+      value: 42,
+      _other: 'public'
     })
 
-    .then(
-      function (obj) {
-        t.fail(new Error('should have thrown with doc_validation'))
-      },
-      function (err) {
-        t.is(err.name, 'doc_validation', 'value with _ was passed on')
-      }
-    )
+    t.fail(new Error('should have thrown with doc_validation'))
+  } catch (err) {
+    t.is(err.name, 'doc_validation', 'value with _ was passed on')
+  }
 
-    .then(function () {
-      return hoodie2.cryptoStore.withPassword('test')
+  try {
+    const { store } = await hoodie2.cryptoStore.withPassword('test')
+
+    const obj = await store.add({
+      value: 42,
+      _other: 'test value'
     })
+    t.is(obj._other, 'test value', 'members with _ are added')
 
-    .then(function (result) {
-      return result.store.add({
-        value: 42,
-        _other: 'test value'
-      })
-    })
-
-    .then(function (obj) {
-      t.is(obj._other, 'test value', 'members with _ are added')
-
-      return hoodie2.store.find(obj._id)
-    })
-
-    .then(function (obj) {
-      t.is(obj.value, undefined, 'members still get encrypted')
-      t.is(obj._other, undefined, 'members starting with _ are encrypted')
-    })
-
-    .catch(t.end)
+    const encrypted = await hoodie2.store.find(obj._id)
+    t.is(encrypted.value, undefined, 'members still get encrypted')
+    t.is(encrypted._other, undefined, 'members starting with _ are encrypted')
+  } catch (err) {
+    t.end(err)
+  }
 })
