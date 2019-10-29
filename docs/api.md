@@ -162,6 +162,7 @@ Argument | Type   | Description | Required
 ---------|--------|-------------|----------
 `hoodie` | Object | Hoodie client instance | Yes
 `options.noPasswordCheckAutoFix` | Boolean | [Deactivate password-check autofix](#v2-update-notes). Default is `false` | No
+`options.notHandleSpecialDocumentMembers` | Boolean | [Encrypt all fields with a key that start with an `_`](#what-gets-encrypted). Default is `false` | No
 
 Returns `undefined`
 
@@ -450,7 +451,7 @@ Argument      | Type   | Description                                     | Requi
 `properties`  | Object | properties of document                          | Yes
 `properties._id` | String | If set, the document will be stored at given id | No
 
-Resolves with `properties` unencrypted and adds `id` (unless provided). And adds a `hoodie` property with `createdAt` and `updatedAt` properties. It will get encrypted.
+Resolves with decrypted `properties` and adds `id` (unless provided). And adds a `hoodie` property with `createdAt` and `updatedAt` properties. It will get encrypted.
 
 ```JSON
 {
@@ -492,7 +493,7 @@ Argument          | Type  | Description      | Required
 
 It adds `_id` (unless provided) and a `hoodie` property with `createdAt` and `updatedAt` properties. And encrypts them.
 
-Resolves with an array of the added documents, unencrypted.
+Resolves with an array of the added documents, decrypted.
 
 ```JSON
 [
@@ -536,7 +537,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `id`    | String | Unique id of the document  | Yes
 
-Resolves with `properties` unencrypted. Works on encrypted and unencrypted documents.
+Resolves with decrypted `properties`. Works on encrypted and not encrypted documents.
 
 ```JSON
 {
@@ -578,7 +579,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `doc`   | Object | Document with `_id` property  | Yes
 
-Resolves with `properties` unencrypted. Works on encrypted and unencrypted documents.
+Resolves with decrypted `properties`. Works on encrypted and not encrypted documents.
 
 ```JSON
 {
@@ -620,7 +621,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `idsOrDocs` | Array | Array of `id` (String) or `doc` (Object) items  | Yes
 
-Resolves with array of `properties` unencrypted. Works on encrypted and unencrypted documents.
+Resolves with array of decrypted `properties`. Works on encrypted and not encrypted documents.
 
 ```JSON
 [
@@ -668,7 +669,7 @@ Argument| Type  | Description      | Required
 `id`    | String | Unique id of the document  | Yes
 `doc`   | Object | Document that will be saved if no document with the id exists | Yes
 
-Resolves with `properties` unencrypted. Works on encrypted and unencrypted documents. If doc gets added, it will also encrypt it and add a `hoodie` property with `createdAt` and `updatedAt` properties.
+Resolves with decrypted `properties`. Works on encrypted and not encrypted documents. If doc gets added, it will also encrypt it and add a `hoodie` property with `createdAt` and `updatedAt` properties.
 
 Rejects with:
 
@@ -699,7 +700,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `doc`   | Object | Document  with `_id` property | Yes
 
-Resolves with `properties` unencrypted. Works on encrypted and unencrypted documents. If doc gets added, it will also encrypt it and add a `hoodie` property with `createdAt` and `updatedAt` properties.
+Resolves with decrypted `properties`. Works on encrypted and not encrypted documents. If doc gets added, it will also encrypt it and add a `hoodie` property with `createdAt` and `updatedAt` properties.
 
 Rejects with:
 
@@ -730,7 +731,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `idsOrDocs` | Array | Array of documents with `_id` property or ids | Yes
 
-Resolves with an array of `properties` unencrypted. Works on encrypted and unencrypted documents. If a doc gets added, it will also encrypt it and add a `hoodie` property with `createdAt` and `updatedAt` properties.
+Resolves with an array of decrypted `properties`. Works on encrypted and not encrypted documents. If a doc gets added, it will also encrypt it and add a `hoodie` property with `createdAt` and `updatedAt` properties.
 
 Rejects with:
 
@@ -764,7 +765,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `filterFunction` | Function | Function that will be called for every doc with `doc`, `index` and `arrayOfAllDocs`. And returns `true` if `doc` should be returned, `false` if not. | No
 
-Resolves with array of `properties` unencrypted. Works on encrypted and unencrypted documents.
+Resolves with array of decrypted `properties`. Works on encrypted and not encrypted documents.
 
 ```JSON
 [
@@ -812,7 +813,7 @@ Argument| Type  | Description      | Required
 `id`    | String | Unique id of the document  | Yes
 `changedProperties` | Object | Properties that should be changed | Yes
 
-Resolves with updated `properties` unencrypted. Works on encrypted and unencrypted documents. Unencrypted documents will get encrypted!
+Resolves with updated decrypted `properties`. Works on encrypted and not encrypted documents. Not encrypted documents will get encrypted!
 
 Rejects with:
 
@@ -848,7 +849,7 @@ Argument| Type  | Description      | Required
 `id`    | String | Unique id of the document  | Yes
 `updateFunction` | Function | Function that get the document passed and changes the document. | Yes
 
-Resolves with updated `properties` unencrypted. Works on encrypted and unencrypted documents. Unencrypted documents will get encrypted!
+Resolves with updated and decrypted `properties`. Works on encrypted and not encrypted documents. Not encrypted documents will get encrypted!
 
 Rejects with:
 
@@ -885,7 +886,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `doc`   | Object | Properties that should be changed with a `_id` property | Yes
 
-Resolves with updated `properties` unencrypted. Works on encrypted and unencrypted documents. Unencrypted documents will get encrypted!
+Resolves with updated and decrypted `properties`. Works on encrypted and not encrypted documents. Not encrypted documents will get encrypted!
 
 Rejects with:
 
@@ -920,7 +921,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `arrayOfDocs` | Array | Array properties that should be changed with a `_id` property | Yes
 
-Resolves with an array of updated `properties` unencrypted. Works on encrypted and unencrypted documents. Unencrypted documents will get encrypted!
+Resolves with an array of updated and decrypted `properties`. Works on encrypted and not encrypted documents. Not encrypted documents will get encrypted!
 
 Rejects with:
 
@@ -959,7 +960,7 @@ Argument| Type  | Description      | Required
 `id`    | String | Unique id of the document  | Yes
 `doc`   | Object | Properties that should be changed or added if doc doesn't exist | Yes
 
-Resolves with updated `properties` unencrypted. Updates existing documents and adds nonexistent docs. Works on encrypted and unencrypted documents. Unencrypted documents will get encrypted! If the doc gets added, it will encrypt it and add a `hoodie` property with `createdAt` and `updatedAt` properties added.
+Resolves with updated and decrypted `properties`. Updates existing documents and adds nonexistent docs. Works on encrypted and not encrypted documents. Not encrypted documents will get encrypted! If the doc gets added, it will encrypt it and add a `hoodie` property with `createdAt` and `updatedAt` properties added.
 
 Rejects with:
 
@@ -990,7 +991,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `doc`   | Object | Properties that should be changed or added with a `_id` property | Yes
 
-Resolves with updated `properties` unencrypted. Updates existing documents and adds nonexistent docs. Works on encrypted and unencrypted documents. Unencrypted documents will get encrypted! If the doc gets added, it will encrypt it and add a `hoodie` property with `createdAt` and `updatedAt` properties added.
+Resolves with updated and decrypted `properties`. Updates existing documents and adds nonexistent docs. Works on encrypted and not encrypted documents. Not encrypted documents will get encrypted! If the doc gets added, it will encrypt it and add a `hoodie` property with `createdAt` and `updatedAt` properties added.
 
 Rejects with:
 
@@ -1024,7 +1025,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `arrayOfDocs` | Array | Array properties that should be changed or added with a `_id` property | Yes
 
-Resolves with an array of updated `properties` unencrypted. Updates existing documents and adds nonexistent docs. Works on encrypted and unencrypted documents. Unencrypted documents will get encrypted! If the doc gets added, it will encrypt it and add a `hoodie` property with `createdAt` and `updatedAt` properties added.
+Resolves with an array of updated and decrypted `properties`. Updates existing documents and adds nonexistent docs. Works on encrypted and not encrypted documents. Not encrypted documents will get encrypted! If the doc gets added, it will encrypt it and add a `hoodie` property with `createdAt` and `updatedAt` properties added.
 
 Rejects with:
 
@@ -1061,7 +1062,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `changedProperties` | Object | Properties that should be changed by all documents | Yes
 
-Resolves with updated `properties` unencrypted. Works on encrypted and unencrypted documents. Unencrypted documents will get encrypted!
+Resolves with updated and decrypted `properties`. Works on encrypted and not encrypted documents. Not encrypted documents will get encrypted!
 
 __This updates and encrypts all documents with its idPrefix!__
 
@@ -1102,7 +1103,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `updateFunction` | Function | Function that get the document passed and changes the document. | Yes
 
-Resolves with updated `properties` unencrypted. Works on encrypted and unencrypted documents. Unencrypted documents will get encrypted!
+Resolves with updated and decrypted `properties`. Works on encrypted and not encrypted documents. Not encrypted documents will get encrypted!
 
 __This updates and encrypts all documents with its idPrefix!__
 
@@ -1147,7 +1148,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `id`    | String | Unique id of the document  | Yes
 
-Resolves with `properties` unencrypted. Works on encrypted and unencrypted documents. It set the document to deleted. Unencrypted documents will get encrypted! It adds `deletedAt` to the `hoodie` property.
+Resolves with decrypted `properties`. Works on encrypted and not encrypted documents. It set the document to deleted. Not encrypted documents will get encrypted! It adds `deletedAt` to the `hoodie` property.
 
 ```JSON
 {
@@ -1191,7 +1192,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `doc`   | Object | Properties that should be changed with a `_id` property | Yes
 
-Resolves with `properties` unencrypted. Works on encrypted and unencrypted documents. It set the document to deleted and updates `properties`. Unencrypted documents will get encrypted! It adds `deletedAt` to the `hoodie` property.
+Resolves with decrypted `properties`. Works on encrypted and not encrypted documents. It set the document to deleted and updates `properties`. Not encrypted documents will get encrypted! It adds `deletedAt` to the `hoodie` property.
 
 ```JSON
 {
@@ -1239,7 +1240,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `idsOrDocs`  | Array | Properties that should be changed with a `_id` property or ids | Yes
 
-Resolves with `properties` unencrypted. Works on encrypted and unencrypted documents. It set the document to deleted and updates `properties`. Unencrypted documents will get encrypted! It adds `deletedAt` to the `hoodie` property.
+Resolves with decrypted `properties`. Works on encrypted and not encrypted documents. It set the document to deleted and updates `properties`. Not encrypted documents will get encrypted! It adds `deletedAt` to the `hoodie` property.
 
 ```JSON
 [
@@ -1289,7 +1290,7 @@ Argument| Type  | Description      | Required
 --------|-------|--------------------------|----------
 `filterFunction` | Function | Function that will be called for every doc with `doc`, `index` and `arrayOfAllDocs`. And returns `true` if `doc` should be returned, `false` if not. | No
 
-Resolves with updated `properties` unencrypted. Works on encrypted and unencrypted documents. Unencrypted documents will get encrypted!
+Resolves with updated and decrypted `properties`. Works on encrypted and not encrypted documents. Not encrypted documents will get encrypted!
 
 ```JSON
 [
@@ -1401,7 +1402,7 @@ function isEncrypted (id) {
 cryptoStore.on(eventName, handler)
 ```
 
-Add an event-handler. It behaves like [hoodie-store-client's on](https://github.com/hoodiehq/hoodie-store-client#storeon). But will not emit events for unencrypted documents or documents it couldn't decrypted. It will also decrypt the document.
+Add an event-handler. It behaves like [hoodie-store-client's on](https://github.com/hoodiehq/hoodie-store-client#storeon). But will not emit events for not encrypted documents or documents it couldn't decrypted. It will also decrypt the document.
 
 Argument| Type  | Description      | Required
 --------|-------|------------------|----------
@@ -1435,7 +1436,7 @@ hoodie.cryptoStore.on('change', changeHandler)
 cryptoStore.one(eventName, handler)
 ```
 
-Add an one-time event-handler. It behaves like [hoodie-store-client's one](https://github.com/hoodiehq/hoodie-store-client#storeone). But will not emit events for unencrypted documents or documents it couldn't decrypted. It will also decrypt the document.
+Add an one-time event-handler. It behaves like [hoodie-store-client's one](https://github.com/hoodiehq/hoodie-store-client#storeone). But will not emit events for not encrypted documents or documents it couldn't decrypted. It will also decrypt the document.
 
 Argument| Type  | Description      | Required
 --------|-------|------------------|----------
