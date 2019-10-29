@@ -24,6 +24,14 @@ function cryptoStore (hoodie, options) {
     noPasswordCheckAutoFix: options != null && Boolean(options.noPasswordCheckAutoFix)
   }
 
+  if (state.noPasswordCheckAutoFix) {
+    console.warn(
+      'Salt doc without a password check is deprecated!\n\n' +
+      'Read more at https://github.com/Terreii/hoodie-plugin-store-crypto/' +
+      'blob/latest/docs/update.md#v3-update-notes'
+    )
+  }
+
   var handler = {
     on: hoodie.store.on,
     once: hoodie.store.one,
