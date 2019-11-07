@@ -1,16 +1,16 @@
 'use strict'
 
-var test = require('tape')
+const test = require('tape')
 
-var decrypt = require('../../lib/decrypt')
+const decrypt = require('../../lib/decrypt')
 
-test('encrypt should encrypt a document', function (t) {
+test('encrypt should encrypt a document', async t => {
   t.plan(1)
 
-  var hoodiePart = {
+  const hoodiePart = {
     createdAt: Date.now()
   }
-  var doc = {
+  const doc = {
     _id: 'hello',
     _rev: '1-1234567890',
     hoodie: hoodiePart,
@@ -18,58 +18,54 @@ test('encrypt should encrypt a document', function (t) {
     data: '1b16dfd5903880851103599e801b07ae915db7194f52d36b321b91bd822c232ade9572b39e',
     nonce: '433d5b039fbda3b75b0a7f56'
   }
-  var key = Buffer.from('8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c', 'hex')
+  const key = Buffer.from('8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c', 'hex')
 
-  decrypt(key, doc)
+  const decrypted = await decrypt(key, doc)
 
-    .then(function (decrypted) {
-      t.deepEqual(decrypted, {
-        _id: 'hello',
-        _rev: '1-1234567890',
-        hoodie: hoodiePart,
-        foo: 'bar',
-        hello: 'world',
-        day: 1
-      }, 'decrypted doc')
-    })
+  t.deepEqual(decrypted, {
+    _id: 'hello',
+    _rev: '1-1234567890',
+    hoodie: hoodiePart,
+    foo: 'bar',
+    hello: 'world',
+    day: 1
+  }, 'decrypted doc')
 })
 
-test('should return an un-encrypted document', function (t) {
+test('should return an un-encrypted document', async t => {
   t.plan(1)
 
-  var doc = {
+  const doc = {
     _id: 'hello',
     _rev: '1-1234567890',
     foo: 'bar',
     hello: 'world',
     day: 1
   }
-  var key = Buffer.from('8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c', 'hex')
+  const key = Buffer.from('8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c', 'hex')
 
-  decrypt(key, doc)
+  try {
+    const decrypted = await decrypt(key, doc)
 
-    .then(function (decrypted) {
-      t.deepEqual(doc, {
-        _id: 'hello',
-        _rev: '1-1234567890',
-        foo: 'bar',
-        hello: 'world',
-        day: 1
-      })
+    t.deepEqual(decrypted, {
+      _id: 'hello',
+      _rev: '1-1234567890',
+      foo: 'bar',
+      hello: 'world',
+      day: 1
     })
-
-    .catch(function () {
-      t.fail('should return the doc')
-    })
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test('should throw with a TypeError if no key is passed', function (t) {
+test('should throw with a TypeError if no key is passed', async t => {
   t.plan(1)
 
-  var hoodiePart = {
+  const hoodiePart = {
     createdAt: Date.now()
   }
-  var doc = {
+  const doc = {
     _id: 'hello',
     _rev: '1-1234567890',
     hoodie: hoodiePart,
@@ -78,23 +74,20 @@ test('should throw with a TypeError if no key is passed', function (t) {
     nonce: '433d5b039fbda3b75b0a7f56'
   }
 
-  decrypt(Buffer.from([]), doc)
-
-    .then(function (decrypted) {
-      t.fail('should throw an TypeError')
-    })
-
-    .catch(function (error) {
-      t.is(error.name, 'TypeError')
-    })
+  try {
+    await decrypt(Buffer.from([]), doc)
+    t.fail('should throw an TypeError')
+  } catch (error) {
+    t.is(error.name, 'TypeError')
+  }
 })
 
-test('decrypt merges all not encrypted fields into the result object', function (t) {
+test('decrypt merges all not encrypted fields into the result object', async t => {
   t.plan(2)
 
-  var hoodiePart = { createdAt: new Date().toJSON() }
+  const hoodiePart = { createdAt: new Date().toJSON() }
 
-  var doc = {
+  const doc = {
     _id: 'hello',
     _rev: '1-1234567890',
     hoodie: hoodiePart,
@@ -106,39 +99,36 @@ test('decrypt merges all not encrypted fields into the result object', function 
     value: 42,
     greetings: 'To you!'
   }
-  var key = Buffer.from('8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c', 'hex')
+  const key = Buffer.from('8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c', 'hex')
 
-  decrypt(key, doc)
+  try {
+    const decrypted = await decrypt(key, doc)
+    t.deepEqual(decrypted, {
+      _id: 'hello',
+      _rev: '1-1234567890',
+      hoodie: hoodiePart,
+      foo: 'bar',
+      hello: 'world',
+      day: 1,
+      value: 42,
+      greetings: 'To you!'
+    }, 'decrypted and merged doc')
 
-    .then(function (decrypted) {
-      t.deepEqual(decrypted, {
-        _id: 'hello',
-        _rev: '1-1234567890',
-        hoodie: hoodiePart,
-        foo: 'bar',
-        hello: 'world',
-        day: 1,
-        value: 42,
-        greetings: 'To you!'
-      }, 'decrypted and merged doc')
+    // testing overwriting of not encrypted fields
+    doc.hello = 'Greetings'
+    const decryptedWithPublicField = await decrypt(key, doc)
 
-      // testing overwriting of not encrypted fields
-      doc.hello = 'Greetings'
-      return decrypt(key, doc)
-    })
-
-    .then(function (decrypted) {
-      t.deepEqual(decrypted, {
-        _id: 'hello',
-        _rev: '1-1234567890',
-        hoodie: hoodiePart,
-        foo: 'bar',
-        hello: 'world',
-        day: 1,
-        value: 42,
-        greetings: 'To you!'
-      }, 'decrypted and merged doc with overwritten field')
-    })
-
-    .catch(t.end)
+    t.deepEqual(decryptedWithPublicField, {
+      _id: 'hello',
+      _rev: '1-1234567890',
+      hoodie: hoodiePart,
+      foo: 'bar',
+      hello: 'world',
+      day: 1,
+      value: 42,
+      greetings: 'To you!'
+    }, 'decrypted and merged doc with overwritten field')
+  } catch (err) {
+    t.end(err)
+  }
 })

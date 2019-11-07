@@ -1,25 +1,25 @@
 'use strict'
 
-var Store = require('@hoodie/store-client')
+const Store = require('@hoodie/store-client')
 
-var cryptoStore = require('../../')
+const cryptoStore = require('../../')
 
-var PouchDB = require('./pouchdb.js')
-var uniqueName = require('./unique-name')
+const PouchDB = require('./pouchdb.js')
+const uniqueName = require('./unique-name')
 
 module.exports = createCryptoStore
 
 function createCryptoStore (options) {
-  var name = uniqueName()
+  const name = uniqueName()
 
-  var store = new Store(name, {
+  const store = new Store(name, {
     PouchDB: PouchDB,
     remote: 'remote-' + name
   })
 
-  var hoodie = {
+  const hoodie = {
     account: {
-      on: function () {}
+      on: () => {}
     },
     store: store
   }

@@ -5,11 +5,11 @@ module.exports = checkTime
 function checkTime (startTime, objectTime) {
   startTime = startTime instanceof Date ? startTime : new Date(startTime)
 
-  var now = Date.now()
+  const now = Date.now()
 
-  var timeObj = new Date(objectTime)
-  var isoString = timeObj.toISOString()
-  var time = timeObj.getTime()
+  const timeObj = new Date(objectTime)
+  const isoString = timeObj.toISOString()
+  const time = timeObj.getTime()
 
   if (objectTime !== isoString) {
     throw new Error('it must be an isoString! Not "' + objectTime + '"')
