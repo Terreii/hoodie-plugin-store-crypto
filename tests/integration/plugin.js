@@ -1,16 +1,16 @@
-var test = require('tape')
-var Store = require('@hoodie/store-client')
+const test = require('tape')
+const Store = require('@hoodie/store-client')
 
-var cryptoStore = require('../../')
+const cryptoStore = require('../../')
 
-var PouchDB = require('../utils/pouchdb.js')
-var uniqueName = require('../utils/unique-name')
+const PouchDB = require('../utils/pouchdb.js')
+const uniqueName = require('../utils/unique-name')
 
 test('cryptoStore should listen to account/signout events', t => {
   t.plan(3)
 
-  var name = uniqueName()
-  var hoodie = {
+  const name = uniqueName()
+  const hoodie = {
     account: null,
     store: new Store(name, {
       PouchDB: PouchDB,
@@ -19,7 +19,7 @@ test('cryptoStore should listen to account/signout events', t => {
   }
 
   hoodie.account = {
-    on: function (eventName, handler) {
+    on (eventName, handler) {
       t.equal(eventName, 'signout', 'eventName is signout')
       t.equal(typeof handler, 'function', 'handler is a function')
       t.equal(handler, hoodie.cryptoStore.lock, 'handler is cryptoStore.lock')
@@ -36,9 +36,9 @@ test('cryptoStore should listen to account/signout events', t => {
 test('cryptoStore should work with a not complete Hoodie-client', t => {
   t.plan(1)
 
-  var name = uniqueName()
+  const name = uniqueName()
 
-  var hoodie = {
+  const hoodie = {
     // no account
     store: new Store(name, {
       PouchDB: PouchDB,
@@ -58,10 +58,12 @@ test('cryptoStore should work with a not complete Hoodie-client', t => {
 test('cryptoStore does not encrypt fields starting with _', async t => {
   t.plan(1)
 
-  var name = uniqueName()
+  const name = uniqueName()
 
-  var hoodie = {
-    account: { on: function () {} },
+  const hoodie = {
+    account: {
+      on () {}
+    },
     store: new Store(name, {
       PouchDB: PouchDB,
       remote: 'remote-' + name
@@ -94,7 +96,7 @@ test(
     const name = uniqueName()
 
     const hoodie = {
-      account: { on: function () {} },
+      account: { on () {} },
       store: new Store(name, {
         PouchDB: PouchDB,
         remote: 'remote-' + name
