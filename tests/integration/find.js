@@ -6,316 +6,228 @@
  * Most tests are copied and adjusted from https://github.com/hoodiehq/hoodie-store-client
  */
 
-var test = require('tape')
-var Promise = require('lie')
-var pouchdbErrors = require('pouchdb-errors')
+const test = require('tape')
+const pouchdbErrors = require('pouchdb-errors')
 
-var createCryptoStore = require('../utils/createCryptoStore')
+const createCryptoStore = require('../utils/createCryptoStore')
 
-test('cryptoStore.find(id)', function (t) {
+test('cryptoStore.find(id)', async t => {
   t.plan(2)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
-
-    .then(function () {
-      return hoodie.cryptoStore.unlock('test')
+  try {
+    await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
+    await hoodie.cryptoStore.add({
+      _id: 'foo',
+      foo: 'bar'
     })
 
-    .then(function () {
-      return hoodie.cryptoStore.add({
-        _id: 'foo',
-        foo: 'bar'
-      })
-    })
-
-    .then(function () {
-      return hoodie.cryptoStore.find('foo')
-    })
-
-    .then(function (doc) {
-      t.is(doc._id, 'foo', 'resolves _id')
-      t.is(doc.foo, 'bar', 'resolves value')
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+    const doc = await hoodie.cryptoStore.find('foo')
+    t.is(doc._id, 'foo', 'resolves _id')
+    t.is(doc.foo, 'bar', 'resolves value')
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test('cryptoStore.find(object)', function (t) {
+test('cryptoStore.find(object)', async t => {
   t.plan(2)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
-
-    .then(function () {
-      return hoodie.cryptoStore.unlock('test')
+  try {
+    await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
+    await hoodie.cryptoStore.add({
+      _id: 'foo',
+      bar: 'baz'
     })
 
-    .then(function () {
-      return hoodie.cryptoStore.add({
-        _id: 'foo',
-        bar: 'baz'
-      })
-    })
-
-    .then(function () {
-      return hoodie.cryptoStore.find({ _id: 'foo' })
-    })
-
-    .then(function (doc) {
-      t.is(doc._id, 'foo', 'resolves _id')
-      t.is(doc.bar, 'baz', 'resolves value')
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+    const doc = await hoodie.cryptoStore.find({ _id: 'foo' })
+    t.is(doc._id, 'foo', 'resolves _id')
+    t.is(doc.bar, 'baz', 'resolves value')
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test('find unencrypted objects', function (t) {
+test('find unencrypted objects', async t => {
   t.plan(4)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  try {
+    await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
 
-    .then(function () {
-      return hoodie.cryptoStore.unlock('test')
-    })
-
-    .then(function () {
-      return hoodie.store.add([{
+    await hoodie.store.add([
+      {
         _id: 'foo',
         bar: 'baz'
-      }, {
+      },
+      {
         _id: 'bar',
         foo: 'baz'
-      }])
-    })
+      }
+    ])
 
-    .then(function () {
-      var first = hoodie.cryptoStore.find('foo')
+    const first = await hoodie.cryptoStore.find('foo')
+    t.is(first._id, 'foo', 'resolves id')
+    t.is(first.bar, 'baz', 'resolves value')
 
-        .then(function (object) {
-          t.is(object._id, 'foo', 'resolves id')
-          t.is(object.bar, 'baz', 'resolves value')
-        })
-
-      var second = hoodie.cryptoStore.find({ _id: 'bar' })
-
-        .then(function (object) {
-          t.is(object._id, 'bar', 'resolves id')
-          t.is(object.foo, 'baz', 'resolves value')
-        })
-
-      return Promise.all([first, second])
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+    const second = await hoodie.cryptoStore.find({ _id: 'bar' })
+    t.is(second._id, 'bar', 'resolves id')
+    t.is(second.foo, 'baz', 'resolves value')
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test('find rejects with hoodie.find error for non-existing', function (t) {
+test('find rejects with hoodie.find error for non-existing', async t => {
   t.plan(4)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  await hoodie.cryptoStore.setup('test')
+  await hoodie.cryptoStore.unlock('test')
 
-    .then(function () {
-      return hoodie.cryptoStore.unlock('test')
-    })
+  await hoodie.cryptoStore.add({ _id: 'unrelated' })
 
-    .then(function () {
-      return hoodie.cryptoStore.add({
-        _id: 'unrelated'
-      })
-    })
+  try {
+    await hoodie.cryptoStore.find('foo')
+    t.fail('should have thrown')
+  } catch (err) {
+    t.ok(err instanceof Error, 'rejects error')
+    t.is(err.status, 404)
+  }
 
-    .then(function () {
-      var first = hoodie.cryptoStore.find('foo')
+  try {
+    await hoodie.cryptoStore.find({ _id: 'foo' })
+    t.fail('should have thrown')
+  } catch (err) {
+    t.ok(err instanceof Error, 'rejects error')
+    t.is(err.status, 404)
+  }
 
-        .catch(function (err) {
-          t.ok(err instanceof Error, 'rejects error')
-          t.is(err.status, 404)
-        })
-
-      var second = hoodie.cryptoStore.find({ _id: 'foo' })
-
-        .catch(function (err) {
-          t.ok(err instanceof Error, 'rejects error')
-          t.is(err.status, 404)
-        })
-
-      return Promise.all([first, second])
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+  t.end()
 })
 
-test('cryptoStore.find(array)', function (t) {
+test('cryptoStore.find(array)', async t => {
   t.plan(6)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  try {
+    await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
 
-    .then(function () {
-      return hoodie.cryptoStore.unlock('test')
-    })
-
-    .then(function () {
-      return hoodie.cryptoStore.add([{
+    await hoodie.cryptoStore.add([
+      {
         _id: 'foo',
         bar: 'baz'
-      }, {
+      },
+      {
         _id: 'bar',
         foo: 'baz'
-      }])
+      }
+    ])
+    await hoodie.store.add({
+      _id: 'baz',
+      baz: 'foo'
     })
 
-    .then(function () {
-      return hoodie.store.add({
-        _id: 'baz',
-        baz: 'foo'
-      })
-    })
-
-    .then(function () {
-      return hoodie.cryptoStore.find(['foo', { _id: 'bar' }, 'baz'])
-    })
-
-    .then(function (objects) {
-      t.is(objects[0]._id, 'foo', 'resolves id')
-      t.is(objects[0].bar, 'baz', 'resolves value')
-      t.is(objects[1]._id, 'bar', 'resolves id')
-      t.is(objects[1].foo, 'baz', 'resolves value')
-      t.is(objects[2]._id, 'baz', 'resolves id')
-      t.is(objects[2].baz, 'foo', 'resolves value')
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+    const objects = await hoodie.cryptoStore.find(['foo', { _id: 'bar' }, 'baz'])
+    t.is(objects[0]._id, 'foo', 'resolves id')
+    t.is(objects[0].bar, 'baz', 'resolves value')
+    t.is(objects[1]._id, 'bar', 'resolves id')
+    t.is(objects[1].foo, 'baz', 'resolves value')
+    t.is(objects[2]._id, 'baz', 'resolves id')
+    t.is(objects[2].baz, 'foo', 'resolves value')
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test('cryptoStore.find(array) with non-existing', function (t) {
+test('cryptoStore.find(array) with non-existing', async t => {
   t.plan(3)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  try {
+    await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
 
-    .then(function () {
-      return hoodie.cryptoStore.unlock('test')
+    await hoodie.cryptoStore.add({
+      _id: 'exists',
+      value: 2
     })
 
-    .then(function () {
-      return hoodie.cryptoStore.add({
-        _id: 'exists',
-        value: 2
-      })
-    })
-
-    .then(function () {
-      return hoodie.cryptoStore.find(['exists', 'unknown'])
-    })
-
-    .then(function (objects) {
-      t.is(objects[0]._id, 'exists', 'resolves with id for existing')
-      t.is(objects[0].value, 2, 'resolves with value for existing')
-      t.is(objects[1].status, 404, 'resolves with 404 error for unknown')
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+    const objects = await hoodie.cryptoStore.find(['exists', 'unknown'])
+    t.is(objects[0]._id, 'exists', 'resolves with id for existing')
+    t.is(objects[0].value, 2, 'resolves with value for existing')
+    t.is(objects[1].status, 404, 'resolves with 404 error for unknown')
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test('cryptoStore.find() should merge not encrypt fields into the result object', function (t) {
+test('cryptoStore.find() should merge not encrypt fields into the result object', async t => {
   t.plan(6)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  try {
+    await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
 
-    .then(function () {
-      return hoodie.cryptoStore.unlock('test')
+    const obj = await hoodie.cryptoStore.add({
+      value: 42,
+      notEncrypted: 'other',
+      notEncryptedTemp: true,
+      cy_ignore: ['notEncrypted'],
+      __cy_ignore: ['notEncryptedTemp']
     })
 
-    .then(function () {
-      return hoodie.cryptoStore.add({
-        value: 42,
-        notEncrypted: 'other',
-        notEncryptedTemp: true,
-        cy_ignore: ['notEncrypted'],
-        __cy_ignore: ['notEncryptedTemp']
-      })
-    })
+    await hoodie.store.update(obj._id, { other: 'something public' })
+    const updated = await hoodie.cryptoStore.find(obj._id)
 
-    .then(function (obj) {
-      return hoodie.store.update(obj._id, { other: 'something public' })
-    })
-
-    .then(function (obj) {
-      return hoodie.cryptoStore.find(obj._id)
-    })
-
-    .then(function (obj) {
-      t.is(obj.value, 42, 'encrypted value was decrypted')
-      t.is(obj.notEncrypted, 'other', 'not encrypted field listed in cy_ignore')
-      t.is(obj.notEncryptedTemp, true, 'not encrypted field listed in __cy_ignore')
-      t.deepEqual(obj.cy_ignore, ['notEncrypted'], 'cy_ignore was saved')
-      t.is(obj.__cy_ignore, undefined, '__cy_ignore was not saved')
-      t.is(obj.other, 'something public', 'later added not encrypted value was merged in')
-    })
-
-    .catch(t.end)
+    t.is(updated.value, 42, 'encrypted value was decrypted')
+    t.is(updated.notEncrypted, 'other', 'not encrypted field listed in cy_ignore')
+    t.is(updated.notEncryptedTemp, true, 'not encrypted field listed in __cy_ignore')
+    t.deepEqual(updated.cy_ignore, ['notEncrypted'], 'cy_ignore was saved')
+    t.is(updated.__cy_ignore, undefined, '__cy_ignore was not saved')
+    t.is(updated.other, 'something public', 'later added not encrypted value was merged in')
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test('cryptoStore.find() should throw if plugin isn\'t unlocked', function (t) {
+test('cryptoStore.find() should throw if plugin isn\'t unlocked', async t => {
   t.plan(4)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.find('anId')
+  try {
+    await hoodie.cryptoStore.find('anId')
+    t.fail('It should have thrown')
+  } catch (err) {
+    t.equal(err.status, 401, 'uses PouchDB UNAUTHORIZED status')
+    t.equal(err.message, pouchdbErrors.UNAUTHORIZED.message)
+  }
 
-    .then(function () {
-      t.fail('It should have thrown')
-    })
+  try {
+    await hoodie.cryptoStore.setup('test')
 
-    .catch(function (err) {
-      t.equal(err.status, 401, 'uses PouchDB UNAUTHORIZED status')
-      t.equal(err.message, pouchdbErrors.UNAUTHORIZED.message)
-    })
+    await hoodie.cryptoStore.find('anId')
+    t.fail('It should have thrown after setup')
+  } catch (err) {
+    t.equal(err.status, 401, 'uses PouchDB UNAUTHORIZED status')
+    t.equal(err.message, pouchdbErrors.UNAUTHORIZED.message)
+  }
 
-    .then(function () {
-      return hoodie.cryptoStore.setup('test')
-    })
-
-    .then(function () {
-      return hoodie.cryptoStore.find('anId')
-    })
-
-    .then(function () {
-      t.fail('It should have thrown after setup')
-    })
-
-    .catch(function (err) {
-      t.equal(err.status, 401, 'uses PouchDB UNAUTHORIZED status')
-      t.equal(err.message, pouchdbErrors.UNAUTHORIZED.message)
-    })
-
-    .then(function () {
-      t.end()
-    })
+  t.end()
 })
 
 // todo: check for timestamps

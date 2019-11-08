@@ -6,297 +6,205 @@
  * Most tests are copied and adjusted from https://github.com/hoodiehq/hoodie-store-client
  */
 
-var test = require('tape')
-var Promise = require('lie')
-var pouchdbErrors = require('pouchdb-errors')
+const test = require('tape')
+const pouchdbErrors = require('pouchdb-errors')
 
-var createCryptoStore = require('../utils/createCryptoStore')
+const createCryptoStore = require('../utils/createCryptoStore')
 
-test('cryptoStore.findOrAdd(id, object) finds existing', function (t) {
+test('cryptoStore.findOrAdd(id, object) finds existing', async t => {
   t.plan(4)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  try {
+    await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
 
-    .then(function () {
-      return hoodie.cryptoStore.unlock('test')
-    })
+    await hoodie.cryptoStore.add({ _id: 'exists', foo: 'bar' })
 
-    .then(function () {
-      return hoodie.cryptoStore.add({ _id: 'exists', foo: 'bar' })
-    })
+    const object = await hoodie.cryptoStore.findOrAdd('exists', { foo: 'baz' })
+    t.is(object._id, 'exists', 'resolves with id')
+    t.is(object.foo, 'bar', 'resolves with old object')
 
-    .then(function () {
-      return hoodie.cryptoStore.findOrAdd('exists', { foo: 'baz' })
-    })
+    await hoodie.store.add({ _id: 'not-encrypted', foo: 'bar' })
 
-    .then(function (object) {
-      t.is(object._id, 'exists', 'resolves with id')
-      t.is(object.foo, 'bar', 'resolves with old object')
-
-      return hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
-    })
-
-    .then(function () {
-      return hoodie.cryptoStore.findOrAdd('unencrypted', { foo: 'baz' })
-    })
-
-    .then(function (object) {
-      t.is(object._id, 'unencrypted', 'resolves with id')
-      t.is(object.foo, 'bar', 'resolves with old object')
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+    const notEncrypted = await hoodie.cryptoStore.findOrAdd('not-encrypted', { foo: 'baz' })
+    t.is(notEncrypted._id, 'not-encrypted', 'resolves with id')
+    t.is(notEncrypted.foo, 'bar', 'resolves with old object')
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test('cryptoStore.findOrAdd(id, object) adds new', function (t) {
+test('cryptoStore.findOrAdd(id, object) adds new', async t => {
   t.plan(5)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  try {
+    await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
 
-    .then(function () {
-      return hoodie.cryptoStore.unlock('test')
-    })
+    const object = await hoodie.cryptoStore.findOrAdd('newId', { foo: 'bar' })
 
-    .then(function () {
-      return hoodie.cryptoStore.findOrAdd('newId', { foo: 'bar' })
-    })
+    t.is(object._id, 'newId', 'resolves with id')
+    t.is(object.foo, 'bar', 'resolves with new object')
 
-    .then(function (object) {
-      t.is(object._id, 'newId', 'resolves with id')
-      t.is(object.foo, 'bar', 'resolves with new object')
-
-      return hoodie.store.find(object._id)
-    })
-
-    .then(function (object) {
-      t.is(object._id, 'newId', 'resolves with id')
-      t.ok(object.data, 'has encrypted data')
-      t.is(object.foo, undefined, 'stored doc has no foo')
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+    const notEncrypted = await hoodie.store.find(object._id)
+    t.is(notEncrypted._id, 'newId', 'resolves with id')
+    t.ok(notEncrypted.data, 'has encrypted data')
+    t.is(notEncrypted.foo, undefined, 'stored doc has no foo')
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test('cryptoStore.findOrAdd(id) fails if no object exists', function (t) {
+test('cryptoStore.findOrAdd(id) fails if no object exists', async t => {
   t.plan(1)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  try {
+    await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
 
-    .then(function () {
-      return hoodie.cryptoStore.unlock('test')
-    })
-
-    .then(function () {
-      return hoodie.cryptoStore.findOrAdd('an-id')
-    })
-
-    .then(function () {
-      t.fail("findOrAdd didn't fail")
-    })
-
-    .catch(function (err) {
-      t.is(err.status, 412, 'rejects with 412 error')
-    })
+    await hoodie.cryptoStore.findOrAdd('an-id')
+    t.end(new Error("findOrAdd didn't fail"))
+  } catch (err) {
+    t.is(err.status, 412, 'rejects with 412 error')
+  }
 })
 
-test('cryptoStore.findOrAdd(object) finds existing', function (t) {
+test('cryptoStore.findOrAdd(object) finds existing', async t => {
   t.plan(4)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  try {
+    await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
 
-    .then(function () {
-      return hoodie.cryptoStore.unlock('test')
-    })
+    await hoodie.cryptoStore.add({ _id: 'encrypted', foo: 'bar' })
 
-    .then(function () {
-      return hoodie.cryptoStore.add({ _id: 'encrypted', foo: 'bar' })
-    })
+    const object = await hoodie.cryptoStore.findOrAdd({ _id: 'encrypted', foo: 'baz' })
+    t.is(object._id, 'encrypted', 'resolves with id')
+    t.is(object.foo, 'bar', 'resolves with old object')
 
-    .then(function () {
-      return hoodie.cryptoStore.findOrAdd({ _id: 'encrypted', foo: 'baz' })
-    })
-
-    .then(function (object) {
-      t.is(object._id, 'encrypted', 'resolves with id')
-      t.is(object.foo, 'bar', 'resolves with old object')
-
-      return hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
-    })
-
-    .then(function () {
-      return hoodie.cryptoStore.findOrAdd({ _id: 'unencrypted', foo: 'baz' })
-    })
-
-    .then(function (object) {
-      t.is(object._id, 'unencrypted', 'resolves with id')
-      t.is(object.foo, 'bar', 'resolves with old object')
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+    await hoodie.store.add({ _id: 'not-encrypted', foo: 'bar' })
+    const notEncrypted = await hoodie.cryptoStore.findOrAdd({ _id: 'not-encrypted', foo: 'baz' })
+    t.is(notEncrypted._id, 'not-encrypted', 'resolves with id')
+    t.is(notEncrypted.foo, 'bar', 'resolves with old object')
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test('cryptoStore.findOrAdd(object) adds new', function (t) {
+test('cryptoStore.findOrAdd(object) adds new', async t => {
   t.plan(5)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  try {
+    await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
 
-    .then(function () {
-      return hoodie.cryptoStore.unlock('test')
-    })
+    const object = await hoodie.cryptoStore.findOrAdd({ _id: 'newId', foo: 'bar' })
+    t.is(object._id, 'newId', 'resolves with id')
+    t.is(object.foo, 'bar', 'resolves with new object')
 
-    .then(function () {
-      return hoodie.cryptoStore.findOrAdd({ _id: 'newId', foo: 'bar' })
-    })
-
-    .then(function (object) {
-      t.is(object._id, 'newId', 'resolves with id')
-      t.is(object.foo, 'bar', 'resolves with new object')
-
-      return hoodie.store.find(object._id)
-    })
-
-    .then(function (object) {
-      t.is(object._id, 'newId', 'resolves with id')
-      t.ok(object.data, 'has encrypted data')
-      t.is(object.foo, undefined, 'stored doc has no foo')
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+    const encrypted = await hoodie.store.find(object._id)
+    t.is(encrypted._id, 'newId', 'resolves with id')
+    t.ok(encrypted.data, 'has encrypted data')
+    t.is(encrypted.foo, undefined, 'stored doc has no foo')
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test('cryptoStore.findOrAdd(object) fails if object has no id', function (t) {
+test('cryptoStore.findOrAdd(object) fails if object has no id', async t => {
   t.plan(1)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  try {
+    await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
 
-    .then(function () {
-      return hoodie.cryptoStore.unlock('test')
-    })
-
-    .then(function () {
-      return hoodie.cryptoStore.findOrAdd({ foo: 'bar' })
-    })
-
-    .then(function () {
-      t.fail("findOrAdd didn't fail")
-    })
-
-    .catch(function (err) {
-      t.is(err.status, 412, 'rejects with 412 error')
-    })
+    await hoodie.cryptoStore.findOrAdd({ foo: 'bar' })
+    t.end(new Error("findOrAdd didn't fail"))
+  } catch (err) {
+    t.is(err.status, 412, 'rejects with 412 error')
+  }
 })
 
-test('cryptoStore.findOrAdd([object1, object2])', function (t) {
+test('cryptoStore.findOrAdd([object1, object2])', async t => {
   t.plan(8)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  try {
+    await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
 
-    .then(function () {
-      return hoodie.cryptoStore.unlock('test')
-    })
+    await hoodie.cryptoStore.add({ _id: 'encrypted', foo: 'bar' })
+    await hoodie.store.add({ _id: 'not-encrypted', foo: 'bar' })
 
-    .then(function () {
-      var encrypted = hoodie.cryptoStore.add({ _id: 'encrypted', foo: 'bar' })
-      var unencrypted = hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
+    const objects = await hoodie.cryptoStore.findOrAdd([
+      { _id: 'encrypted', foo: 'baz' },
+      { _id: 'not-encrypted', foo: 'baz' },
+      { _id: 'added', foo: 'baz' }
+    ])
 
-      return Promise.all([encrypted, unencrypted])
-    })
+    t.is(objects[0]._id, 'encrypted', 'object1 to be found')
+    t.is(objects[0].foo, 'bar', 'object1 to be found')
 
-    .then(function () {
-      return hoodie.cryptoStore.findOrAdd([
-        { _id: 'encrypted', foo: 'baz' },
-        { _id: 'unencrypted', foo: 'baz' },
-        { _id: 'added', foo: 'baz' }
-      ])
-    })
+    t.is(objects[1]._id, 'not-encrypted', 'object2 to be found')
+    t.is(objects[1].foo, 'bar', 'object2 to be found')
 
-    .then(function (objects) {
-      t.is(objects[0]._id, 'encrypted', 'object1 to be found')
-      t.is(objects[0].foo, 'bar', 'object1 to be found')
-      t.is(objects[1]._id, 'unencrypted', 'object2 to be found')
-      t.is(objects[1].foo, 'bar', 'object2 to be found')
-      t.is(objects[2]._id, 'added', 'object3 to be found')
-      t.is(objects[2].foo, 'baz', 'object3 to be found')
+    t.is(objects[2]._id, 'added', 'object3 to be found')
+    t.is(objects[2].foo, 'baz', 'object3 to be found')
 
-      return hoodie.store.find('added')
-    })
-
-    .then(function (object) {
-      t.ok(object.data, 'has encrypted data')
-      t.is(object.foo, undefined, 'stored doc has no foo')
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+    const object = await hoodie.store.find('added')
+    t.ok(object.data, 'has encrypted data')
+    t.is(object.foo, undefined, 'stored doc has no foo')
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test("cryptoStore.findOrAdd() shouldn't encrypt fields in cy_ignore and __cy_ignore", function (t) {
+test("cryptoStore.findOrAdd() shouldn't encrypt fields in cy_ignore and __cy_ignore", async t => {
   t.plan(8)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  try {
+    await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
 
-    .then(function () {
-      return hoodie.cryptoStore.unlock('test')
+    const obj = await hoodie.cryptoStore.findOrAdd({
+      _id: 'an_id',
+      value: 42,
+      notEncrypted: 'other',
+      notEncryptedTemp: true,
+      cy_ignore: ['notEncrypted'],
+      __cy_ignore: ['notEncryptedTemp']
     })
 
-    .then(function () {
-      return hoodie.cryptoStore.findOrAdd({
-        _id: 'an_id',
-        value: 42,
-        notEncrypted: 'other',
-        notEncryptedTemp: true,
-        cy_ignore: ['notEncrypted'],
-        __cy_ignore: ['notEncryptedTemp']
-      })
-    })
+    t.deepEqual(obj.cy_ignore, ['notEncrypted'], 'cy_ignore was saved')
+    t.is(obj.__cy_ignore, undefined, '__cy_ignore was not saved')
 
-    .then(function (obj) {
-      t.deepEqual(obj.cy_ignore, ['notEncrypted'], 'cy_ignore was saved')
-      t.is(obj.__cy_ignore, undefined, '__cy_ignore was not saved')
+    const object = await hoodie.store.find(obj._id)
+    t.is(object.notEncrypted, 'other', 'field in cy_ignore was not encrypted')
+    t.is(object.notEncryptedTemp, true, 'field in __cy_ignore was not encrypted')
 
-      return hoodie.store.find(obj._id)
-    })
-
-    .then(function (obj) {
-      t.is(obj.notEncrypted, 'other', 'field in cy_ignore was not encrypted')
-      t.is(obj.notEncryptedTemp, true, 'field in __cy_ignore was not encrypted')
-
-      return hoodie.cryptoStore.findOrAdd(obj)
-    })
-
-    .then(function (obj) {
-      t.is(obj.value, 42, 'value was encrypted')
-      t.is(obj.notEncrypted, 'other', 'not encrypted fields are merged in')
-      t.is(obj.notEncryptedTemp, true, 'not encrypted fields are merged in')
-      t.deepEqual(obj.cy_ignore, ['notEncrypted'], 'cy_ignore is saved')
-    })
-
-    .catch(t.end)
+    const foundObject = await hoodie.cryptoStore.findOrAdd(obj)
+    t.is(foundObject.value, 42, 'value was encrypted')
+    t.is(foundObject.notEncrypted, 'other', 'not encrypted fields are merged in')
+    t.is(foundObject.notEncryptedTemp, true, 'not encrypted fields are merged in')
+    t.deepEqual(foundObject.cy_ignore, ['notEncrypted'], 'cy_ignore is saved')
+  } catch (err) {
+    t.end(err)
+  }
 })
 
 test("cryptoStore.findOrAdd() shouldn't encrypt fields starting with _", async t => {
@@ -337,40 +245,28 @@ test("cryptoStore.findOrAdd() shouldn't encrypt fields starting with _", async t
   }
 })
 
-test('cryptoStore.findOrAdd() should throw if plugin isn\'t unlocked', function (t) {
+test('cryptoStore.findOrAdd() should throw if plugin isn\'t unlocked', async t => {
   t.plan(4)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.findOrAdd('anId', { value: 'something' })
+  try {
+    await hoodie.cryptoStore.findOrAdd('anId', { value: 'something' })
+    t.fail('It should have thrown')
+  } catch (err) {
+    t.equal(err.status, 401, 'uses PouchDB UNAUTHORIZED status')
+    t.equal(err.message, pouchdbErrors.UNAUTHORIZED.message)
+  }
 
-    .then(function () {
-      t.fail('It should have thrown')
-    })
+  try {
+    await hoodie.cryptoStore.setup('test')
 
-    .catch(function (err) {
-      t.equal(err.status, 401, 'uses PouchDB UNAUTHORIZED status')
-      t.equal(err.message, pouchdbErrors.UNAUTHORIZED.message)
-    })
+    await hoodie.cryptoStore.findOrAdd('anId', { value: 'something' })
+    t.fail('It should have thrown after setup')
+  } catch (err) {
+    t.equal(err.status, 401, 'uses PouchDB UNAUTHORIZED status')
+    t.equal(err.message, pouchdbErrors.UNAUTHORIZED.message)
+  }
 
-    .then(function () {
-      return hoodie.cryptoStore.setup('test')
-    })
-
-    .then(function () {
-      return hoodie.cryptoStore.findOrAdd('anId', { value: 'something' })
-    })
-
-    .then(function () {
-      t.fail('It should have thrown after setup')
-    })
-
-    .catch(function (err) {
-      t.equal(err.status, 401, 'uses PouchDB UNAUTHORIZED status')
-      t.equal(err.message, pouchdbErrors.UNAUTHORIZED.message)
-    })
-
-    .then(function () {
-      t.end()
-    })
+  t.end()
 })
