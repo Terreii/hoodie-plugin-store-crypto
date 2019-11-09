@@ -1,18 +1,18 @@
 'use strict'
 
-var test = require('tape')
-var Promise = require('lie')
-var randomBytes = require('randombytes')
-var pouchDbErrors = require('pouchdb-errors')
+const test = require('tape')
+const Promise = require('lie')
+const randomBytes = require('randombytes')
+const pouchDbErrors = require('pouchdb-errors')
 
-var createCryptoStore = require('../utils/createCryptoStore')
-var createKey = require('../../lib/create-key')
-var decrypt = require('../../lib/decrypt')
+const createCryptoStore = require('../utils/createCryptoStore')
+const createKey = require('../../lib/create-key')
+const decrypt = require('../../lib/decrypt')
 
-test('resetPassword() should exist on the cryptoStores main API', function (t) {
+test('resetPassword() should exist on the cryptoStores main API', async t => {
   t.plan(3)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
   t.equal(typeof hoodie.cryptoStore.resetPassword, 'function', 'resetPassword exists')
 
@@ -22,483 +22,312 @@ test('resetPassword() should exist on the cryptoStores main API', function (t) {
     'withIdPrefix does not have resetPassword'
   )
 
-  hoodie.cryptoStore.withPassword('test')
-
-    .then(function (result) {
-      t.equal(result.store.resetPassword, undefined, 'withPassword does not have resetPassword')
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+  try {
+    const result = await hoodie.cryptoStore.withPassword('test')
+    t.equal(result.store.resetPassword, undefined, 'withPassword does not have resetPassword')
+  } catch (err) {
+    t.end(err)
+  }
 })
 
 test(
   'cryptoStore.resetPassword(resetKey, newPassword) results with new reset keys, salt and not' +
     ' updated docs',
-  function (t) {
+  async t => {
     t.plan(10)
 
-    var hoodie = createCryptoStore()
-    var oldSalt = ''
-    var resetKeys = []
+    const hoodie = createCryptoStore()
 
-    hoodie.cryptoStore.setup('test')
+    try {
+      const resetKeys = await hoodie.cryptoStore.setup('test')
+      await hoodie.cryptoStore.unlock('test')
 
-      .then(function (resetKeysResult) {
-        resetKeys = resetKeysResult
+      await hoodie.cryptoStore.add({ value: 42 })
 
-        return hoodie.cryptoStore.unlock('test')
+      const withPassword = await hoodie.cryptoStore.withPassword('otherPassword')
+      await withPassword.store.add({
+        _id: 'doNotUpdate',
+        value: 'secret'
       })
+      const { salt: oldSalt } = await hoodie.store.find('hoodiePluginCryptoStore/salt')
 
-      .then(function () {
-        var doc = hoodie.cryptoStore.add({ value: 42 })
+      hoodie.cryptoStore.lock()
+      const resetKey = getRandomItemOfArray(resetKeys)
+      const report = await hoodie.cryptoStore.resetPassword(resetKey, 'newPassword')
 
-        var docWithOtherPassword = hoodie.cryptoStore.withPassword('otherPassword')
+      // new salt
+      t.is(typeof report.salt, 'string', 'salt is a string')
+      t.is(report.salt.length, 32, 'salt has the correct length')
 
-          .then(function (result) {
-            return result.store.add({
-              _id: 'doNotUpdate',
-              value: 'secret'
-            })
-          })
+      // notUpdated Array
+      t.ok(Array.isArray(report.notUpdated), 'has a array of not updated IDs')
+      t.is(report.notUpdated.length, 1, 'array has a length of 0')
+      t.is(report.notUpdated[0], 'doNotUpdate', 'doNotUpdate doc was not updated')
 
-        return Promise.all([doc, docWithOtherPassword])
-      })
+      // new reset keys
+      t.is(report.resetKeys.length, 10, 'results with reset keys')
 
-      .then(function () {
-        return hoodie.store.find('hoodiePluginCryptoStore/salt')
+      t.ok(
+        report.resetKeys.every(key => typeof key === 'string' && key.length === 32),
+        'every key has a length of 32'
+      )
 
-          .then(function (saltDoc) {
-            oldSalt = saltDoc.salt
-          })
-      })
+      t.ok(
+        report.resetKeys.every(key => resetKeys.indexOf(key) === -1),
+        'every resetKey is new'
+      )
 
-      .then(function () {
-        hoodie.cryptoStore.lock()
-
-        var resetKey = getRandomItemOfArray(resetKeys)
-
-        return hoodie.cryptoStore.resetPassword(resetKey, 'newPassword')
-      })
-
-      .then(function (report) {
-        // new salt
-        t.is(typeof report.salt, 'string', 'salt is a string')
-        t.is(report.salt.length, 32, 'salt has the correct length')
-
-        // notUpdated Array
-        t.ok(Array.isArray(report.notUpdated), 'has a array of not updated IDs')
-        t.is(report.notUpdated.length, 1, 'array has a length of 0')
-        t.is(report.notUpdated[0], 'doNotUpdate', 'doNotUpdate doc was not updated')
-
-        // new reset keys
-        t.is(report.resetKeys.length, 10, 'results with reset keys')
-
-        t.ok(report.resetKeys.every(function (key) {
-          return typeof key === 'string' && key.length === 32
-        }), 'every key has a length of 32')
-
-        t.ok(report.resetKeys.every(function (key) {
-          return resetKeys.indexOf(key) === -1
-        }), 'every resetKey is new')
-
-        return hoodie.store.find('hoodiePluginCryptoStore/salt')
-
-          .then(function (saltObj) {
-            t.is(saltObj.salt, report.salt, 'stored salt was updated')
-            t.notEqual(report.salt, oldSalt, 'new salt is not the old salt')
-          })
-      })
-
-      .catch(function (err) {
-        t.end(err)
-      })
+      const saltObj = await hoodie.store.find('hoodiePluginCryptoStore/salt')
+      t.is(saltObj.salt, report.salt, 'stored salt was updated')
+      t.notEqual(report.salt, oldSalt, 'new salt is not the old salt')
+    } catch (err) {
+      t.end(err)
+    }
   }
 )
 
-test('cryptoStore.resetPassword(resetKey, newPassword) changes the encryption', function (t) {
+test('cryptoStore.resetPassword(resetKey, newPassword) changes the encryption', async t => {
   t.plan(7)
 
-  var hoodie = createCryptoStore()
-  var resetKeys = []
-  var oldKey = null
-  var newKey = null
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  try {
+    const resetKeys = await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
 
-    .then(function (newResetKeys) {
-      resetKeys = newResetKeys
+    const saltDoc = await hoodie.store.find('hoodiePluginCryptoStore/salt')
+    const oldKey = await createKey('test', saltDoc.salt)
 
-      return hoodie.cryptoStore.unlock('test')
+    await hoodie.store.add({
+      _id: 'not-encrypted',
+      value: 42
+    })
+    await hoodie.cryptoStore.add({
+      _id: 'encrypted',
+      value: 'secret'
     })
 
-    .then(function () {
-      return hoodie.store.find('hoodiePluginCryptoStore/salt')
+    hoodie.cryptoStore.lock()
 
-        .then(function (saltDoc) {
-          return createKey('test', saltDoc.salt)
-        })
+    const resetKey = getRandomItemOfArray(resetKeys)
 
-        .then(function (key) {
-          oldKey = key
-        })
-    })
+    await hoodie.cryptoStore.resetPassword(resetKey, 'nextPassword')
+    const newSaltDoc = await hoodie.store.find('hoodiePluginCryptoStore/salt')
+    t.ok(/^2-/.test(newSaltDoc._rev), 'salt doc was updated')
+    const newKey = await createKey('nextPassword', newSaltDoc.salt)
 
-    .then(function () {
-      var unencrypted = hoodie.store.add({
-        _id: 'unencrypted',
-        value: 42
-      })
+    const doc = await hoodie.cryptoStore.find('encrypted')
+    t.equal(doc.value, 'secret', 'encrypted doc was decrypted by hoodie.cryptoStore.find')
+    t.ok(/^2-/.test(doc._rev), 'encrypted doc was updated')
 
-      var encrypted = hoodie.cryptoStore.add({
-        _id: 'encrypted',
-        value: 'secret'
-      })
+    const [unEncryptedDoc, encryptedDoc] = await hoodie.store.find(['not-encrypted', 'encrypted'])
 
-      return Promise.all([unencrypted, encrypted])
-    })
+    t.ok(/^1-/.test(unEncryptedDoc._rev), 'not encrypted doc was not updated')
+    t.equal(unEncryptedDoc.value, 42, 'not encrypted doc is not encrypted')
 
-    .then(function () {
-      hoodie.cryptoStore.lock()
+    try {
+      await decrypt(oldKey, encryptedDoc)
+      t.fail('encryption of the encrypted doc was not updated! It was decrypted by old key!')
+    } catch (err) {
+      t.ok(err, 'Old encryption did error')
+    }
 
-      var resetKey = getRandomItemOfArray(resetKeys)
-
-      return hoodie.cryptoStore.resetPassword(resetKey, 'nextPassword')
-    })
-
-    .then(function (result) {
-      return hoodie.store.find('hoodiePluginCryptoStore/salt')
-
-        .then(function (saltDoc) {
-          t.ok(/^2-/.test(saltDoc._rev), 'salt doc was updated')
-
-          return createKey('nextPassword', saltDoc.salt)
-        })
-
-        .then(function (key) {
-          newKey = key.key
-        })
-    })
-
-    .then(function () {
-      return hoodie.cryptoStore.find('encrypted')
-    })
-
-    .then(function (doc) {
-      t.equal(doc.value, 'secret', 'encrypted doc was decrypted by hoodie.cryptoStore.find')
-      t.ok(/^2-/.test(doc._rev), 'encrypted doc was updated')
-
-      return hoodie.store.find(['unencrypted', 'encrypted'])
-    })
-
-    .then(function (updatedDocs) {
-      t.ok(/^1-/.test(updatedDocs[0]._rev), 'unencrypted doc was not updated')
-      t.equal(updatedDocs[0].value, 42, 'unencrypted doc is not encrypted')
-
-      var oldEncryption = decrypt(oldKey, updatedDocs[1])
-
-        .then(
-          function () {
-            t.fail('encryption of the encrypted doc was not updated! It was decrypted by old key!')
-          },
-          function (err) {
-            t.ok(err, 'Old encryption did error')
-          }
-        )
-
-      var newEncryption = decrypt(newKey, updatedDocs[1])
-
-        .then(function (doc) {
-          t.equal(doc.value, 'secret', 'encrypted doc was decrypted with new key')
-        })
-
-      return Promise.all([oldEncryption, newEncryption])
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+    const decrypted = await decrypt(newKey.key, encryptedDoc)
+    t.equal(decrypted.value, 'secret', 'encrypted doc was decrypted with new key')
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test('cryptoStore.resetPassword() fails if the reset key is not valid', function (t) {
+test('cryptoStore.resetPassword() fails if the reset key is not valid', async t => {
   t.plan(2)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  try {
+    const resetKeys = await hoodie.cryptoStore.setup('test')
+    let resetKey = null
 
-    .then(function (resetKeys) {
-      var resetKey = null
+    do {
+      resetKey = randomBytes(16).toString('hex')
+    } while (resetKeys.indexOf(resetKey) !== -1)
 
-      do {
-        resetKey = randomBytes(16).toString('hex')
-      } while (resetKeys.indexOf(resetKey) !== -1)
-
-      return hoodie.cryptoStore.resetPassword(resetKey, 'otherPassword')
-    })
-
-    .then(
-      function () {
-        t.fail('resetPassword should have failed.')
-      },
-      function (err) {
-        t.equal(err.status, pouchDbErrors.UNAUTHORIZED.status, 'fails with unauthorized')
-        t.equal(err.reason, 'Reset-key is incorrect.', 'Fails with custom reason')
-      }
-    )
+    await hoodie.cryptoStore.resetPassword(resetKey, 'otherPassword')
+    t.end(new Error('resetPassword should have failed.'))
+  } catch (err) {
+    t.equal(err.status, pouchDbErrors.UNAUTHORIZED.status, 'fails with unauthorized')
+    t.equal(err.reason, 'Reset-key is incorrect.', 'Fails with custom reason')
+  }
 })
 
-test('cryptoStore.resetPassword() fails if no new password was passed', function (t) {
+test('cryptoStore.resetPassword() fails if no new password was passed', async t => {
   t.plan(4)
 
-  var hoodie = createCryptoStore()
-  var resetKey = null
+  const hoodie = createCryptoStore()
+  let resetKey = null
 
-  hoodie.cryptoStore.setup('test')
+  try {
+    const resetKeys = await hoodie.cryptoStore.setup('test')
+    resetKey = getRandomItemOfArray(resetKeys)
 
-    .then(function (resetKeys) {
-      resetKey = getRandomItemOfArray(resetKeys)
+    await hoodie.cryptoStore.resetPassword(resetKey)
+    t.end(new Error('resetPassword should have failed.'))
+  } catch (err) {
+    t.equal(err.status, pouchDbErrors.BAD_ARG.status, 'fails with bar args')
+    t.equal(err.reason, 'New password must be a string!', 'Fails with custom reason')
 
-      return hoodie.cryptoStore.resetPassword(resetKey)
-    })
-
-    .then(
-      function () {
-        t.fail('resetPassword should have failed.')
-      },
-      function (err) {
-        t.equal(err.status, pouchDbErrors.BAD_ARG.status, 'fails with bar args')
-        t.equal(err.reason, 'New password must be a string!', 'Fails with custom reason')
-      }
-    )
-
-    .then(function () {
-      return hoodie.cryptoStore.resetPassword(resetKey, 'a')
-    })
-
-    .then(
-      function () {
-        t.fail('resetPassword should have failed.')
-      },
-      function (err) {
-        t.equal(err.status, pouchDbErrors.BAD_ARG.status, 'fails with bar args')
-        t.equal(err.reason, 'password is to short!', 'Fails with custom reason')
-      }
-    )
+    try {
+      await hoodie.cryptoStore.resetPassword(resetKey, 'a')
+      t.end(new Error('resetPassword should have failed.'))
+    } catch (error) {
+      t.equal(error.status, pouchDbErrors.BAD_ARG.status, 'fails with bar args')
+      t.equal(error.reason, 'password is to short!', 'Fails with custom reason')
+    }
+  }
 })
 
 test(
   'cryptoStore.resetPassword(resetKey, newPassword) should fail if the new password is to short',
-  function (t) {
+  async t => {
     t.plan(2)
 
-    var hoodie = createCryptoStore()
+    const hoodie = createCryptoStore()
 
-    hoodie.cryptoStore.setup('test')
+    try {
+      const resetKeys = await hoodie.cryptoStore.setup('test')
+      const resetKey = getRandomItemOfArray(resetKeys)
 
-      .then(function (resetKeys) {
-        var resetKey = getRandomItemOfArray(resetKeys)
-
-        return hoodie.cryptoStore.resetPassword(resetKey, 'a')
-      })
-
-      .then(function () {
-        t.fail('should throw an Error')
-      })
-
-      .catch(function (error) {
-        t.is(error.reason, 'password is to short!', 'fails with error message')
-        t.is(error.status, pouchDbErrors.BAD_ARG.status, 'fails with a PouchDB error')
-      })
+      await hoodie.cryptoStore.resetPassword(resetKey, 'a')
+      t.end(new Error('should throw an Error'))
+    } catch (error) {
+      t.is(error.reason, 'password is to short!', 'fails with error message')
+      t.is(error.status, pouchDbErrors.BAD_ARG.status, 'fails with a PouchDB error')
+    }
   }
 )
 
 test(
-  'cryptoStore.resetPassword(resetKey, newPassword) should update the check in the salt object', function (t) {
+  'cryptoStore.resetPassword(resetKey, newPassword) should update the check in the salt object', async t => {
     t.plan(3)
 
-    var hoodie = createCryptoStore()
-    var resetKeys = []
+    const hoodie = createCryptoStore()
 
-    hoodie.cryptoStore.setup('test')
+    try {
+      const resetKeys = await hoodie.cryptoStore.setup('test')
+      const oldSaltDoc = await hoodie.store.find('hoodiePluginCryptoStore/salt')
+      const resetKey = getRandomItemOfArray(resetKeys)
 
-      .then(function (resetKeysResult) {
-        resetKeys = resetKeysResult
+      await hoodie.cryptoStore.resetPassword(resetKey, 'otherPassword')
+      const newSaltDoc = await hoodie.store.find('hoodiePluginCryptoStore/salt')
 
-        return hoodie.store.find('hoodiePluginCryptoStore/salt')
-      })
-
-      .then(function (oldSaltDoc) {
-        var resetKey = getRandomItemOfArray(resetKeys)
-
-        return hoodie.cryptoStore.resetPassword(resetKey, 'otherPassword')
-
-          .then(function () {
-            return hoodie.store.find('hoodiePluginCryptoStore/salt')
-          })
-
-          .then(function (newSaltDoc) {
-            t.notEqual(newSaltDoc.check.tag, oldSaltDoc.check.tag, 'tag should not be equal')
-            t.notEqual(newSaltDoc.check.data, oldSaltDoc.check.data, 'data should not be equal')
-            t.notEqual(newSaltDoc.check.nonce, oldSaltDoc.check.nonce, 'nonce should not be equal')
-          })
-      })
-
-      .catch(function (err) {
-        t.end(err)
-      })
+      t.notEqual(newSaltDoc.check.tag, oldSaltDoc.check.tag, 'tag should not be equal')
+      t.notEqual(newSaltDoc.check.data, oldSaltDoc.check.data, 'data should not be equal')
+      t.notEqual(newSaltDoc.check.nonce, oldSaltDoc.check.nonce, 'nonce should not be equal')
+    } catch (err) {
+      t.end(err)
+    }
   }
 )
 
-test('cryptoStore.resetPassword(resetKey, newPassword) should update reset docs', function (t) {
+test('cryptoStore.resetPassword(resetKey, newPassword) should update reset docs', async t => {
   t.plan(16)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  try {
+    const resetKeys = await hoodie.cryptoStore.setup('test')
+    const resetKey = getRandomItemOfArray(resetKeys)
 
-    .then(function (resetKeys) {
-      var resetKey = getRandomItemOfArray(resetKeys)
+    const result = await hoodie.cryptoStore.resetPassword(resetKey, 'otherPassword')
 
-      return hoodie.cryptoStore.resetPassword(resetKey, 'otherPassword')
-    })
+    const docs = await hoodie.store.withIdPrefix('hoodiePluginCryptoStore/pwReset').findAll()
 
-    .then(function (result) {
-      return hoodie.store.withIdPrefix('hoodiePluginCryptoStore/pwReset').findAll()
+    t.ok(
+      docs.every((doc, index) => doc._id === 'hoodiePluginCryptoStore/pwReset_' + index),
+      'have correct _id\'s'
+    )
 
-        .then(function (docs) {
-          return {
-            keys: result.resetKeys,
-            docs: docs
-          }
-        })
-    })
+    t.ok(
+      docs.every(doc => /^2-/.test(doc._rev)),
+      'reset docs were updated'
+    )
 
-    .then(function (result) {
-      var docs = result.docs
-      var keys = result.keys
+    t.ok(
+      docs.every(doc => doc.salt.length === 32),
+      'have correct salt lengths'
+    )
 
-      t.ok(docs.every(function (doc, index) {
-        return doc._id === 'hoodiePluginCryptoStore/pwReset_' + index
-      }), 'have correct _id\'s')
+    t.ok(
+      docs.every(doc => doc.tag.length === 32),
+      'have a tag part with a length of 32'
+    )
 
-      t.ok(docs.every(function (doc) {
-        return /^2-/.test(doc._rev)
-      }), 'reset docs were updated')
+    t.ok(
+      docs.every(doc => doc.data.length > 0),
+      'should have encrypted data'
+    )
 
-      t.ok(docs.every(function (doc) {
-        return doc.salt.length === 32
-      }), 'have correct salt lengths')
+    t.ok(
+      docs.every(doc => doc.nonce.length === 24),
+      'should have nonce with a length of 24'
+    )
 
-      t.ok(docs.every(function (doc) {
-        return doc.tag.length === 32
-      }), 'have a tag part with a length of 32')
+    const saltDoc = await hoodie.store.find('hoodiePluginCryptoStore/salt')
+    const keyObj = await createKey('otherPassword', saltDoc.salt)
+    const key = keyObj.key.toString('hex')
 
-      t.ok(docs.every(function (doc) {
-        return doc.data.length > 0
-      }), 'should have encrypted data')
-
-      t.ok(docs.every(function (doc) {
-        return doc.nonce.length === 24
-      }), 'should have nonce with a length of 24')
-
-      return Promise.all(docs.map(function (doc, index) {
-        return createKey(keys[index], doc.salt)
-
-          .then(function (keyObj) {
-            return decrypt(keyObj.key, doc)
-          })
-      }))
-    })
-
-    .then(function (decrypted) {
-      return hoodie.store.find('hoodiePluginCryptoStore/salt')
-
-        .then(function (saltDoc) {
-          return createKey('otherPassword', saltDoc.salt)
-        })
-
-        .then(function (keyObj) {
-          var key = keyObj.key.toString('hex')
-
-          decrypted.forEach(function (resetDoc) {
-            t.equal(resetDoc.key, key, 'encrypted data is equal to key')
-          })
-        })
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+    await Promise.all(docs.map(async (doc, index) => {
+      const keyObj = await createKey(result.resetKeys[index], doc.salt)
+      const resetDoc = await decrypt(keyObj.key, doc)
+      t.equal(resetDoc.key, key, 'encrypted data is equal to key')
+    }))
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test('cryptoStore.resetPassword() should only update objects that it can decrypt', function (t) {
+test('cryptoStore.resetPassword() should only update objects that it can decrypt', async t => {
   t.plan(7)
 
-  var hoodie = createCryptoStore()
-  var resetKeys = []
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  try {
+    const resetKeys = await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
 
-    .then(function (resetKeysResult) {
-      resetKeys = resetKeysResult
-
-      return hoodie.cryptoStore.unlock('test')
+    await hoodie.cryptoStore.add({
+      _id: 'shouldUpdate',
+      test: 'value'
     })
 
-    .then(function () {
-      var adding = hoodie.cryptoStore.add({
-        _id: 'shouldUpdate',
-        test: 'value'
-      })
-
-      var withPassword = hoodie.cryptoStore.withPassword('otherPassword')
-        .then(function (result) {
-          return result.store.add({
-            _id: 'notUpdate',
-            value: 'other'
-          })
-        })
-
-      return Promise.all([adding, withPassword])
+    const withPassword = await hoodie.cryptoStore.withPassword('otherPassword')
+    await withPassword.store.add({
+      _id: 'notUpdate',
+      value: 'other'
     })
 
-    .then(function () {
-      var resetKey = getRandomItemOfArray(resetKeys)
+    const resetKey = getRandomItemOfArray(resetKeys)
+    const report = await hoodie.cryptoStore.resetPassword(resetKey, 'nextPassword')
+    t.is(report.notUpdated.length, 1, 'notUpdated array has a length of 1')
+    t.is(report.notUpdated[0], 'notUpdate', 'notUpdated array has the IDs')
 
-      return hoodie.cryptoStore.resetPassword(resetKey, 'nextPassword')
-    })
+    const updated = await hoodie.cryptoStore.find('shouldUpdate')
+    t.is(updated._id, 'shouldUpdate', 'correct id')
+    t.ok(/^2-/.test(updated._rev), 'revision is 2')
+    t.is(updated.test, 'value', 'doc can be decrypted')
 
-    .then(function (report) {
-      t.is(report.notUpdated.length, 1, 'notUpdated array has a length of 1')
-      t.is(report.notUpdated[0], 'notUpdate', 'notUpdated array has the IDs')
-
-      var updated = hoodie.cryptoStore.find('shouldUpdate')
-
-      var notUpdated = hoodie.store.find('notUpdate')
-
-      return Promise.all([updated, notUpdated])
-    })
-
-    .then(function (docs) {
-      t.is(docs[0]._id, 'shouldUpdate', 'correct id')
-      t.ok(/^2-/.test(docs[0]._rev), 'revision is 2')
-      t.is(docs[0].test, 'value', 'doc can be decrypted')
-
-      t.is(docs[1]._id, 'notUpdate', 'correct id')
-      t.ok(/^1-/.test(docs[1]._rev), 'revision is 1')
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+    const notUpdated = await hoodie.store.find('notUpdate')
+    t.is(notUpdated._id, 'notUpdate', 'correct id')
+    t.ok(/^1-/.test(notUpdated._rev), 'revision is 1')
+  } catch (err) {
+    t.end(err)
+  }
 })
 
 // Utils
 
 function getRandomItemOfArray (array) {
-  var index = Math.floor(array.length * Math.random())
+  const index = Math.floor(array.length * Math.random())
 
   return array[index]
 }

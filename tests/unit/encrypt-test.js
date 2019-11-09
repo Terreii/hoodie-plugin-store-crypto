@@ -1,16 +1,16 @@
 'use strict'
 
-var test = require('tape')
+const test = require('tape')
 
-var encrypt = require('../../lib/encrypt')
+const encrypt = require('../../lib/encrypt')
 
-test('encrypt should encrypt a document', function (t) {
+test('encrypt should encrypt a document', async t => {
   t.plan(6)
 
-  var hoodiePart = {
+  const hoodiePart = {
     createdAt: new Date().toJSON()
   }
-  var doc = {
+  const doc = {
     _id: 'hello',
     _rev: '1-1234567890',
     hoodie: hoodiePart,
@@ -18,27 +18,32 @@ test('encrypt should encrypt a document', function (t) {
     hello: 'world',
     day: 1
   }
-  var key = Buffer.from('8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c', 'hex')
+  const key = Buffer.from(
+    '8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c',
+    'hex'
+  )
 
-  encrypt({ key: key }, doc, null)
+  try {
+    const encrypted = await encrypt({ key }, doc, null)
 
-    .then(function (encrypted) {
-      t.equal(encrypted._id, 'hello', 'unchanged _id')
-      t.equal(encrypted._rev, '1-1234567890', 'unchanged _rev')
-      t.deepEqual(encrypted.hoodie, hoodiePart, 'unchanged hoodie data')
-      t.ok(encrypted.tag.length === 32, 'tag part should have a length of 32')
-      t.ok(encrypted.data.length > 0, 'encrypted data')
-      t.ok(encrypted.nonce.length === 24, 'nonce should have a length of 24')
-    })
+    t.equal(encrypted._id, 'hello', 'unchanged _id')
+    t.equal(encrypted._rev, '1-1234567890', 'unchanged _rev')
+    t.deepEqual(encrypted.hoodie, hoodiePart, 'unchanged hoodie data')
+    t.ok(encrypted.tag.length === 32, 'tag part should have a length of 32')
+    t.ok(encrypted.data.length > 0, 'encrypted data')
+    t.ok(encrypted.nonce.length === 24, 'nonce should have a length of 24')
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test('should throw with a TypeError if no key is passed', function (t) {
+test('should throw with a TypeError if no key is passed', async t => {
   t.plan(1)
 
-  var hoodiePart = {
+  const hoodiePart = {
     createdAt: new Date().toJSON()
   }
-  var doc = {
+  const doc = {
     _id: 'hello',
     _rev: '1-1234567890',
     hoodie: hoodiePart,
@@ -47,21 +52,18 @@ test('should throw with a TypeError if no key is passed', function (t) {
     day: 1
   }
 
-  encrypt({ key: Buffer.from([]) }, doc)
-
-    .then(function (decrypted) {
-      t.fail('should throw an TypeError')
-    })
-
-    .catch(function (error) {
-      t.is(error.name, 'TypeError')
-    })
+  try {
+    await encrypt({ key: Buffer.from([]) }, doc)
+    t.fail('should throw an TypeError')
+  } catch (error) {
+    t.is(error.name, 'TypeError')
+  }
 })
 
-test("shouldn't change the original object", function (t) {
+test("shouldn't change the original object", async t => {
   t.plan(3)
 
-  var doc = {
+  const doc = {
     _id: 'hello',
     _rev: '1-1234567890',
     hoodie: {
@@ -71,22 +73,27 @@ test("shouldn't change the original object", function (t) {
     hello: 'world',
     day: 1
   }
-  var key = Buffer.from('8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c', 'hex')
-  var docData = JSON.stringify(doc)
+  const key = Buffer.from(
+    '8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c',
+    'hex'
+  )
+  const docData = JSON.stringify(doc)
 
-  encrypt({ key: key }, doc)
+  try {
+    await encrypt({ key }, doc)
 
-    .then(function (result) {
-      t.equal(JSON.stringify(doc), docData, 'unchanged')
-      t.equal(doc._id, 'hello', "_id didn't change")
-      t.equal(doc._rev, '1-1234567890', "_rev didn't change")
-    })
+    t.equal(JSON.stringify(doc), docData, 'unchanged')
+    t.equal(doc._id, 'hello', "_id didn't change")
+    t.equal(doc._rev, '1-1234567890', "_rev didn't change")
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test('should ignore properties in ignore of this package', function (t) {
+test('should ignore properties in ignore of this package', async t => {
   t.plan(6)
 
-  var doc = {
+  const doc = {
     _id: 'hello',
     _rev: '2-1234567890',
     _deleted: false,
@@ -107,125 +114,129 @@ test('should ignore properties in ignore of this package', function (t) {
     hello: 'world',
     day: 1
   }
-  var key = Buffer.from('8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c', 'hex')
+  const key = Buffer.from('8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c', 'hex')
 
-  encrypt({ key: key }, doc)
+  try {
+    const result = await encrypt({ key }, doc)
 
-    .then(function (result) {
-      t.equal(result._id, 'hello', "_id didn't change")
-      t.equal(result._rev, '2-1234567890', "_rev didn't change")
-      t.equal(result._deleted, false, "_deleted didn't change")
-      t.equal(result._attachments, doc._attachments, "_attachments didn't change")
-      t.equal(result._conflicts, doc._conflicts, "_conflicts didn't change")
-      t.equal(result.hoodie, doc.hoodie, "hoodie didn't change")
-    })
+    t.equal(result._id, 'hello', "_id didn't change")
+    t.equal(result._rev, '2-1234567890', "_rev didn't change")
+    t.equal(result._deleted, false, "_deleted didn't change")
+    t.equal(result._attachments, doc._attachments, "_attachments didn't change")
+    t.equal(result._conflicts, doc._conflicts, "_conflicts didn't change")
+    t.equal(result.hoodie, doc.hoodie, "hoodie didn't change")
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test('encrypt should ignore fields that are listed in the passed obj.cy_ignore', function (t) {
+test('encrypt should ignore fields that are listed in the passed obj.cy_ignore', async t => {
   t.plan(12)
 
-  var doc = {
+  const doc = {
     cy_ignore: ['value', 'other', 'not_existing'],
     value: 42,
     shouldEncrypt: 128,
     other: 'not encrypted',
     secret: 'top secret'
   }
-  var key = Buffer.from('8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c', 'hex')
+  const key = Buffer.from('8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c', 'hex')
 
-  encrypt({ key: key }, doc)
+  try {
+    const result = await encrypt({ key }, doc)
 
-    .then(function (result) {
-      t.equal(result.value, 42, "didn't encrypt value")
-      t.equal(result.other, 'not encrypted', "didn't encrypt other")
-      t.equal(result.shouldEncrypt, undefined, 'did encrypt shouldEncrypt')
-      t.equal(result.secret, undefined, 'did encrypt secret')
-      t.equal(result.not_existing, undefined, 'not_existing does not exist')
-      t.equal(result.cy_ignore, undefined, 'cy_ignore is encrypted')
+    t.equal(result.value, 42, "didn't encrypt value")
+    t.equal(result.other, 'not encrypted', "didn't encrypt other")
+    t.equal(result.shouldEncrypt, undefined, 'did encrypt shouldEncrypt')
+    t.equal(result.secret, undefined, 'did encrypt secret')
+    t.equal(result.not_existing, undefined, 'not_existing does not exist')
+    t.equal(result.cy_ignore, undefined, 'cy_ignore is encrypted')
 
-      doc.cy_ignore.push('cy_ignore')
-      return encrypt({ key: key }, doc)
-    })
+    doc.cy_ignore.push('cy_ignore')
+    const resultIgnoreCyIgnore = await encrypt({ key }, doc)
 
-    .then(function (result) {
-      t.equal(result.value, 42, "didn't encrypt value")
-      t.equal(result.other, 'not encrypted', "didn't encrypt other")
-      t.equal(result.shouldEncrypt, undefined, 'did encrypt shouldEncrypt')
-      t.equal(result.secret, undefined, 'did encrypt secret')
-      t.equal(result.not_existing, undefined, 'not_existing does not exist')
-      t.deepEqual(
-        result.cy_ignore,
-        ['value', 'other', 'not_existing', 'cy_ignore'],
-        'cy_ignore is ignored but added'
-      )
-    })
-
-    .catch(t.end)
+    t.equal(resultIgnoreCyIgnore.value, 42, "didn't encrypt value")
+    t.equal(resultIgnoreCyIgnore.other, 'not encrypted', "didn't encrypt other")
+    t.equal(resultIgnoreCyIgnore.shouldEncrypt, undefined, 'did encrypt shouldEncrypt')
+    t.equal(resultIgnoreCyIgnore.secret, undefined, 'did encrypt secret')
+    t.equal(resultIgnoreCyIgnore.not_existing, undefined, 'not_existing does not exist')
+    t.deepEqual(
+      resultIgnoreCyIgnore.cy_ignore,
+      ['value', 'other', 'not_existing', 'cy_ignore'],
+      'cy_ignore is ignored but added'
+    )
+  } catch (err) {
+    t.end(err)
+  }
 })
 
 test(
   'encrypt should ignore fields that are listed in the passed and temp obj.__cy_ignore',
-  function (t) {
+  async t => {
     t.plan(13)
 
-    var doc = {
+    const doc = {
       __cy_ignore: ['value', 'other', 'not_existing'],
       value: 42,
       shouldEncrypt: 128,
       other: 'not encrypted',
       secret: 'top secret'
     }
-    var key = Buffer.from('8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c', 'hex')
+    const key = Buffer.from(
+      '8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c',
+      'hex'
+    )
 
-    encrypt({ key: key }, doc)
+    try {
+      const result = await encrypt({ key }, doc)
 
-      .then(function (result) {
-        t.equal(result.value, 42, "didn't encrypt value")
-        t.equal(result.other, 'not encrypted', "didn't encrypt other")
-        t.equal(result.shouldEncrypt, undefined, 'did encrypt shouldEncrypt')
-        t.equal(result.secret, undefined, 'did encrypt secret')
-        t.equal(result.not_existing, undefined, 'not_existing does not exist')
-        t.equal(result.__cy_ignore, undefined, '__cy_ignore does not exist')
+      t.equal(result.value, 42, "didn't encrypt value")
+      t.equal(result.other, 'not encrypted', "didn't encrypt other")
+      t.equal(result.shouldEncrypt, undefined, 'did encrypt shouldEncrypt')
+      t.equal(result.secret, undefined, 'did encrypt secret')
+      t.equal(result.not_existing, undefined, 'not_existing does not exist')
+      t.equal(result.__cy_ignore, undefined, '__cy_ignore does not exist')
 
-        doc.__cy_ignore.push('cy_ignore')
-        doc.__cy_ignore.push('__cy_ignore')
-        return encrypt({ key: key }, doc)
-      })
+      doc.__cy_ignore.push('cy_ignore')
+      doc.__cy_ignore.push('__cy_ignore')
+      const resultIgnore = await encrypt({ key }, doc)
 
-      .then(function (result) {
-        t.equal(result.value, 42, "didn't encrypt value")
-        t.equal(result.other, 'not encrypted', "didn't encrypt other")
-        t.equal(result.shouldEncrypt, undefined, 'did encrypt shouldEncrypt')
-        t.equal(result.secret, undefined, 'did encrypt secret')
-        t.equal(result.not_existing, undefined, 'not_existing does not exist')
-        t.equal(result.__cy_ignore, undefined, '__cy_ignore is not added')
-        t.equal(result.cy_ignore, undefined, 'cy_ignore does not exist')
-      })
-
-      .catch(t.end)
+      t.equal(resultIgnore.value, 42, "didn't encrypt value")
+      t.equal(resultIgnore.other, 'not encrypted', "didn't encrypt other")
+      t.equal(resultIgnore.shouldEncrypt, undefined, 'did encrypt shouldEncrypt')
+      t.equal(resultIgnore.secret, undefined, 'did encrypt secret')
+      t.equal(resultIgnore.not_existing, undefined, 'not_existing does not exist')
+      t.equal(resultIgnore.__cy_ignore, undefined, '__cy_ignore is not added')
+      t.equal(resultIgnore.cy_ignore, undefined, 'cy_ignore does not exist')
+    } catch (err) {
+      t.end(err)
+    }
   }
 )
 
 test(
   'encrypt does not encrypt fields starting with _ if handleSpecialMembers is true',
-  function (t) {
+  async t => {
     t.plan(3)
 
-    var doc = {
+    const doc = {
       _access: ['user_id'],
       value: 42,
       _shouldBePublic: 128
     }
-    var key = Buffer.from('8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c', 'hex')
+    const key = Buffer.from(
+      '8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c',
+      'hex'
+    )
 
-    encrypt({ key: key, handleSpecialMembers: true }, doc, null)
+    try {
+      const result = await encrypt({ key, handleSpecialMembers: true }, doc, null)
 
-      .then(function (result) {
-        t.deepEqual(result._access, ['user_id'], '_access is not encrypted')
-        t.is(result.value, undefined, 'values are encrypted')
-        t.is(result._shouldBePublic, 128, 'value starting with _ is not encrypted')
-      })
-
-      .catch(t.end)
+      t.deepEqual(result._access, ['user_id'], '_access is not encrypted')
+      t.is(result.value, undefined, 'values are encrypted')
+      t.is(result._shouldBePublic, 128, 'value starting with _ is not encrypted')
+    } catch (err) {
+      t.end(err)
+    }
   }
 )

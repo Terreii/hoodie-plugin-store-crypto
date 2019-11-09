@@ -6,274 +6,164 @@
  * Most tests are copied and adjusted from https://github.com/hoodiehq/hoodie-store-client
  */
 
-var test = require('tape')
-var Promise = require('lie')
-var pouchdbErrors = require('pouchdb-errors')
+const test = require('tape')
+const pouchdbErrors = require('pouchdb-errors')
 
-var createCryptoStore = require('../utils/createCryptoStore')
-var checkTime = require('../utils/checkTime')
+const createCryptoStore = require('../utils/createCryptoStore')
+const checkTime = require('../utils/checkTime')
 
-test('cryptoStore.removeAll()', function (t) {
+test('cryptoStore.removeAll()', async t => {
   t.plan(6)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  try {
+    await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
 
-    .then(function () {
-      return hoodie.cryptoStore.unlock('test')
+    await hoodie.store.add({ _id: 'notEncrypted', foo: 'bar' })
+    await hoodie.cryptoStore.add([
+      { _id: 'encrypted', foo: 'bar' },
+      { foo: 'bar', bar: 'foo' }
+    ])
+
+    const objects = await hoodie.cryptoStore.removeAll()
+
+    t.is(objects.length, 3, 'resolves all')
+    t.is(objects[0].foo, 'bar', 'resolves with properties')
+
+    objects.forEach(object => {
+      t.is(parseInt(object._rev, 10), 2, 'new revision')
     })
 
-    .then(function () {
-      var unencrypted = hoodie.store.add({ _id: 'unencrypted', foo: 'bar' })
-      var encrypted = hoodie.cryptoStore.add([
-        { _id: 'encrypted', foo: 'bar' },
-        { foo: 'bar', bar: 'foo' }
-      ])
-
-      return Promise.all([unencrypted, encrypted])
-    })
-
-    .then(function () {
-      return hoodie.cryptoStore.removeAll()
-    })
-
-    .then(function (objects) {
-      t.is(objects.length, 3, 'resolves all')
-      t.is(objects[0].foo, 'bar', 'resolves with properties')
-
-      objects.forEach(function (object) {
-        t.is(parseInt(object._rev, 10), 2, 'new revision')
-      })
-    })
-
-    .then(function () {
-      return hoodie.store.findAll()
-    })
-
-    .then(function (objects) {
-      var filtered = objects.filter(function (object) {
-        return /^hoodiePluginCryptoStore\//.test(object._id) !== true
-      })
-      t.is(filtered.length, 0, 'no objects can be found in store')
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+    const allObjects = await hoodie.store.findAll()
+    const filtered = allObjects.filter(
+      object => !object._id.startsWith('hoodiePluginCryptoStore/')
+    )
+    t.is(filtered.length, 0, 'no objects can be found in store')
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test('cryptoStore.removeAll(filterFunction)', function (t) {
+test('cryptoStore.removeAll(filterFunction)', async t => {
   t.plan(3)
 
-  var hoodie = createCryptoStore()
-  var cryptoStoreDocs = []
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  try {
+    await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
 
-    .then(function () {
-      return hoodie.cryptoStore.unlock('test')
-    })
+    const cryptoStoreDocs = await hoodie.store.withIdPrefix('hoodiePluginCryptoStore/').findAll()
 
-    .then(function () {
-      return hoodie.store.withIdPrefix('hoodiePluginCryptoStore/').findAll()
-    })
+    await hoodie.cryptoStore.add([
+      { foo: 0 },
+      { foo: 'foo' },
+      { foo: 2 },
+      { foo: 'bar' },
+      { foo: 3 },
+      { foo: 'baz' },
+      { foo: 4 }
+    ])
 
-    .then(function (foundCryptoStoreDocs) {
-      cryptoStoreDocs = foundCryptoStoreDocs
+    const objects = await hoodie.cryptoStore.removeAll(object => typeof object.foo === 'number')
+    t.is(objects.length, 4, 'removes 4 objects')
 
-      return hoodie.cryptoStore.add([{
-        foo: 0
-      }, {
-        foo: 'foo'
-      }, {
-        foo: 2
-      }, {
-        foo: 'bar'
-      }, {
-        foo: 3
-      }, {
-        foo: 'baz'
-      }, {
-        foo: 4
-      }])
-    })
+    const allObjects = await hoodie.store.findAll()
 
-    .then(function () {
-      return hoodie.cryptoStore.removeAll(function (object) {
-        return typeof object.foo === 'number'
-      })
-    })
+    const filtered = allObjects.filter(
+      object => !object._id.startsWith('hoodiePluginCryptoStore/')
+    )
+    t.is(filtered.length, 3, 'does not remove other 3 objects')
 
-    .then(function (objects) {
-      t.is(objects.length, 4, 'removes 4 objects')
-    })
-
-    .then(function () {
-      return hoodie.store.findAll()
-    })
-
-    .then(function (objects) {
-      var otherDocs = objects.filter(function (doc) {
-        return !/^hoodiePluginCryptoStore/.test(doc._id)
-      })
-      t.is(otherDocs.length, 3, 'does not remove other 3 objects')
-
-      var ids = objects.map(function (doc) { return doc._id })
-      t.ok(cryptoStoreDocs.length > 0 && cryptoStoreDocs.every(function (doc) {
-        return ids.indexOf(doc._id) !== -1
-      }), 'does not remove "hoodiePluginCryptoStore/" docs')
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+    const ids = allObjects.map(doc => doc._id)
+    t.ok(
+      cryptoStoreDocs.length > 0 && cryptoStoreDocs.every(doc => ids.indexOf(doc._id) !== -1),
+      'does not remove "hoodiePluginCryptoStore/" docs'
+    )
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test("cryptoStore.removeAll() doesn't remove _design docs or plugin's docs", function (t) {
+test("cryptoStore.removeAll() doesn't remove _design docs or plugin's docs", async t => {
   t.plan(6)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
+  try {
+    await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
 
-    .then(function () {
-      return hoodie.cryptoStore.unlock('test')
-    })
+    await hoodie.cryptoStore.add([{ foo: 'bar' }, { _id: '_design/bar' }])
 
-    .then(function () {
-      return hoodie.cryptoStore.add([{ foo: 'bar' }, { _id: '_design/bar' }])
-    })
+    const objects = await hoodie.cryptoStore.removeAll()
+    t.is(
+      objects.length,
+      1,
+      'resolves everything but _design/bar and hoodiePluginCryptoStore/salt'
+    )
+    t.isNot(objects[0]._id, '_design/bar', 'resolved doc isn\'t _design/bar')
 
-    .then(function () {
-      return hoodie.cryptoStore.removeAll()
-    })
+    const ddoc = await hoodie.store.db.get('_design/bar')
+    t.is(ddoc._id, '_design/bar', 'check _design/bar still exists')
+    t.isNot(ddoc._deleted, true, '_design/bar is not deleted')
 
-    .then(function (objects) {
-      t.is(
-        objects.length,
-        1,
-        'resolves everything but _design/bar and hoodiePluginCryptoStore/salt'
-      )
-      t.isNot(objects[0]._id, '_design/bar', 'resolved doc isn\'t _design/bar')
-    })
-
-    .then(function () {
-      return hoodie.store.db.get('_design/bar')
-    })
-
-    .then(function (doc) {
-      t.is(doc._id, '_design/bar', 'check _design/bar still exists')
-      t.isNot(doc._deleted, true, '_design/bar is not deleted')
-
-      return hoodie.store.db.get('hoodiePluginCryptoStore/salt')
-    })
-
-    .then(function (doc) {
-      t.is(
-        doc._id,
-        'hoodiePluginCryptoStore/salt',
-        'check hoodiePluginCryptoStore/salt still exists'
-      )
-      t.isNot(doc._deleted, true, 'hoodiePluginCryptoStore/salt is not deleted')
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+    const saltDoc = await hoodie.store.db.get('hoodiePluginCryptoStore/salt')
+    t.is(
+      saltDoc._id,
+      'hoodiePluginCryptoStore/salt',
+      'check hoodiePluginCryptoStore/salt still exists'
+    )
+    t.isNot(saltDoc._deleted, true, 'hoodiePluginCryptoStore/salt is not deleted')
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test('cryptoStore.removeAll([objects]) creates deletedAt timestamps', function (t) {
+test('cryptoStore.removeAll([objects]) creates deletedAt timestamps', async t => {
   t.plan(10)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  var startTime = null
+  try {
+    await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
 
-  hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.add([
+      { foo: 'bar' },
+      { foo: 'baz' }
+    ])
 
-    .then(function () {
-      return hoodie.cryptoStore.unlock('test')
+    await new Promise(resolve => {
+      setTimeout(resolve, 100)
     })
 
-    .then(function () {
-      return hoodie.cryptoStore.add([
-        { foo: 'bar' },
-        { foo: 'baz' }
-      ])
-    })
+    const startTime = new Date()
+    const objects = await hoodie.cryptoStore.removeAll()
 
-    .then(function () {
-      return new Promise(function (resolve) {
-        setTimeout(resolve, 100)
-      })
+    objects.forEach(object => {
+      t.ok(object._id, 'resolves doc')
+      t.ok(object.hoodie.createdAt, 'should have createdAt timestamp')
+      t.ok(object.hoodie.updatedAt, 'should have updatedAt timestamp')
+      t.ok(object.hoodie.deletedAt, 'should have deleteAt timestamp')
+      t.ok(
+        checkTime(startTime, object.hoodie.deletedAt),
+        'deletedAt should be the same time as right now'
+      )
     })
-
-    .then(function () {
-      startTime = new Date()
-      return hoodie.cryptoStore.removeAll()
-    })
-
-    .then(function (objects) {
-      objects.forEach(function (object) {
-        t.ok(object._id, 'resolves doc')
-        t.ok(object.hoodie.createdAt, 'should have createdAt timestamp')
-        t.ok(object.hoodie.updatedAt, 'should have updatedAt timestamp')
-        t.ok(object.hoodie.deletedAt, 'should have deleteAt timestamp')
-        t.ok(
-          checkTime(startTime, object.hoodie.deletedAt),
-          'deletedAt should be the same time as right now'
-        )
-      })
-    })
-
-    .catch(function (err) {
-      t.end(err)
-    })
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test("cryptoStore.removeAll() shouldn't encrypt fields in cy_ignore and __cy_ignore", function (t) {
+test("cryptoStore.removeAll() shouldn't encrypt fields in cy_ignore and __cy_ignore", async t => {
   t.plan(4)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.setup('test')
-
-    .then(function () {
-      return hoodie.cryptoStore.unlock('test')
-    })
-
-    .then(function () {
-      return hoodie.cryptoStore.add([
-        {
-          _id: 'a_with_cy_ignore',
-          value: 42,
-          notEncrypted: 'other',
-          cy_ignore: ['notEncrypted']
-        },
-        {
-          _id: 'b_with___cy_ignore',
-          value: 42,
-          notEncrypted: true,
-          __cy_ignore: ['notEncrypted']
-        },
-        {
-          _id: 'c_with_both',
-          notEncrypted: 'other',
-          notEncryptedTemp: true,
-          cy_ignore: ['notEncrypted'],
-          __cy_ignore: ['notEncryptedTemp']
-        }
-      ])
-    })
-
-    .then(function () {
-      return hoodie.cryptoStore.removeAll()
-    })
-
-    .catch(t.end)
-
-  hoodie.store.on('remove', function (obj) {
+  hoodie.store.on('remove', obj => {
     switch (obj._id) {
       case 'a_with_cy_ignore':
         t.is(
@@ -300,6 +190,37 @@ test("cryptoStore.removeAll() shouldn't encrypt fields in cy_ignore and __cy_ign
         t.fail('unknown id')
     }
   })
+
+  try {
+    await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
+
+    await hoodie.cryptoStore.add([
+      {
+        _id: 'a_with_cy_ignore',
+        value: 42,
+        notEncrypted: 'other',
+        cy_ignore: ['notEncrypted']
+      },
+      {
+        _id: 'b_with___cy_ignore',
+        value: 42,
+        notEncrypted: true,
+        __cy_ignore: ['notEncrypted']
+      },
+      {
+        _id: 'c_with_both',
+        notEncrypted: 'other',
+        notEncryptedTemp: true,
+        cy_ignore: ['notEncrypted'],
+        __cy_ignore: ['notEncryptedTemp']
+      }
+    ])
+
+    await hoodie.cryptoStore.removeAll()
+  } catch (err) {
+    t.end(err)
+  }
 })
 
 test("cryptoStore.removeAll() shouldn't encrypt fields starting with _", async t => {
@@ -372,40 +293,28 @@ test("cryptoStore.removeAll() shouldn't encrypt fields starting with _", async t
   }
 })
 
-test('cryptoStore.removeAll() should throw if plugin isn\'t unlocked', function (t) {
+test('cryptoStore.removeAll() should throw if plugin isn\'t unlocked', async t => {
   t.plan(4)
 
-  var hoodie = createCryptoStore()
+  const hoodie = createCryptoStore()
 
-  hoodie.cryptoStore.removeAll()
+  try {
+    await hoodie.cryptoStore.removeAll()
+    t.fail('It should have thrown')
+  } catch (err) {
+    t.equal(err.status, 401, 'uses PouchDB UNAUTHORIZED status')
+    t.equal(err.message, pouchdbErrors.UNAUTHORIZED.message)
+  }
 
-    .then(function () {
-      t.fail('It should have thrown')
-    })
+  try {
+    await hoodie.cryptoStore.setup('test')
 
-    .catch(function (err) {
-      t.equal(err.status, 401, 'uses PouchDB UNAUTHORIZED status')
-      t.equal(err.message, pouchdbErrors.UNAUTHORIZED.message)
-    })
+    await hoodie.cryptoStore.removeAll()
+    t.fail('It should have thrown after setup')
+  } catch (err) {
+    t.equal(err.status, 401, 'uses PouchDB UNAUTHORIZED status')
+    t.equal(err.message, pouchdbErrors.UNAUTHORIZED.message)
+  }
 
-    .then(function () {
-      return hoodie.cryptoStore.setup('test')
-    })
-
-    .then(function () {
-      return hoodie.cryptoStore.removeAll()
-    })
-
-    .then(function () {
-      t.fail('It should have thrown after setup')
-    })
-
-    .catch(function (err) {
-      t.equal(err.status, 401, 'uses PouchDB UNAUTHORIZED status')
-      t.equal(err.message, pouchdbErrors.UNAUTHORIZED.message)
-    })
-
-    .then(function () {
-      t.end()
-    })
+  t.end()
 })

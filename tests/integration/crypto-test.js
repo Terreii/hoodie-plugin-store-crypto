@@ -1,19 +1,19 @@
 'use strict'
 
-var test = require('tape')
+const test = require('tape')
 
-var createKey = require('../../lib/create-key')
-var encrypt = require('../../lib/encrypt')
-var decrypt = require('../../lib/decrypt')
+const createKey = require('../../lib/create-key')
+const encrypt = require('../../lib/encrypt')
+const decrypt = require('../../lib/decrypt')
 
-test('test generating a key and encrypt and decrypt a doc with it', function (t) {
+test('test generating a key and encrypt and decrypt a doc with it', async t => {
   t.plan(1)
 
-  var password = 'test'
-  var hoodiePart = {
-    createdAt: Date.now()
+  const password = 'test'
+  const hoodiePart = {
+    createdAt: new Date().toJSON()
   }
-  var doc = {
+  const doc = {
     _id: 'hello',
     _rev: '1-1234567890',
     hoodie: hoodiePart,
@@ -22,50 +22,32 @@ test('test generating a key and encrypt and decrypt a doc with it', function (t)
     day: 1
   }
 
-  createKey(password)
+  try {
+    const { key } = await createKey(password)
+    const encrypted = await encrypt({ key }, doc, null)
+    const decrypted = await decrypt(key, encrypted)
 
-    .then(function (result) {
-      var key = result.key
-
-      return encrypt({ key: key }, doc, null)
-
-        .then(function (encrypted) {
-          return {
-            key: key,
-            encrypted: encrypted
-          }
-        })
-    })
-
-    .then(function (result) {
-      var key = result.key
-      var encrypted = result.encrypted
-
-      return decrypt(key, encrypted)
-    })
-
-    .then(function (decrypted) {
-      t.deepEqual(decrypted, {
-        _id: 'hello',
-        _rev: '1-1234567890',
-        hoodie: hoodiePart,
-        foo: 'bar',
-        hello: 'world',
-        day: 1
-      }, 'decrypted doc')
-    })
-
-    .catch(t.end)
+    t.deepEqual(decrypted, {
+      _id: 'hello',
+      _rev: '1-1234567890',
+      hoodie: hoodiePart,
+      foo: 'bar',
+      hello: 'world',
+      day: 1
+    }, 'decrypted doc')
+  } catch (err) {
+    t.end(err)
+  }
 })
 
-test('members with an key used by this package should still be preserved', function (t) {
+test('members with an key used by this package should still be preserved', async t => {
   t.plan(6)
 
-  var password = 'test'
-  var hoodiePart = {
+  const password = 'test'
+  const hoodiePart = {
     createdAt: Date.now()
   }
-  var doc = {
+  const doc = {
     _id: 'hello',
     _rev: '1-1234567890',
     hoodie: hoodiePart,
@@ -74,29 +56,20 @@ test('members with an key used by this package should still be preserved', funct
     tag: 'greetings',
     nonce: 1
   }
-  var key = null
 
-  createKey(password)
+  try {
+    const { key } = await createKey(password)
 
-    .then(function (result) {
-      key = result.key
+    const encrypted = await encrypt({ key }, doc, null)
+    t.isNot(encrypted.data, doc.data, 'data was encrypted')
+    t.isNot(encrypted.tag, doc.tag, 'tag was encrypted')
+    t.isNot(encrypted.nonce, doc.nonce, 'nonce was encrypted')
 
-      return encrypt({ key: key }, doc, null)
-    })
-
-    .then(function (encrypted) {
-      t.isNot(encrypted.data, doc.data, 'data was encrypted')
-      t.isNot(encrypted.tag, doc.tag, 'tag was encrypted')
-      t.isNot(encrypted.nonce, doc.nonce, 'nonce was encrypted')
-
-      return decrypt(key, encrypted)
-    })
-
-    .then(function (decrypted) {
-      t.is(decrypted.data, doc.data, 'decrypted data has the original value')
-      t.is(decrypted.tag, doc.tag, 'decrypted tag has the original value')
-      t.is(decrypted.nonce, doc.nonce, 'decrypted nonce has the original value')
-    })
-
-    .catch(t.end)
+    const decrypted = await decrypt(key, encrypted)
+    t.is(decrypted.data, doc.data, 'decrypted data has the original value')
+    t.is(decrypted.tag, doc.tag, 'decrypted tag has the original value')
+    t.is(decrypted.nonce, doc.nonce, 'decrypted nonce has the original value')
+  } catch (err) {
+    t.end(err)
+  }
 })
