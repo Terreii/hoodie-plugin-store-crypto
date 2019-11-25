@@ -50,7 +50,7 @@
     "pouchdb-adapter-memory": "^7.1.1",
     "pouchdb-core": "^7.1.1",
     "pouchdb-replication": "^7.1.1",
-    "semantic-release": "^15.13.30",
+    "semantic-release": "^15.13.31",
     "standard": "^14.3.1",
     "tap-spec": "^5.0.0",
     "tape": "^4.11.0",
@@ -66,6 +66,7 @@
     "lie": "^3.3.0",
     "lodash": "^4.17.15",
     "native-crypto": "^1.8.1",
+    "pbkdf2": "^3.0.17",
     "pouchdb-errors": "^7.1.1",
     "randombytes": "^2.1.0",
     "uuid": "^3.2.1"
