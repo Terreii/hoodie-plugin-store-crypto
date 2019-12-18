@@ -1,6 +1,9 @@
 'use strict'
 
 const test = require('tape')
+const browserify = require('browserify')
+const puppeteerChrome = require('puppeteer')
+const puppeteerFirefox = require('puppeteer-firefox')
 
 const decrypt = require('../../lib/decrypt')
 
@@ -130,5 +133,125 @@ test('decrypt merges all not encrypted fields into the result object', async t =
     }, 'decrypted and merged doc with overwritten field')
   } catch (err) {
     t.end(err)
+  }
+})
+
+test('encrypt should work in chrome', async t => {
+  t.plan(1)
+
+  const browser = await puppeteerChrome.launch()
+
+  try {
+    const browserifyInstance = browserify('./lib/decrypt', {
+      standalone: 'decrypt'
+    })
+
+    const scriptContent = await new Promise((resolve, reject) => {
+      const stream = browserifyInstance.bundle()
+
+      let scriptContent = ''
+      stream.on('data', chunk => { scriptContent += chunk })
+
+      stream.on('end', () => { resolve(scriptContent) })
+      stream.on('error', reject)
+    })
+
+    const page = await browser.newPage()
+    await page.addScriptTag({ content: scriptContent })
+
+    const decryptedDoc = await page.evaluate(() => {
+      const doc = {
+        _id: 'hello',
+        _rev: '1-1234567890',
+        hoodie: {
+          createdAt: '2019-12-18T23:12:43.568Z'
+        },
+        tag: '6bc503f508a88e67f82aaf76406ac509',
+        data: '1b16dfd5903880851103599e801b07ae915db7194f52d36b321b91bd822c232ade9572b39e',
+        nonce: '433d5b039fbda3b75b0a7f56'
+      }
+
+      const key = new Uint8Array(
+        '8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c'
+          .match(/.{1,2}/g)
+          .map(byte => parseInt(byte, 16))
+      )
+      return decrypt(key, doc)
+    })
+
+    t.deepEqual(decryptedDoc, {
+      _id: 'hello',
+      _rev: '1-1234567890',
+      hoodie: {
+        createdAt: '2019-12-18T23:12:43.568Z'
+      },
+      foo: 'bar',
+      hello: 'world',
+      day: 1
+    }, 'decrypted doc')
+  } catch (err) {
+    t.end(err)
+  } finally {
+    await browser.close()
+  }
+})
+
+test('encrypt should work in Firefox', async t => {
+  t.plan(1)
+
+  const browser = await puppeteerFirefox.launch()
+
+  try {
+    const browserifyInstance = browserify('./lib/decrypt', {
+      standalone: 'decrypt'
+    })
+
+    const scriptContent = await new Promise((resolve, reject) => {
+      const stream = browserifyInstance.bundle()
+
+      let scriptContent = ''
+      stream.on('data', chunk => { scriptContent += chunk })
+
+      stream.on('end', () => { resolve(scriptContent) })
+      stream.on('error', reject)
+    })
+
+    const page = await browser.newPage()
+    await page.addScriptTag({ content: scriptContent })
+
+    const decryptedDoc = await page.evaluate(() => {
+      const doc = {
+        _id: 'hello',
+        _rev: '1-1234567890',
+        hoodie: {
+          createdAt: '2019-12-18T23:12:43.568Z'
+        },
+        tag: '6bc503f508a88e67f82aaf76406ac509',
+        data: '1b16dfd5903880851103599e801b07ae915db7194f52d36b321b91bd822c232ade9572b39e',
+        nonce: '433d5b039fbda3b75b0a7f56'
+      }
+
+      const key = new Uint8Array(
+        '8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c'
+          .match(/.{1,2}/g)
+          .map(byte => parseInt(byte, 16))
+      )
+      return decrypt(key, doc)
+    })
+
+    t.deepEqual(decryptedDoc, {
+      _id: 'hello',
+      _rev: '1-1234567890',
+      hoodie: {
+        createdAt: '2019-12-18T23:12:43.568Z'
+      },
+      foo: 'bar',
+      hello: 'world',
+      day: 1
+    }, 'decrypted doc')
+  } catch (err) {
+    t.end(err)
+  } finally {
+    await browser.close()
   }
 })

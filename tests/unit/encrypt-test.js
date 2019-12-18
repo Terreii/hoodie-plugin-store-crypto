@@ -263,6 +263,7 @@ test('encryption works in chrome', async t => {
       stream.on('end', () => { resolve(scriptContent) })
       stream.on('error', reject)
     })
+
     const page = await browser.newPage()
     await page.addScriptTag({ content: scriptContent })
 
@@ -324,6 +325,7 @@ test('encryption works in Firefox', async t => {
       stream.on('end', () => { resolve(scriptContent) })
       stream.on('error', reject)
     })
+
     const page = await browser.newPage()
     await page.addScriptTag({ content: scriptContent })
 
