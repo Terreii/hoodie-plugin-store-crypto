@@ -1,6 +1,9 @@
 'use strict'
 
 const test = require('tape')
+const browserify = require('browserify')
+const puppeteerChrome = require('puppeteer')
+const puppeteerFirefox = require('puppeteer-firefox')
 
 const encrypt = require('../../lib/encrypt')
 
@@ -240,3 +243,125 @@ test(
     }
   }
 )
+
+test('encryption works in chrome', async t => {
+  t.plan(9)
+
+  const browser = await puppeteerChrome.launch()
+
+  try {
+    const browserifyInstance = browserify('./lib/encrypt', {
+      standalone: 'encrypt'
+    })
+
+    const scriptContent = await new Promise((resolve, reject) => {
+      const stream = browserifyInstance.bundle()
+
+      let scriptContent = ''
+      stream.on('data', chunk => { scriptContent += chunk })
+
+      stream.on('end', () => { resolve(scriptContent) })
+      stream.on('error', reject)
+    })
+    const page = await browser.newPage()
+    await page.addScriptTag({ content: scriptContent })
+
+    const encryptedDoc = await page.evaluate(() => {
+      const doc = {
+        _id: 'hello',
+        _rev: '1-1234567890',
+        hoodie: {
+          createdAt: '2019-12-18T23:12:43.568Z'
+        },
+        foo: 'bar',
+        hello: 'world',
+        day: 1
+      }
+      const key = new Uint8Array(
+        '8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c'
+          .match(/.{1,2}/g)
+          .map(byte => parseInt(byte, 16))
+      )
+      return encrypt({ key }, doc, null)
+    })
+
+    t.is(encryptedDoc._id, 'hello', 'unchanged _id')
+    t.is(encryptedDoc._rev, '1-1234567890', 'unchanged _rev')
+    t.deepEqual(
+      encryptedDoc.hoodie,
+      { createdAt: '2019-12-18T23:12:43.568Z' },
+      'unchanged hoodie data'
+    )
+    t.ok(encryptedDoc.tag.length === 32, 'tag part should have a length of 32')
+    t.ok(encryptedDoc.data.length > 0, 'encrypted data')
+    t.ok(encryptedDoc.nonce.length === 24, 'nonce should have a length of 24')
+    t.is(encryptedDoc.foo, undefined, "foo doesn't exist")
+    t.is(encryptedDoc.hello, undefined, "hello doesn't exist")
+    t.is(encryptedDoc.day, undefined, "day doesn't exist")
+  } catch (err) {
+    t.end(err)
+  } finally {
+    await browser.close()
+  }
+})
+
+test('encryption works in Firefox', async t => {
+  t.plan(9)
+
+  const browser = await puppeteerFirefox.launch()
+
+  try {
+    const browserifyInstance = browserify('./lib/encrypt', {
+      standalone: 'encrypt'
+    })
+
+    const scriptContent = await new Promise((resolve, reject) => {
+      const stream = browserifyInstance.bundle()
+
+      let scriptContent = ''
+      stream.on('data', chunk => { scriptContent += chunk })
+
+      stream.on('end', () => { resolve(scriptContent) })
+      stream.on('error', reject)
+    })
+    const page = await browser.newPage()
+    await page.addScriptTag({ content: scriptContent })
+
+    const encryptedDoc = await page.evaluate(() => {
+      const doc = {
+        _id: 'hello',
+        _rev: '1-1234567890',
+        hoodie: {
+          createdAt: '2019-12-18T23:12:43.568Z'
+        },
+        foo: 'bar',
+        hello: 'world',
+        day: 1
+      }
+      const key = new Uint8Array(
+        '8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c'
+          .match(/.{1,2}/g)
+          .map(byte => parseInt(byte, 16))
+      )
+      return encrypt({ key }, doc, null)
+    })
+
+    t.is(encryptedDoc._id, 'hello', 'unchanged _id')
+    t.is(encryptedDoc._rev, '1-1234567890', 'unchanged _rev')
+    t.deepEqual(
+      encryptedDoc.hoodie,
+      { createdAt: '2019-12-18T23:12:43.568Z' },
+      'unchanged hoodie data'
+    )
+    t.ok(encryptedDoc.tag.length === 32, 'tag part should have a length of 32')
+    t.ok(encryptedDoc.data.length > 0, 'encrypted data')
+    t.ok(encryptedDoc.nonce.length === 24, 'nonce should have a length of 24')
+    t.is(encryptedDoc.foo, undefined, "foo doesn't exist")
+    t.is(encryptedDoc.hello, undefined, "hello doesn't exist")
+    t.is(encryptedDoc.day, undefined, "day doesn't exist")
+  } catch (err) {
+    t.end(err)
+  } finally {
+    await browser.close()
+  }
+})
