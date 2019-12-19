@@ -87,3 +87,49 @@ test('create a key in Firefox', async t => {
     t.end(err)
   }
 })
+
+test('create a key and salt if no salt was passed in chrome', async t => {
+  t.plan(2)
+
+  try {
+    const result = await browserTest('chrome', './lib/create-key', 'createKey', () => {
+      const test = async () => {
+        const result = await createKey('test')
+        return {
+          key: result.key.toString('hex'),
+          salt: result.salt
+        }
+      }
+      return test()
+    })
+
+    t.ok(result.key.length > 0, 'generated key')
+
+    t.ok(result.salt.length === 32, 'generated salt')
+  } catch (err) {
+    t.end(err)
+  }
+})
+
+test('create a key and salt if no salt was passed in firefox', async t => {
+  t.plan(2)
+
+  try {
+    const result = await browserTest('firefox', './lib/create-key', 'createKey', () => {
+      const test = async () => {
+        const result = await createKey('test')
+        return {
+          key: result.key.toString('hex'),
+          salt: result.salt
+        }
+      }
+      return test()
+    })
+
+    t.ok(result.key.length > 0, 'generated key')
+
+    t.ok(result.salt.length === 32, 'generated salt')
+  } catch (err) {
+    t.end(err)
+  }
+})
