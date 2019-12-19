@@ -1,11 +1,10 @@
 'use strict'
 
 const test = require('tape')
-const browserify = require('browserify')
-const puppeteerChrome = require('puppeteer')
-const puppeteerFirefox = require('puppeteer-firefox')
 
 const encrypt = require('../../lib/encrypt')
+
+const browserTest = require('../utils/browser-test')
 
 test('encrypt should encrypt a document', async t => {
   t.plan(6)
@@ -247,27 +246,8 @@ test(
 test('encryption works in chrome', async t => {
   t.plan(9)
 
-  const browser = await puppeteerChrome.launch()
-
   try {
-    const browserifyInstance = browserify('./lib/encrypt', {
-      standalone: 'encrypt'
-    })
-
-    const scriptContent = await new Promise((resolve, reject) => {
-      const stream = browserifyInstance.bundle()
-
-      let scriptContent = ''
-      stream.on('data', chunk => { scriptContent += chunk })
-
-      stream.on('end', () => { resolve(scriptContent) })
-      stream.on('error', reject)
-    })
-
-    const page = await browser.newPage()
-    await page.addScriptTag({ content: scriptContent })
-
-    const encryptedDoc = await page.evaluate(() => {
+    const encryptedDoc = await browserTest('chrome', './lib/encrypt', 'encrypt', () => {
       const doc = {
         _id: 'hello',
         _rev: '1-1234567890',
@@ -301,35 +281,14 @@ test('encryption works in chrome', async t => {
     t.is(encryptedDoc.day, undefined, "day doesn't exist")
   } catch (err) {
     t.end(err)
-  } finally {
-    await browser.close()
   }
 })
 
 test('encryption works in Firefox', async t => {
   t.plan(9)
 
-  const browser = await puppeteerFirefox.launch()
-
   try {
-    const browserifyInstance = browserify('./lib/encrypt', {
-      standalone: 'encrypt'
-    })
-
-    const scriptContent = await new Promise((resolve, reject) => {
-      const stream = browserifyInstance.bundle()
-
-      let scriptContent = ''
-      stream.on('data', chunk => { scriptContent += chunk })
-
-      stream.on('end', () => { resolve(scriptContent) })
-      stream.on('error', reject)
-    })
-
-    const page = await browser.newPage()
-    await page.addScriptTag({ content: scriptContent })
-
-    const encryptedDoc = await page.evaluate(() => {
+    const encryptedDoc = await browserTest('firefox', './lib/encrypt', 'encrypt', () => {
       const doc = {
         _id: 'hello',
         _rev: '1-1234567890',
@@ -363,7 +322,5 @@ test('encryption works in Firefox', async t => {
     t.is(encryptedDoc.day, undefined, "day doesn't exist")
   } catch (err) {
     t.end(err)
-  } finally {
-    await browser.close()
   }
 })

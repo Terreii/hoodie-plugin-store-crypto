@@ -1,11 +1,10 @@
 'use strict'
 
 const test = require('tape')
-const browserify = require('browserify')
-const puppeteerChrome = require('puppeteer')
-const puppeteerFirefox = require('puppeteer-firefox')
 
 const createKey = require('../../lib/create-key')
+
+const browserTest = require('../utils/browser-test')
 
 test('create a key', async t => {
   t.plan(2)
@@ -38,27 +37,8 @@ test('create a key and salt if no salt was passed', async t => {
 test('create a key in chrome', async t => {
   t.plan(2)
 
-  const browser = await puppeteerChrome.launch()
-
   try {
-    const browserifyInstance = browserify('./lib/create-key', {
-      standalone: 'createKey'
-    })
-
-    const scriptContent = await new Promise((resolve, reject) => {
-      const stream = browserifyInstance.bundle()
-
-      let scriptContent = ''
-      stream.on('data', chunk => { scriptContent += chunk })
-
-      stream.on('end', () => { resolve(scriptContent) })
-      stream.on('error', reject)
-    })
-
-    const page = await browser.newPage()
-    await page.addScriptTag({ content: scriptContent })
-
-    const keyResult = await page.evaluate(() => {
+    const keyResult = await browserTest('chrome', './lib/create-key', 'createKey', () => {
       const test = async () => {
         const result = await createKey('test', 'bf11fa9bafca73586e103d60898989d4')
         return {
@@ -78,35 +58,14 @@ test('create a key in chrome', async t => {
     t.is(keyResult.salt, 'bf11fa9bafca73586e103d60898989d4', 'returned salt')
   } catch (err) {
     t.end(err)
-  } finally {
-    await browser.close()
   }
 })
 
 test('create a key in Firefox', async t => {
   t.plan(2)
 
-  const browser = await puppeteerFirefox.launch()
-
   try {
-    const browserifyInstance = browserify('./lib/create-key', {
-      standalone: 'createKey'
-    })
-
-    const scriptContent = await new Promise((resolve, reject) => {
-      const stream = browserifyInstance.bundle()
-
-      let scriptContent = ''
-      stream.on('data', chunk => { scriptContent += chunk })
-
-      stream.on('end', () => { resolve(scriptContent) })
-      stream.on('error', reject)
-    })
-
-    const page = await browser.newPage()
-    await page.addScriptTag({ content: scriptContent })
-
-    const keyResult = await page.evaluate(() => {
+    const keyResult = await browserTest('firefox', './lib/create-key', 'createKey', () => {
       const test = async () => {
         const result = await createKey('test', 'bf11fa9bafca73586e103d60898989d4')
         return {
@@ -126,7 +85,5 @@ test('create a key in Firefox', async t => {
     t.is(keyResult.salt, 'bf11fa9bafca73586e103d60898989d4', 'returned salt')
   } catch (err) {
     t.end(err)
-  } finally {
-    await browser.close()
   }
 })

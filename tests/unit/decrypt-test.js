@@ -1,11 +1,10 @@
 'use strict'
 
 const test = require('tape')
-const browserify = require('browserify')
-const puppeteerChrome = require('puppeteer')
-const puppeteerFirefox = require('puppeteer-firefox')
 
 const decrypt = require('../../lib/decrypt')
+
+const browserTest = require('../utils/browser-test')
 
 test('encrypt should encrypt a document', async t => {
   t.plan(1)
@@ -136,30 +135,11 @@ test('decrypt merges all not encrypted fields into the result object', async t =
   }
 })
 
-test('encrypt should work in chrome', async t => {
+test('decrypt should work in chrome', async t => {
   t.plan(1)
 
-  const browser = await puppeteerChrome.launch()
-
   try {
-    const browserifyInstance = browserify('./lib/decrypt', {
-      standalone: 'decrypt'
-    })
-
-    const scriptContent = await new Promise((resolve, reject) => {
-      const stream = browserifyInstance.bundle()
-
-      let scriptContent = ''
-      stream.on('data', chunk => { scriptContent += chunk })
-
-      stream.on('end', () => { resolve(scriptContent) })
-      stream.on('error', reject)
-    })
-
-    const page = await browser.newPage()
-    await page.addScriptTag({ content: scriptContent })
-
-    const decryptedDoc = await page.evaluate(() => {
+    const decryptedDoc = await browserTest('chrome', './lib/decrypt', 'decrypt', () => {
       const doc = {
         _id: 'hello',
         _rev: '1-1234567890',
@@ -191,35 +171,14 @@ test('encrypt should work in chrome', async t => {
     }, 'decrypted doc')
   } catch (err) {
     t.end(err)
-  } finally {
-    await browser.close()
   }
 })
 
-test('encrypt should work in Firefox', async t => {
+test('decrypt should work in Firefox', async t => {
   t.plan(1)
 
-  const browser = await puppeteerFirefox.launch()
-
   try {
-    const browserifyInstance = browserify('./lib/decrypt', {
-      standalone: 'decrypt'
-    })
-
-    const scriptContent = await new Promise((resolve, reject) => {
-      const stream = browserifyInstance.bundle()
-
-      let scriptContent = ''
-      stream.on('data', chunk => { scriptContent += chunk })
-
-      stream.on('end', () => { resolve(scriptContent) })
-      stream.on('error', reject)
-    })
-
-    const page = await browser.newPage()
-    await page.addScriptTag({ content: scriptContent })
-
-    const decryptedDoc = await page.evaluate(() => {
+    const decryptedDoc = await browserTest('chrome', './lib/decrypt', 'decrypt', () => {
       const doc = {
         _id: 'hello',
         _rev: '1-1234567890',
@@ -251,7 +210,5 @@ test('encrypt should work in Firefox', async t => {
     }, 'decrypted doc')
   } catch (err) {
     t.end(err)
-  } finally {
-    await browser.close()
   }
 })
