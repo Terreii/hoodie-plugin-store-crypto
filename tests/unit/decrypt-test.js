@@ -178,7 +178,7 @@ test('decrypt should work in Firefox', async t => {
   t.plan(1)
 
   try {
-    const decryptedDoc = await browserTest('chrome', './lib/decrypt', 'decrypt', () => {
+    const decryptedDoc = await browserTest('firefox', './lib/decrypt', 'decrypt', () => {
       const doc = {
         _id: 'hello',
         _rev: '1-1234567890',
