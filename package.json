@@ -69,7 +69,6 @@
     "browserify-aes": "^1.2.0",
     "lie": "^3.3.0",
     "lodash": "^4.17.15",
-    "native-crypto": "^1.8.1",
     "pbkdf2": "^3.0.17",
     "pouchdb-errors": "^7.1.1",
     "randombytes": "^2.1.0",
