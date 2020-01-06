@@ -2,7 +2,7 @@
 
 const test = require('tape')
 
-const encrypt = require('../../lib/encrypt')
+const encrypt = require('../../lib/encrypt-doc')
 
 const browserTest = require('../utils/browser-test')
 
@@ -247,7 +247,7 @@ test('encryption works in chrome', async t => {
   t.plan(9)
 
   try {
-    const encryptedDoc = await browserTest('chrome', './lib/encrypt', 'encrypt', () => {
+    const encryptedDoc = await browserTest('chrome', './lib/encrypt-doc', 'encrypt', () => {
       const doc = {
         _id: 'hello',
         _rev: '1-1234567890',
@@ -288,7 +288,7 @@ test('encryption works in Firefox', async t => {
   t.plan(9)
 
   try {
-    const encryptedDoc = await browserTest('firefox', './lib/encrypt', 'encrypt', () => {
+    const encryptedDoc = await browserTest('firefox', './lib/encrypt-doc', 'encrypt', () => {
       const doc = {
         _id: 'hello',
         _rev: '1-1234567890',

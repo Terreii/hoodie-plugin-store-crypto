@@ -6,7 +6,7 @@ const pouchdbErrors = require('pouchdb-errors')
 
 const cryptoStore = require('../../')
 const createKey = require('../../lib/create-key')
-const decrypt = require('../../lib/decrypt')
+const decrypt = require('../../lib/decrypt-doc')
 
 const createCryptoStore = require('../utils/createCryptoStore')
 const PouchDB = require('../utils/pouchdb.js')

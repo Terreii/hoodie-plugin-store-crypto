@@ -2,7 +2,7 @@
 
 const test = require('tape')
 
-const decrypt = require('../../lib/decrypt')
+const decrypt = require('../../lib/decrypt-doc')
 
 const browserTest = require('../utils/browser-test')
 
@@ -139,7 +139,7 @@ test('decrypt should work in chrome', async t => {
   t.plan(1)
 
   try {
-    const decryptedDoc = await browserTest('chrome', './lib/decrypt', 'decrypt', () => {
+    const decryptedDoc = await browserTest('chrome', './lib/decrypt-doc', 'decrypt', () => {
       const doc = {
         _id: 'hello',
         _rev: '1-1234567890',
@@ -178,7 +178,7 @@ test('decrypt should work in Firefox', async t => {
   t.plan(1)
 
   try {
-    const decryptedDoc = await browserTest('firefox', './lib/decrypt', 'decrypt', () => {
+    const decryptedDoc = await browserTest('firefox', './lib/decrypt-doc', 'decrypt', () => {
       const doc = {
         _id: 'hello',
         _rev: '1-1234567890',

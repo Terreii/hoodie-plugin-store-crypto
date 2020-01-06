@@ -3,8 +3,8 @@
 const test = require('tape')
 
 const createKey = require('../../lib/create-key')
-const encrypt = require('../../lib/encrypt')
-const decrypt = require('../../lib/decrypt')
+const encrypt = require('../../lib/encrypt-doc')
+const decrypt = require('../../lib/decrypt-doc')
 
 test('test generating a key and encrypt and decrypt a doc with it', async t => {
   t.plan(1)
