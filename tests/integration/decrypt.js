@@ -174,6 +174,25 @@ test('cryptoStore.decrypt() should decrypt null', async t => {
   }
 })
 
+test('cryptoStore.decrypt() should encrypt undefined as null and decrypt it', async t => {
+  t.plan(1)
+
+  const hoodie = createCryptoStore()
+
+  try {
+    await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
+
+    const encrypted = await hoodie.cryptoStore.encrypt(undefined)
+
+    const decrypted = await hoodie.cryptoStore.decrypt(encrypted)
+
+    t.is(decrypted, null, 'decrypt results in null')
+  } catch (err) {
+    t.end(err)
+  }
+})
+
 test('cryptoStore.decrypt() fails if undefined or null is passed', async t => {
   t.plan(4)
 

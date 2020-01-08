@@ -150,8 +150,8 @@ test('cryptoStore.encrypt() should encrypt null', async t => {
   }
 })
 
-test('cryptoStore.encrypt() fails for undefined', async t => {
-  t.plan(2)
+test('cryptoStore.encrypt() should encrypt undefined as null', async t => {
+  t.plan(4)
 
   const hoodie = createCryptoStore()
 
@@ -159,11 +159,14 @@ test('cryptoStore.encrypt() fails for undefined', async t => {
     await hoodie.cryptoStore.setup('test')
     await hoodie.cryptoStore.unlock('test')
 
-    await hoodie.cryptoStore.encrypt()
-    t.end(new Error("encrypt didn't fail"))
+    const encrypted = await hoodie.cryptoStore.encrypt(undefined)
+
+    t.is(typeof encrypted, 'object', 'encrypt results in an object')
+    t.ok(encrypted.tag.length === 32, 'tag part should have a length of 32')
+    t.ok(encrypted.data.length > 0, 'encrypted data')
+    t.ok(encrypted.nonce.length === 24, 'nonce should have a length of 24')
   } catch (err) {
-    t.ok(err instanceof Error, 'rejects with an error')
-    t.is(err.status, 400, 'rejects with error 400')
+    t.end(err)
   }
 })
 
