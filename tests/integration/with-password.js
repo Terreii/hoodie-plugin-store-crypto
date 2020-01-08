@@ -17,14 +17,12 @@ test('cryptoStore has a withPassword method', t => {
 })
 
 test('cryptoStore.withPassword returns scoped methods', async t => {
-  t.plan(13)
+  t.plan(15)
 
   const hoodie = createCryptoStore()
 
   try {
     const result = await hoodie.cryptoStore.withPassword('test')
-
-    const testStore = result.store
 
     ;[
       'add',
@@ -36,12 +34,14 @@ test('cryptoStore.withPassword returns scoped methods', async t => {
       'updateAll',
       'remove',
       'removeAll',
+      'encrypt',
+      'decrypt',
       'withIdPrefix',
       'on',
       'one',
       'off'
     ].forEach(key => {
-      t.is(typeof testStore[key], 'function', 'has method: ' + key)
+      t.is(typeof result.store[key], 'function', 'has method: ' + key)
     })
   } catch (err) {
     t.end(err)

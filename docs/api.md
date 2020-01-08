@@ -43,6 +43,8 @@
   - [cryptoStore.removeAll()](#cryptostoreremoveall)
   - [cryptoStore.isEncrypted(object)](#cryptostoreisencryptedobject)
   - [cryptoStore.isEncrypted(Promise)](#cryptostoreisencryptedpromise)
+  - [cryptoStore.encrypt(jsonValue, aad)](#cryptostoreencryptjsonvalue-aad)
+  - [cryptoStore.decrypt(encrypted, aad)](#cryptostoredecryptencrypted-aad)
   - [cryptoStore.on()](#cryptostoreon)
   - [cryptoStore.one()](#cryptostoreone)
   - [cryptoStore.off()](#cryptostoreoff)
@@ -1395,6 +1397,53 @@ function isEncrypted (id) {
   )
 }
 ```
+
+### cryptoStore.encrypt(jsonValue, aad)
+
+```javascript
+cryptoStore.encrypt(['test', true])
+```
+
+Encrypt any JSON-data without storing them. Uses the same encryption key as any other method.
+
+Argument| Type  | Description      | Required
+--------|-------|------------------|----------
+`jsonValue` | Any valid JSON value | Data that should be encrypted. This can be anything that can also be passed to `JSON.stringify()` | Yes
+`aad` | String or Buffer/TypedArray | Optional additional validation. If present, then it __must__ also be present and the same value/content when decrypting. | No
+
+Resolves with an object containing the value encrypted.
+
+This method encrypts __everything__. It will not use [`cy_ignore` or `__cy_ignore`](#select-fields-that-shouldnt-get-encrypted)! `undefined` will get encrypted as `null`.
+
+Rejects with:
+
+Name 	| Status | Description | Why
+------|--------|--------|-------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+
+### cryptoStore.decrypt(encrypted, aad)
+
+```javascript
+cryptoStore.decrypt(encryptedData)
+```
+
+Decrypt everything encrypted with [`cryptoStore.encrypt()`](#cryptostoreencryptjsonvalue-aad). Uses the same encryption key as any other method.
+
+Argument| Type  | Description      | Required
+--------|-------|------------------|----------
+`encrypted` | object | Data that is encrypted with [`cryptoStore.encrypt()`](#cryptostoreencryptjsonvalue-aad). All fields on the object other then `data`, `tag` and `nonce` will be ignored. | Yes
+`aad` | String or Buffer/TypedArray | Optional additional validation. Required if it was present when encrypting. | No
+
+Resolves with original data.
+
+Rejects with:
+
+Name 	| Status | Description | Why
+------|--------|--------|-------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Data was undefined. Data is must be an object! | `encrypted` was `undefined` or `null`.
+bad_request | 400 | Data was invalid. It must be an object with data, tag and nonce! | `encrypted` didn't contain `data`, `tag` or `nonce`. All three must be strings.
+_ | _ | Unsupported state or unable to authenticate data | `aad` (additional authentication data) didn't match.
 
 ### cryptoStore.on()
 

@@ -7,7 +7,7 @@ const pouchDbErrors = require('pouchdb-errors')
 
 const createCryptoStore = require('../utils/createCryptoStore')
 const createKey = require('../../lib/create-key')
-const decrypt = require('../../lib/decrypt')
+const decrypt = require('../../lib/decrypt-doc')
 
 test('resetPassword() should exist on the cryptoStores main API', async t => {
   t.plan(3)
