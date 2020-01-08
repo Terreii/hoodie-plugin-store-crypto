@@ -1413,7 +1413,14 @@ Argument| Type  | Description      | Required
 
 Resolves with an object containing the value encrypted.
 
-This method encrypts everything. It will not use [`cy_ignore` or `__cy_ignore`](#select-fields-that-shouldnt-get-encrypted)!
+This method encrypts __everything__. It will not use [`cy_ignore` or `__cy_ignore`](#select-fields-that-shouldnt-get-encrypted)!
+
+Rejects with:
+
+Name 	| Status | Description | Why
+------|--------|--------|-------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Data was undefined. Only JSON values are valid! | `jsonValue` was `undefined`.
 
 ### cryptoStore.decrypt(encrypted, aad)
 
@@ -1429,6 +1436,15 @@ Argument| Type  | Description      | Required
 `aad` | String or Buffer/TypedArray | Optional additional validation. Required if it was present when encrypting. | No
 
 Resolves with original data.
+
+Rejects with:
+
+Name 	| Status | Description | Why
+------|--------|--------|-------
+unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
+bad_request | 400 | Data was undefined. Data is must be an object! | `encrypted` was `undefined` or `null`.
+bad_request | 400 | Data was invalid. It must be an object with data, tag and nonce! | `encrypted` didn't contain `data`, `tag` or `nonce`. All three must be strings.
+_ | _ | Unsupported state or unable to authenticate data | `aad` (additional authentication data) didn't match.
 
 ### cryptoStore.on()
 
