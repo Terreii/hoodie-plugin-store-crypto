@@ -43,6 +43,8 @@
   - [cryptoStore.removeAll()](#cryptostoreremoveall)
   - [cryptoStore.isEncrypted(object)](#cryptostoreisencryptedobject)
   - [cryptoStore.isEncrypted(Promise)](#cryptostoreisencryptedpromise)
+  - [cryptoStore.encrypt(jsonValue, aad)](#cryptostoreencryptjsonvalue-aad)
+  - [cryptoStore.decrypt(encrypted, aad)](#cryptostoredecryptencrypted-aad)
   - [cryptoStore.on()](#cryptostoreon)
   - [cryptoStore.one()](#cryptostoreone)
   - [cryptoStore.off()](#cryptostoreoff)
@@ -1395,6 +1397,38 @@ function isEncrypted (id) {
   )
 }
 ```
+
+### cryptoStore.encrypt(jsonValue, aad)
+
+```javascript
+cryptoStore.encrypt(['test', true])
+```
+
+Encrypt any JSON-data without storing them. Uses the same encryption key as any other method.
+
+Argument| Type  | Description      | Required
+--------|-------|------------------|----------
+`jsonValue` | Any valid JSON value | Data that should be encrypted. This can be anything that can also be passed to `JSON.stringify()` | Yes
+`aad` | String or Buffer/TypedArray | Optional additional validation. If present, then it __must__ also be present and the same value/content when decrypting. | No
+
+Resolves with an object containing the value encrypted.
+
+This method encrypts everything. It will not use [`cy_ignore` or `__cy_ignore`](#select-fields-that-shouldnt-get-encrypted)!
+
+### cryptoStore.decrypt(encrypted, aad)
+
+```javascript
+cryptoStore.decrypt(encryptedData)
+```
+
+Decrypt everything encrypted with [`cryptoStore.encrypt()`](#cryptostoreencryptjsonvalue-aad). Uses the same encryption key as any other method.
+
+Argument| Type  | Description      | Required
+--------|-------|------------------|----------
+`encrypted` | object | Data that is encrypted with [`cryptoStore.encrypt()`](#cryptostoreencryptjsonvalue-aad). All fields on the object other then `data`, `tag` and `nonce` will be ignored. | Yes
+`aad` | String or Buffer/TypedArray | Optional additional validation. Required if it was present when encrypting. | No
+
+Resolves with original data.
 
 ### cryptoStore.on()
 
