@@ -75,6 +75,6 @@
     "uuid": "^3.4.0"
   },
   "release": {
-    "branch": "latest"
+    "branches": ["latest"]
   }
 }
