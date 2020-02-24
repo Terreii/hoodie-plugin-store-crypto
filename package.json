@@ -72,7 +72,7 @@
     "pbkdf2": "^3.0.17",
     "pouchdb-errors": "^7.1.1",
     "randombytes": "^2.1.0",
-    "uuid": "^3.4.0"
+    "uuid": "^7.0.0"
   },
   "release": {
     "branches": ["latest"]
