@@ -216,6 +216,234 @@ test(
   }
 )
 
+test('encrypt should ignore special design-doc fields on design-docs', async t => {
+  t.plan(55)
+
+  const doc = {
+    _id: '_design/test',
+    shouldEncrypt: 128,
+    language: 'javascript',
+    options: {
+      some: 'option'
+    },
+    filters: {
+      is_encrypted: function (doc, req) { return doc.nonce && doc.tag && doc.data }.toString()
+    },
+    lists: {
+      table: `function (head, req) {
+        start({
+          headers: {
+            'Content-Type': 'text/html'
+          }
+        })
+        send('<html><body><table>')
+        send('<tr><th>ID</th><th>Key</th><th>Value</th></tr>')
+        var row
+        while (row = getRow()) {
+          send(''.concat(
+            '<tr>',
+            '<td>' + toJSON(row.id) + '</td>',
+            '<td>' + toJSON(row.key) + '</td>',
+            '<td>' + toJSON(row.value) + '</td>',
+            '</tr>'
+          ))
+        }
+        send('</table></body></html>')
+      }`
+    },
+    rewrites: 'function () { something }',
+    shows: {
+      greeting: function (doc, req) {
+        if (doc) {
+          return 'Hello from ' + doc._id + '!'
+        } else {
+          return 'Hello, world!'
+        }
+      }.toString()
+    },
+    updates: {
+      add_greeting: function (doc, req) {
+        doc.greeting = 'Hello from ' + doc._id + '!'
+        return [doc, 'Did add greeting!']
+      }.toString()
+    },
+    validate_doc_update: `function (newDoc, oldDoc, userCtx, secObj) {
+      if (oldDoc.owner !== userCtx.name && userCtx.roles.indexOf('_admin') === -1) {
+        throw({ forbidden: 'Only admins and users can update their document!' })
+      }
+    }`,
+    views: {
+      encrypted: {
+        view: function (doc) { return doc.nonce && doc.tag && doc.data }.toString()
+      }
+    },
+    autoupdate: true
+  }
+  const key = Buffer.from(
+    '8ecab44b2448d6bae235476a134be8f6bec705a35a02dea3afb4e648f29eb66c',
+    'hex'
+  )
+
+  try {
+    const checkDoc = JSON.parse(JSON.stringify(doc))
+    const result = await encrypt({ key }, doc)
+
+    t.equal(result.shouldEncrypt, undefined, 'did encrypt shouldEncrypt with no prefix')
+    t.equal(result.language, 'javascript', 'language was not encrypted with no prefix')
+    t.deepEqual(result.options, checkDoc.options, 'options was not encrypted with no prefix')
+    t.deepEqual(result.filters, checkDoc.filters, 'filters was not encrypted with no prefix')
+    t.deepEqual(result.lists, checkDoc.lists, 'lists was not encrypted with no prefix')
+    t.equal(result.rewrites, checkDoc.rewrites, 'rewrites was not encrypted with no prefix')
+    t.deepEqual(result.shows, checkDoc.shows, 'shows was not encrypted with no prefix')
+    t.deepEqual(result.updates, checkDoc.updates, 'updates was not encrypted with no prefix')
+    t.equal(
+      result.validate_doc_update,
+      checkDoc.validate_doc_update,
+      'validate_doc_update was not encrypted with no prefix'
+    )
+    t.deepEqual(result.views, checkDoc.views, 'views was not encrypted with no prefix')
+    t.equal(result.autoupdate, true, 'autoupdate was not encrypted with no prefix')
+
+    doc._id = 'test'
+    const resultWithPrefix = await encrypt({ key }, doc, '_design/')
+
+    t.equal(resultWithPrefix.shouldEncrypt, undefined, 'did encrypt shouldEncrypt with prefix')
+    t.equal(resultWithPrefix.language, 'javascript', 'language was not encrypted with prefix')
+    t.deepEqual(resultWithPrefix.options, checkDoc.options, 'options was not encrypted with prefix')
+    t.deepEqual(resultWithPrefix.filters, checkDoc.filters, 'filters was not encrypted with prefix')
+    t.deepEqual(resultWithPrefix.lists, checkDoc.lists, 'lists was not encrypted with prefix')
+    t.equal(resultWithPrefix.rewrites, checkDoc.rewrites, 'rewrites was not encrypted with prefix')
+    t.deepEqual(resultWithPrefix.shows, checkDoc.shows, 'shows was not encrypted with prefix')
+    t.deepEqual(resultWithPrefix.updates, checkDoc.updates, 'updates was not encrypted with prefix')
+    t.equal(
+      resultWithPrefix.validate_doc_update,
+      checkDoc.validate_doc_update,
+      'validate_doc_update was not encrypted with prefix'
+    )
+    t.deepEqual(resultWithPrefix.views, checkDoc.views, 'views was not encrypted with prefix')
+    t.equal(resultWithPrefix.autoupdate, true, 'autoupdate was not encrypted with prefix')
+
+    doc._id = '_design/test'
+    const resultWithPrefixAndId = await encrypt({ key }, doc, '_design/')
+
+    t.equal(
+      resultWithPrefixAndId.shouldEncrypt,
+      undefined,
+      'did encrypt shouldEncrypt with prefix and id'
+    )
+    t.equal(
+      resultWithPrefixAndId.language,
+      'javascript',
+      'language was not encrypted with prefix and id'
+    )
+    t.deepEqual(
+      resultWithPrefixAndId.options,
+      checkDoc.options,
+      'options was not encrypted with prefix and id'
+    )
+    t.deepEqual(
+      resultWithPrefixAndId.filters,
+      checkDoc.filters,
+      'filters was not encrypted with prefix and id'
+    )
+    t.deepEqual(
+      resultWithPrefixAndId.lists,
+      checkDoc.lists,
+      'lists was not encrypted with prefix and id'
+    )
+    t.equal(
+      resultWithPrefixAndId.rewrites,
+      checkDoc.rewrites,
+      'rewrites was not encrypted with prefix and id'
+    )
+    t.deepEqual(
+      resultWithPrefixAndId.shows,
+      checkDoc.shows,
+      'shows was not encrypted with prefix and id'
+    )
+    t.deepEqual(
+      resultWithPrefixAndId.updates,
+      checkDoc.updates,
+      'updates was not encrypted with prefix and id'
+    )
+    t.equal(
+      resultWithPrefixAndId.validate_doc_update,
+      checkDoc.validate_doc_update,
+      'validate_doc_update was not encrypted with prefix and id'
+    )
+    t.deepEqual(
+      resultWithPrefixAndId.views,
+      checkDoc.views,
+      'views was not encrypted with prefix and id'
+    )
+    t.equal(
+      resultWithPrefixAndId.autoupdate,
+      true,
+      'autoupdate was not encrypted with prefix and id'
+    )
+
+    doc._id = 'not_design'
+    const resultNotDesign = await encrypt({ key }, doc)
+
+    t.equal(
+      resultNotDesign.shouldEncrypt,
+      undefined,
+      'did encrypt shouldEncrypt not design no prefix'
+    )
+    t.equal(resultNotDesign.language, undefined, 'did encrypt language not design no prefix')
+    t.deepEqual(resultNotDesign.options, undefined, 'did encrypt options not design no prefix')
+    t.deepEqual(resultNotDesign.filters, undefined, 'did encrypt filters not design no prefix')
+    t.deepEqual(resultNotDesign.lists, undefined, 'did encrypt lists not design no prefix')
+    t.equal(resultNotDesign.rewrites, undefined, 'did encrypt rewrites not design no prefix')
+    t.deepEqual(resultNotDesign.shows, undefined, 'did encrypt shows not design no prefix')
+    t.deepEqual(resultNotDesign.updates, undefined, 'did encrypt updates not design no prefix')
+    t.equal(
+      resultNotDesign.validate_doc_update,
+      undefined,
+      'did encrypt validate_doc_update not design no prefix'
+    )
+    t.deepEqual(resultNotDesign.views, undefined, 'did encrypt views not design no prefix')
+    t.equal(resultNotDesign.autoupdate, undefined, 'did encrypt autoupdate not design no prefix')
+
+    doc._id = '_design'
+    const resultNotDesignByPrefix = await encrypt({ key }, doc, 'not_design')
+
+    t.equal(
+      resultNotDesignByPrefix.shouldEncrypt,
+      undefined,
+      'did encrypt shouldEncrypt id=design with prefix'
+    )
+    t.equal(
+      resultNotDesignByPrefix.language,
+      undefined,
+      'did encrypt language id=design with prefix'
+    )
+    t.equal(resultNotDesignByPrefix.options, undefined, 'did encrypt options id=design with prefix')
+    t.equal(resultNotDesignByPrefix.filters, undefined, 'did encrypt filters id=design with prefix')
+    t.equal(resultNotDesignByPrefix.lists, undefined, 'did encrypt lists id=design with prefix')
+    t.equal(
+      resultNotDesignByPrefix.rewrites,
+      undefined,
+      'did encrypt rewrites id=design with prefix'
+    )
+    t.equal(resultNotDesignByPrefix.shows, undefined, 'did encrypt shows id=design with prefix')
+    t.equal(resultNotDesignByPrefix.updates, undefined, 'did encrypt updates id=design with prefix')
+    t.equal(
+      resultNotDesignByPrefix.validate_doc_update,
+      undefined,
+      'did encrypt validate_doc_update id=design with prefix'
+    )
+    t.equal(resultNotDesignByPrefix.views, undefined, 'did encrypt views id=design with prefix')
+    t.equal(
+      resultNotDesignByPrefix.autoupdate,
+      undefined,
+      'did encrypt autoupdate id=design with prefix'
+    )
+  } catch (err) {
+    t.end(err)
+  }
+})
+
 test(
   'encrypt does not encrypt fields starting with _ if handleSpecialMembers is true',
   async t => {
