@@ -64,6 +64,12 @@ Also _all keys that start with an underscore (\_) will not get encrypted_! Becau
 
 **Don't save private data in the `_id`**!
 
+#### Design-Documents
+
+You can read and write [design-documents (ddoc)](https://docs.couchdb.org/en/stable/ddocs/index.html "CouchDB's design docs documentation") using this plugin (if the active user has the rights for this).
+
+All the [special fields](https://docs.couchdb.org/en/stable/api/ddoc/common.html#put--db-_design-ddoc "List of all special ddoc fields") of an design document will not get encrypted!
+
 #### Select fields that shouldn't get encrypted
 
 You can also define your own fields that shouldn't get encrypted. This works on all methods.
