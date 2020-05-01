@@ -15,7 +15,9 @@
     "fix:docs": "textlint --fix README.md docs/*",
     "fix:style": "standard --fix",
     "start": "hoodie",
-    "semantic-release": "semantic-release"
+    "semantic-release": "semantic-release",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -72,11 +74,13 @@
     "pbkdf2": "^3.0.17",
     "pouchdb-errors": "^7.2.1",
     "randombytes": "^2.1.0",
-    "uuid": "^3.4.0"
+    "uuid": "^3.4.0",
+    "snyk": "^1.316.1"
   },
   "release": {
     "branches": [
       "latest"
     ]
-  }
+  },
+  "snyk": true
 }
