@@ -1448,7 +1448,7 @@ Name 	| Status | Description | Why
 ------|--------|--------|-------
 unauthorized | 401 | Name or password is incorrect. | This plugin wasn't unlocked yet.
 bad_request | 400 | Data was undefined. Data is must be an object! | `encrypted` was `undefined` or `null`.
-bad_request | 400 | Data was invalid. It must be an object with data, tag and nonce! | `encrypted` didn't contain `data`, `tag` or `nonce`. All three must be strings.
+bad_request | 400 | Data was not an Object with the required fields. It must be an object with data, tag and nonce! | `encrypted` didn't contain `data`, `tag` or `nonce`. All three must be strings.
 _ | _ | Unsupported state or unable to authenticate data | `aad` (additional authentication data) didn't match.
 
 ### cryptoStore.on()
