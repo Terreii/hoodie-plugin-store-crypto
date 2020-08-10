@@ -3,13 +3,8 @@
 module.exports = browserTest
 
 const browserify = require('browserify')
-const puppeteerChrome = require('puppeteer')
+const puppeteer = require('puppeteer')
 const puppeteerFirefox = require('puppeteer-firefox')
-
-const browsers = {
-  chrome: puppeteerChrome,
-  firefox: puppeteerFirefox
-}
 
 /**
  * Run a test in a browser and returns the result of the test function.
@@ -19,7 +14,11 @@ const browsers = {
  * @param {function} fn Test function. This function will be run in the browser.
  */
 async function browserTest (browserName, modulePath, exportName, fn) {
-  const browser = await browsers[browserName].launch()
+  // TODO remove puppeteer-firefox once firefox is no longer experimental in puppeteer
+  // https://github.com/puppeteer/puppeteer/issues/6225
+  const browser = browserName === 'chrome'
+    ? await puppeteer.launch({ product: browserName })
+    : await puppeteerFirefox.launch()
 
   try {
     const browserifyInstance = browserify(modulePath, {
