@@ -538,12 +538,26 @@ test('cryptoStore.withIdPrefix("test/").on("change", handler) events', async t =
   const hoodie = createCryptoStore()
   const testStore = hoodie.cryptoStore.withIdPrefix('test/')
 
-  testStore.on('change', (eventName, object) => {
-    t.is(object._id, 'test/foo')
+  const changeEvent = new Promise((resolve, reject) => {
+    testStore.on('change', (eventName, object) => {
+      try {
+        t.is(object._id, 'test/foo')
+        resolve()
+      } catch (err) {
+        reject(err)
+      }
+    })
   })
 
-  testStore.on('add', (object) => {
-    t.is(object._id, 'test/foo')
+  const addEvent = new Promise((resolve, reject) => {
+    testStore.on('add', (object) => {
+      try {
+        t.is(object._id, 'test/foo')
+        resolve()
+      } catch (err) {
+        reject(err)
+      }
+    })
   })
 
   try {
@@ -552,6 +566,10 @@ test('cryptoStore.withIdPrefix("test/").on("change", handler) events', async t =
 
     hoodie.cryptoStore.add({ _id: 'foo' })
     testStore.add({ _id: 'foo' })
+
+    t.timeoutAfter(100)
+    await Promise.all([changeEvent, addEvent])
+    t.end()
   } catch (err) {
     t.end(err)
   }
