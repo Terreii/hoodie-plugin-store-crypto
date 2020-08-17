@@ -3,7 +3,7 @@
 const test = require('tape')
 
 const createCryptoStore = require('../utils/createCryptoStore')
-const cryptoStoreSetupFunction = require('../../')
+const cryptoStoreSetupFunction = require('../../hoodie/client')
 
 test('lock exists', t => {
   t.plan(2)

@@ -9,7 +9,7 @@
 const test = require('tape')
 
 const createCryptoStore = require('../utils/createCryptoStore')
-const addCryptoStoreToHoodie = require('../../')
+const addCryptoStoreToHoodie = require('../../hoodie/client')
 
 function noop () {}
 

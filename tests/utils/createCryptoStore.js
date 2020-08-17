@@ -2,7 +2,7 @@
 
 const Store = require('@hoodie/store-client')
 
-const cryptoStore = require('../../')
+const cryptoStore = require('../../hoodie/client')
 
 const PouchDB = require('./pouchdb.js')
 const uniqueName = require('./unique-name')

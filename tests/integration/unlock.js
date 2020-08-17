@@ -4,7 +4,7 @@ const test = require('tape')
 const Store = require('@hoodie/store-client')
 const pouchdbErrors = require('pouchdb-errors')
 
-const cryptoStore = require('../../')
+const cryptoStore = require('../../hoodie/client')
 
 const createCryptoStore = require('../utils/createCryptoStore')
 const PouchDB = require('../utils/pouchdb.js')
