@@ -558,10 +558,9 @@ test('cryptoStore.withIdPrefix("test/").on("change", handler) events', async t =
 })
 
 test('cryptoStore.withIdPrefix("test/") should pass _ option on', async t => {
-  t.plan(4)
+  t.plan(1)
 
   const hoodie = createCryptoStore()
-  const hoodie2 = createCryptoStore({ notHandleSpecialDocumentMembers: true })
 
   try {
     await hoodie.cryptoStore.setup('test')
@@ -575,22 +574,5 @@ test('cryptoStore.withIdPrefix("test/") should pass _ option on', async t => {
     t.fail(new Error('should have thrown with doc_validation'))
   } catch (err) {
     t.is(err.name, 'doc_validation', 'value with _ was passed on')
-  }
-
-  try {
-    await hoodie2.cryptoStore.setup('test')
-    await hoodie2.cryptoStore.unlock('test')
-
-    const obj = await hoodie2.cryptoStore.withIdPrefix('test/').add({
-      value: 42,
-      _other: 'test value'
-    })
-    t.is(obj._other, 'test value', 'members with _ are added')
-
-    const encrypted = await hoodie2.store.find(obj._id)
-    t.is(encrypted.value, undefined, 'members still get encrypted')
-    t.is(encrypted._other, undefined, 'members starting with _ are encrypted')
-  } catch (err) {
-    t.end(err)
   }
 })

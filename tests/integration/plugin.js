@@ -88,42 +88,6 @@ test('cryptoStore does not encrypt fields starting with _', async t => {
   }
 })
 
-test(
-  'cryptoStore does encrypt fields starting with _ if notHandleSpecialDocumentMembers is ' +
-  'set to true',
-  async t => {
-    t.plan(2)
-
-    const name = uniqueName()
-
-    const hoodie = {
-      account: { on () {} },
-      store: new Store(name, {
-        PouchDB: PouchDB,
-        remote: 'remote-' + name
-      })
-    }
-
-    pluginSetupFunction(hoodie, { notHandleSpecialDocumentMembers: true })
-
-    try {
-      await hoodie.cryptoStore.setup('test')
-      await hoodie.cryptoStore.unlock('test')
-
-      const doc = await hoodie.cryptoStore.add({
-        value: 42,
-        _other: 'not public'
-      })
-      t.is(doc._other, 'not public', 'member starting with _ was encrypted')
-
-      const encryptedDoc = await hoodie.store.find(doc._id)
-      t.is(encryptedDoc._other, undefined, 'member starting with _ is not public')
-    } catch (err) {
-      t.end(err)
-    }
-  }
-)
-
 test('default export should be a constructor', t => {
   t.plan(3)
 
@@ -189,37 +153,3 @@ test('default export does not encrypt fields starting with _', async t => {
     t.is(err.name, 'doc_validation', 'value with _ was passed on')
   }
 })
-
-test(
-  'default export does encrypt fields starting with _ if notHandleSpecialDocumentMembers is ' +
-  'set to true',
-  async t => {
-    t.plan(2)
-
-    const name = uniqueName()
-
-    const store = new Store(name, {
-      PouchDB: PouchDB,
-      remote: 'remote-' + name
-    })
-    const cryptoStore = new CryptoStore(store, {
-      notHandleSpecialDocumentMembers: true
-    })
-
-    try {
-      await cryptoStore.setup('test')
-      await cryptoStore.unlock('test')
-
-      const doc = await cryptoStore.add({
-        value: 42,
-        _other: 'not public'
-      })
-      t.is(doc._other, 'not public', 'member starting with _ was encrypted')
-
-      const encryptedDoc = await store.find(doc._id)
-      t.is(encryptedDoc._other, undefined, 'member starting with _ is not public')
-    } catch (err) {
-      t.end(err)
-    }
-  }
-)
