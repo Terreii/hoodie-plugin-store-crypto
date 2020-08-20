@@ -40,5 +40,6 @@ function CryptoStore (store, options) {
     removeListener: store.off
   }
 
-  return bindFunctions(store, state, null, handler, true)
+  const api = bindFunctions(store, state, null, handler, true)
+  Object.assign(this, api)
 }

@@ -125,7 +125,7 @@ test(
 )
 
 test('default export should be a constructor', t => {
-  t.plan(2)
+  t.plan(3)
 
   const name = uniqueName()
   const cryptoStore = new CryptoStore(new Store(name, {
@@ -135,6 +135,7 @@ test('default export should be a constructor', t => {
 
   t.is(typeof cryptoStore, 'object', 'should be an object')
   t.is(typeof cryptoStore.add, 'function', 'should have the methods')
+  t.ok(cryptoStore instanceof CryptoStore, 'should be an instance of CryptoStore')
 })
 
 test('default export should not listen to account/signout events', t => {
