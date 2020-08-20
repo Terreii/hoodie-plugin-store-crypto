@@ -2,7 +2,7 @@
 
 const Store = require('@hoodie/store-client')
 
-const cryptoStore = require('../../hoodie/client')
+const CryptoStore = require('../../index')
 
 const PouchDB = require('./pouchdb.js')
 const uniqueName = require('./unique-name')
@@ -21,10 +21,9 @@ function createCryptoStore (options) {
     account: {
       on: () => {}
     },
-    store: store
+    store: store,
+    cryptoStore: new CryptoStore(store, options)
   }
-
-  cryptoStore(hoodie, options)
 
   return hoodie
 }

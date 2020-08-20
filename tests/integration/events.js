@@ -9,7 +9,7 @@
 const test = require('tape')
 
 const createCryptoStore = require('../utils/createCryptoStore')
-const addCryptoStoreToHoodie = require('../../hoodie/client')
+const CryptoStore = require('../../index')
 
 function noop () {}
 
@@ -785,7 +785,7 @@ test('cryptoStore should only listen to events, if a handler was added', async t
   }
   const handler = () => {}
 
-  addCryptoStoreToHoodie(hoodie)
+  hoodie.cryptoStore = new CryptoStore(hoodie.store)
   afterAddingCryptoStore = true
 
   shouldHave = true

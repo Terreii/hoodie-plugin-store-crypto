@@ -4,8 +4,7 @@ const test = require('tape')
 const Store = require('@hoodie/store-client')
 const pouchdbErrors = require('pouchdb-errors')
 
-const cryptoStore = require('../../hoodie/client')
-
+const CryptoStore = require('../../index')
 const createCryptoStore = require('../utils/createCryptoStore')
 const PouchDB = require('../utils/pouchdb.js')
 const uniqueName = require('../utils/unique-name')
@@ -53,9 +52,9 @@ test(
       account: {
         on: function () {}
       },
-      store: store
+      store: store,
+      cryptoStore: new CryptoStore(store)
     }
-    cryptoStore(hoodie)
 
     try {
       await remoteDb.put({
@@ -99,9 +98,9 @@ test('cryptoStore.unlock(password) should fail if local and remote have no salt 
     account: {
       on: function () {}
     },
-    store: store
+    store: store,
+    cryptoStore: new CryptoStore(store)
   }
-  cryptoStore(hoodie)
 
   try {
     await hoodie.cryptoStore.unlock('test')
