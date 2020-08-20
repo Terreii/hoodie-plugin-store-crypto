@@ -22,7 +22,6 @@ function CryptoStore (store, options) {
       withIdPrefixStore[prefix] = store.withIdPrefix(prefix)
       return withIdPrefixStore[prefix]
     },
-    handleSpecialMembers: options == null || !options.notHandleSpecialDocumentMembers,
     noPasswordCheckAutoFix: options != null && Boolean(options.noPasswordCheckAutoFix)
   }
 
