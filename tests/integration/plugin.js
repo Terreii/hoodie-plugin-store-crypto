@@ -133,30 +133,31 @@ test('default export should be a constructor', t => {
     remote: 'remote-' + name
   }))
 
-  t.is(typeof cryptoStore, 'object')
-  t.is(typeof cryptoStore.add, 'function')
+  t.is(typeof cryptoStore, 'object', 'should be an object')
+  t.is(typeof cryptoStore.add, 'function', 'should have the methods')
 })
 
 test('default export should not listen to account/signout events', t => {
-  t.plan(3)
+  t.plan(1)
 
   const name = uniqueName()
   const store = new Store(name, {
     PouchDB: PouchDB,
     remote: 'remote-' + name
   })
-  let cryptoStore
 
   store.account = {
     on (eventName, handler) {
-      t.equal(eventName, 'signout', 'eventName is signout')
-      t.equal(typeof handler, 'function', 'handler is a function')
-      t.equal(handler, cryptoStore.lock, 'handler is cryptoStore.lock')
+      t.fail('should not add an event listener')
     }
   }
 
   try {
-    cryptoStore = new CryptoStore(store)
+    const cryptoStore = new CryptoStore(store)
+    setTimeout(() => {
+      t.ok(cryptoStore)
+      t.end()
+    }, 10)
   } catch (err) {
     t.end(err)
   }
