@@ -56,7 +56,7 @@
     "puppeteer": "^5.2.1",
     "puppeteer-firefox": "^0.5.1",
     "semantic-release": "^17.1.1",
-    "snyk": "^1.377.1",
+    "snyk": "^1.381.1",
     "standard": "^14.3.4",
     "tap-spec": "^5.0.0",
     "tape": "^5.0.1",
