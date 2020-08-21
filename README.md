@@ -164,7 +164,7 @@ hoodie.account.on('signout', () => {
 ### Get started
 
 To use the cryptoStore you need to set a password for encryption. This can be your users password to
-your app, or a special password, which they will enter or you generate.
+your app, a second password, or a derived password.
 
 There are 5 use-cases you must put in place:
 
@@ -181,7 +181,7 @@ you newly added this plugin.
 
 Use [`cryptoStore.setup(password, [salt])`](#cryptostoresetuppassword) to set the
 encryption password. __`cryptoStore.setup(password, [salt])` will not unlock your cryptoStore instance__
-(just like hoodie.account.signUp)!
+(like hoodie.account.signUp)!
 
 A salt is a second part of a password. `cryptoStore.setup(password, [salt])` will save the generated salt in `hoodiePluginCryptoStore/salt`, and use it. [More about what the salt is](http://www.passwordbreeder.com/page/salt).
 

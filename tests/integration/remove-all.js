@@ -218,6 +218,7 @@ test("cryptoStore.removeAll() shouldn't encrypt fields in cy_ignore and __cy_ign
     ])
 
     await hoodie.cryptoStore.removeAll()
+    await new Promise(resolve => setTimeout(resolve, 10))
   } catch (err) {
     t.end(err)
   }
