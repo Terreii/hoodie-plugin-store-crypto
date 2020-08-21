@@ -9,7 +9,7 @@
 const test = require('tape')
 
 const createCryptoStore = require('../utils/createCryptoStore')
-const addCryptoStoreToHoodie = require('../../')
+const CryptoStore = require('../../index')
 
 function noop () {}
 
@@ -63,21 +63,29 @@ test('cryptoStore.on("add") with adding two', async t => {
   const hoodie = createCryptoStore()
   const objects = []
 
-  hoodie.cryptoStore.on('add', object => {
-    objects.push(object)
+  const eventPromise = new Promise((resolve, reject) => {
+    hoodie.cryptoStore.on('add', object => {
+      objects.push(object)
 
-    if (objects.length < 2) {
-      return
-    }
+      if (objects.length < 2) {
+        return
+      }
 
-    const orderedObjAttrs = [
-      objects[0].foo,
-      objects[1].foo
-    ].sort()
+      const orderedObjAttrs = [
+        objects[0].foo,
+        objects[1].foo
+      ].sort()
 
-    t.is(orderedObjAttrs.length, 2, 'triggers 2 add event')
-    t.is(orderedObjAttrs[0], 'bar', '1st event passes object')
-    t.is(orderedObjAttrs[1], 'baz', '2nd event passes object')
+      try {
+        t.is(orderedObjAttrs.length, 2, 'triggers 2 add event')
+        t.is(orderedObjAttrs[0], 'bar', '1st event passes object')
+        t.is(orderedObjAttrs[1], 'baz', '2nd event passes object')
+
+        resolve()
+      } catch (err) {
+        reject(err)
+      }
+    })
   })
 
   try {
@@ -88,6 +96,10 @@ test('cryptoStore.on("add") with adding two', async t => {
       { foo: 'bar' },
       { foo: 'baz' }
     ])
+
+    t.timeoutAfter(100)
+    await eventPromise
+    t.end()
   } catch (err) {
     t.end(err)
   }
@@ -106,12 +118,24 @@ test(
 
       await hoodie.cryptoStore.add({ foo: 'bar' })
 
-      hoodie.cryptoStore.on('add', object => {
-        t.pass('triggers only 1 add event')
-        t.is(object.foo, 'baz', 'event passes object')
+      const eventPromise = new Promise((resolve, reject) => {
+        hoodie.cryptoStore.on('add', object => {
+          try {
+            t.pass('triggers only 1 add event')
+            t.is(object.foo, 'baz', 'event passes object')
+
+            resolve()
+          } catch (err) {
+            reject(err)
+          }
+        })
       })
 
       hoodie.cryptoStore.add({ foo: 'baz' })
+
+      t.timeoutAfter(100)
+      await eventPromise
+      t.end()
     } catch (err) {
       t.end(err)
     }
@@ -341,21 +365,29 @@ test('cryptoStore.on("remove") with remove all', async t => {
   const hoodie = createCryptoStore()
   const objects = []
 
-  hoodie.cryptoStore.on('remove', object => {
-    objects.push(object)
+  const eventPromise = new Promise((resolve, reject) => {
+    hoodie.cryptoStore.on('remove', object => {
+      objects.push(object)
 
-    if (objects.length < 2) {
-      return
-    }
+      if (objects.length < 2) {
+        return
+      }
 
-    const orderedObjAttrs = [
-      objects[0]._id,
-      objects[1]._id
-    ].sort()
+      const orderedObjAttrs = [
+        objects[0]._id,
+        objects[1]._id
+      ].sort()
 
-    t.is(orderedObjAttrs.length, 2, 'triggers 2 remove events')
-    t.is(orderedObjAttrs[0], 'one', '1st event passes object')
-    t.is(orderedObjAttrs[1], 'two', '2nd event passes object')
+      try {
+        t.is(orderedObjAttrs.length, 2, 'triggers 2 remove events')
+        t.is(orderedObjAttrs[0], 'one', '1st event passes object')
+        t.is(orderedObjAttrs[1], 'two', '2nd event passes object')
+
+        resolve()
+      } catch (err) {
+        reject(err)
+      }
+    })
   })
 
   try {
@@ -368,6 +400,10 @@ test('cryptoStore.on("remove") with remove all', async t => {
     ])
 
     await hoodie.cryptoStore.removeAll()
+
+    t.timeoutAfter(100)
+    await eventPromise
+    t.end()
   } catch (err) {
     t.end(err)
   }
@@ -785,7 +821,7 @@ test('cryptoStore should only listen to events, if a handler was added', async t
   }
   const handler = () => {}
 
-  addCryptoStoreToHoodie(hoodie)
+  hoodie.cryptoStore = new CryptoStore(hoodie.store)
   afterAddingCryptoStore = true
 
   shouldHave = true

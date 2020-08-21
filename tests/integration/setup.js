@@ -4,7 +4,7 @@ const test = require('tape')
 const Store = require('@hoodie/store-client')
 const pouchdbErrors = require('pouchdb-errors')
 
-const cryptoStore = require('../../')
+const CryptoStore = require('../../index')
 const createKey = require('../../lib/create-key')
 const decrypt = require('../../lib/decrypt-doc')
 
@@ -104,9 +104,9 @@ test('cryptoStore.setup(password) should throw if a salt doc exists on remote', 
     account: {
       on: function () {}
     },
-    store: store
+    store: store,
+    cryptoStore: new CryptoStore(store)
   }
-  cryptoStore(hoodie)
 
   await remoteDb.put({
     _id: 'hoodiePluginCryptoStore/salt',
@@ -139,9 +139,9 @@ test('cryptoStore.setup(password) should ignore old salt doc', async t => {
     account: {
       on: function () {}
     },
-    store: store
+    store: store,
+    cryptoStore: new CryptoStore(store)
   }
-  cryptoStore(hoodie)
 
   await remoteDb.put({
     _id: '_design/cryptoStore/salt',

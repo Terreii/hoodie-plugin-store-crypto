@@ -360,10 +360,9 @@ test("cryptoStore.remove() shouldn't encrypt fields in cy_ignore and __cy_ignore
 })
 
 test("cryptoStore.remove() shouldn't encrypt fields starting with _", async t => {
-  t.plan(4)
+  t.plan(1)
 
   const hoodie = createCryptoStore()
-  const hoodie2 = createCryptoStore({ notHandleSpecialDocumentMembers: true })
 
   try {
     await hoodie.cryptoStore.setup('test')
@@ -377,25 +376,6 @@ test("cryptoStore.remove() shouldn't encrypt fields starting with _", async t =>
     t.fail(new Error('should have thrown with doc_validation'))
   } catch (err) {
     t.is(err.name, 'doc_validation', 'value with _ was passed on')
-  }
-
-  hoodie2.store.on('remove', obj => {
-    t.is(obj.value, undefined, 'members still get encrypted')
-    t.is(obj._other, undefined, 'members starting with _ are encrypted')
-  })
-
-  try {
-    await hoodie2.cryptoStore.setup('test')
-    await hoodie2.cryptoStore.unlock('test')
-
-    const obj = await hoodie2.cryptoStore.add({ value: 42 })
-
-    const updated = await hoodie2.cryptoStore.remove(obj._id, {
-      _other: 'test value'
-    })
-    t.is(updated._other, 'test value', 'values starting with _ are added')
-  } catch (err) {
-    t.end(err)
   }
 })
 

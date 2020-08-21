@@ -218,16 +218,16 @@ test("cryptoStore.removeAll() shouldn't encrypt fields in cy_ignore and __cy_ign
     ])
 
     await hoodie.cryptoStore.removeAll()
+    await new Promise(resolve => setTimeout(resolve, 10))
   } catch (err) {
     t.end(err)
   }
 })
 
 test("cryptoStore.removeAll() shouldn't encrypt fields starting with _", async t => {
-  t.plan(6)
+  t.plan(2)
 
   const hoodie = createCryptoStore()
-  const hoodie2 = createCryptoStore({ notHandleSpecialDocumentMembers: true })
 
   try {
     await hoodie.cryptoStore.setup('test')
@@ -252,44 +252,6 @@ test("cryptoStore.removeAll() shouldn't encrypt fields starting with _", async t
   } catch (err) {
     t.ok(err instanceof Error, 'Update did fail')
     t.is(err.name, 'doc_validation', 'value with _ was passed on')
-  }
-
-  hoodie2.store.on('remove', obj => {
-    switch (obj._id) {
-      case 'a':
-        t.is(obj.value, undefined, 'values still get encrypted')
-        t.is(obj._other, undefined, 'values starting with _ are encrypted')
-        break
-
-      case 'b':
-        t.is(obj.other, undefined, 'values still get encrypted')
-        t.is(obj._value, undefined, 'values starting with _ are encrypted')
-        break
-
-      default:
-        t.fail('unknown id')
-    }
-  })
-
-  try {
-    await hoodie2.cryptoStore.setup('test')
-    await hoodie2.cryptoStore.unlock('test')
-
-    await hoodie2.cryptoStore.add([
-      {
-        _id: 'a',
-        value: 42,
-        _other: 'test value'
-      },
-      {
-        _id: 'b',
-        _value: 42,
-        other: 'test value'
-      }
-    ])
-    await hoodie2.cryptoStore.removeAll()
-  } catch (err) {
-    t.end(err)
   }
 })
 

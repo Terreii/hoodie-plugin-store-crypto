@@ -145,7 +145,18 @@ var hoodie = new Hoodie({ // create an instance of the hoodie-client
   PouchDB: PouchDB
 })
 
-cryptoStore(hoodie) // sets up hoodie.cryptoStore
+// sets up hoodie.cryptoStore
+var cryptoStore = new CryptoStore(hoodie.store, { /* some options */})
+
+cryptoStore.setup('test')
+  .then(function () {
+    console.log('done')
+  })
+
+// lock the cryptoStore on sign out
+hoodie.account.on('signout', () => {
+  cryptoStore.lock()
+})
 ```
 
 [Back to top](#table-of-contents)
@@ -153,7 +164,7 @@ cryptoStore(hoodie) // sets up hoodie.cryptoStore
 ### Get started
 
 To use the cryptoStore you need to set a password for encryption. This can be your users password to
-your app, or a special password, which they will enter or you generate.
+your app, a second password, or a derived password.
 
 There are 5 use-cases you must put in place:
 
@@ -170,7 +181,7 @@ you newly added this plugin.
 
 Use [`cryptoStore.setup(password, [salt])`](#cryptostoresetuppassword) to set the
 encryption password. __`cryptoStore.setup(password, [salt])` will not unlock your cryptoStore instance__
-(just like hoodie.account.signUp)!
+(like hoodie.account.signUp)!
 
 A salt is a second part of a password. `cryptoStore.setup(password, [salt])` will save the generated salt in `hoodiePluginCryptoStore/salt`, and use it. [More about what the salt is](http://www.passwordbreeder.com/page/salt).
 
@@ -218,11 +229,12 @@ async function signIn (username, password, cryptoPassword) {
 
 #### Sign out
 
-`cryptoStore` will automatically listen to [`account.on('signout')`](http://docs.hood.ie/en/latest/api/client/hoodie.account.html#events) events. And locks itself if it emits an event. You don't need to add any setup for it.
+If you use hoodie's plugin system, then `cryptoStore` will automatically listen to [`account.on('signout')`](http://docs.hood.ie/en/latest/api/client/hoodie.account.html#events) events. And locks itself if it emits an event. You don't need to add any setup for it.
 
 Use-cases for the [`cryptoStore.lock()`](#cryptostorelock) method are:
  - a lock after a timeout functionality
  - lock the store in a save way when closing an tab.
+ - lock on sign out, if you didn't use hoodie's plugin system.
 
 ```javascript
 window.addEventListener('beforeunload', function (event) {
@@ -230,6 +242,11 @@ window.addEventListener('beforeunload', function (event) {
   // lock the cryptoStore in an cryptographic saver way.
   // It overwrites the key data 10 times.
   hoodie.cryptoStore.lock()
+})
+
+// or on sign out
+hoodie.account.on('signout', () => {
+  cryptoStore.lock()
 })
 ```
 
