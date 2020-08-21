@@ -12,7 +12,7 @@
   - [Documents from this plugin](#documents-from-this-plugin)
   - [Concepts of cryptoStore.withPassword](#concepts-of-cryptostorewithpassword)
 - [Methods](#methods)
-  - [cryptoStore (setup function)](#cryptostore-setup-function)
+  - [Constructor](#constructor)
   - [cryptoStore.setup(password)](#cryptostoresetuppassword)
   - [cryptoStore.setup(password, salt)](#cryptostoresetuppassword-salt)
   - [cryptoStore.unlock(password)](#cryptostorelock)
@@ -60,7 +60,7 @@ Those concepts/rules apply to all methods.
 
 **Everything of a doc will get encrypted. Except for `_id`, `_rev`, `_deleted`, `_attachments`, `_conflicts` and the `hoodie` object!**
 
-Also _all keys that start with an underscore (\_) will not get encrypted_! Because they are __special document members__ used by CouchDB and PouchDB! To deactivated this set the *plugin option* `notHandleSpecialDocumentMembers` to `true`.
+Also _all keys that start with an underscore (\_) will not get encrypted_! Because they are __special document members__ used by CouchDB and PouchDB!
 
 **Don't save private data in the `_id`**!
 
@@ -158,42 +158,51 @@ It allows to encrypt documents with a different password (and salt). It is like 
 
 ## Methods
 
-### cryptoStore (setup function)
+### Constructor
 
 ```javascript
-cryptoStore(hoodie, options)
+new CryptoStore(store, options)
 ```
 
 Setup the __cryptoStore__ and adds it to hoodie.
 
 Argument | Type   | Description | Required
 ---------|--------|-------------|----------
-`hoodie` | Object | Hoodie client instance | Yes
+`store` | Object | Hoodie's client-store instance | Yes
 `options.noPasswordCheckAutoFix` | Boolean | [Deactivate password-check autofix](#v2-update-notes). Default is `false` | No
-`options.notHandleSpecialDocumentMembers` | Boolean | [Encrypt all fields with a key that start with an `_`](#what-gets-encrypted). Default is `false` | No
 
-Returns `undefined`
+Returns `cryptoStore` API.
 
 __Required if you setup your hoodie-client yourself! Else Hoodie does it for you!__
 
 Example
 ```javascript
-var Hoodie = require('@hoodie/client')
+var Store = require('@hoodie/store-client')
 var PouchDB = require('pouchdb')
 var cryptoStore = require('hoodie-plugin-store-crypto')
 
-var hoodie = new Hoodie({ // create an instance of the hoodie-client
-  url: window.location.origin,
-  PouchDB: PouchDB
+var store = new Store('mydbname', {
+  PouchDB: PouchDB,
+  remote: 'http://localhost:5984/mydbname'
 })
 
-cryptoStore(hoodie) // sets up hoodie.cryptoStore
+var cryptoStore = new CryptoStore(store, { /* some options */}) // sets up hoodie.cryptoStore
 
-hoodie.cryptoStore.setup('test')
+cryptoStore.setup('test')
   .then(function () {
     console.log('done')
   })
 ```
+
+To lock the cryptoStore on sign out you have to listen to [hoodie's `signout` event](https://github.com/hoodiehq/hoodie-account-client#events).
+
+```javascript
+hoodie.account.on('signout', () => {
+  cryptoStore.lock()
+})
+```
+
+If you use Hoodie's plugin API, then locking on sign out is already setup for you.
 
 ### cryptoStore.setup(password)
 

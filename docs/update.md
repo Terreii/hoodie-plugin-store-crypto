@@ -11,6 +11,7 @@ It will list all changes, you have to make, if you update to:
 - [v2.2](#v22-update-notes)
 - [v2.3](#v23-update-notes)
 - [v3](#v3-update-notes)
+- [v4](#v4-update-notes)
 
 ## v2 Update Notes
 
@@ -175,3 +176,34 @@ If you are still using node v6: please migrate to a newer version! Node version 
 All document members/fields that start with an `_` will now not encrypted.
 
 To deactivate it set the option `notHandleSpecialDocumentMembers` to `true`.
+
+## v4 Update Notes
+
+### Constructor export
+
+The main export (`require('hoodie-plugin-crypto-store')`) is now a constructor. It requires a hoodie-store
+and optionally options.
+
+```javascript
+const CryptoStore = require('hoodie-plugin-crypto-store')
+
+const cryptoStore = new CryptoStore(hoodie.store, {
+  // some options
+})
+```
+
+The constructor will not listen to `signout` events. If you want to lock the CryptoStore instance,
+then you have to manually listen to [hoodie's `signout` event](https://github.com/hoodiehq/hoodie-account-client#events).
+
+```javascript
+hoodie.account.on('signout', () => {
+  cryptoStore.lock()
+})
+```
+
+If you use hoodie's plugin system, then nothing will change for you.
+
+### Removing of notHandleSpecialDocumentMembers-option
+
+The `notHandleSpecialDocumentMembers` option got removed with v4.
+All fields that start with an "_" will not get encrypted!
