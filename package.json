@@ -4,7 +4,7 @@
   "description": "End-to-end crypto plugin for the Hoodie client store.",
   "main": "index.js",
   "engines": {
-    "node": ">=8"
+    "node": ">=10"
   },
   "scripts": {
     "update-coc": "weallbehave -o . && git add CODE_OF_CONDUCT.md && git commit -m 'docs(coc): updated CODE_OF_CONDUCT.md'",
