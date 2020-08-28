@@ -138,7 +138,7 @@ Then import it and set it up:
 ```javascript
 var Hoodie = require('@hoodie/client')
 var PouchDB = require('pouchdb')
-var cryptoStore = require('hoodie-plugin-store-crypto')
+var CryptoStore = require('hoodie-plugin-store-crypto')
 
 var hoodie = new Hoodie({ // create an instance of the hoodie-client
   url: window.location.origin,
