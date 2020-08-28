@@ -5,6 +5,7 @@ const Promise = require('lie')
 const pouchdbErrors = require('pouchdb-errors')
 
 const createCryptoStore = require('../utils/createCryptoStore')
+const createPouchCryptoStore = require('../utils/createPouchCryptoStore')
 const createKey = require('../../lib/create-key')
 const decrypt = require('../../lib/decrypt-doc')
 
@@ -295,6 +296,42 @@ test('cryptoStore.changePassword() should only update objects that it can decryp
     const notUpdated = await hoodie.store.find('notUpdate')
     t.is(notUpdated._id, 'notUpdate', 'correct id')
     t.ok(/^1-/.test(notUpdated._rev), 'revision is 1')
+  } catch (err) {
+    t.end(err)
+  }
+})
+
+test('cryptoStore.changePassword() should work with pouchdb-hoodie-api', async t => {
+  t.plan(11)
+
+  const { db, cryptoStore } = createPouchCryptoStore()
+
+  try {
+    await cryptoStore.setup('test')
+    await cryptoStore.unlock('test')
+
+    const decrypted = await cryptoStore.add({ test: 'value' })
+    const encrypted = await db.get(decrypted._id)
+    const oldSaltDoc = await db.get('hoodiePluginCryptoStore/salt')
+
+    const report = await cryptoStore.changePassword('test', 'nextPassword')
+    t.ok(Array.isArray(report.notUpdated), 'returns the notUpdated array')
+    t.is(report.notUpdated.length, 0, 'returns the notUpdated array')
+
+    const updatedDecrypted = await cryptoStore.find(decrypted._id)
+    t.is(updatedDecrypted._id, decrypted._id, 'id matches')
+    t.is(updatedDecrypted.test, decrypted.test, 'test value matches')
+    t.isNot(updatedDecrypted._rev, decrypted._rev, '_rev value matches not')
+
+    const updatedEncrypted = await db.get(decrypted._id)
+    t.notEqual(updatedEncrypted.tag, encrypted.tag, 'tag should not be equal')
+    t.notEqual(updatedEncrypted.data, encrypted.data, 'data should not be equal')
+    t.notEqual(updatedEncrypted.nonce, encrypted.nonce, 'nonce should not be equal')
+
+    const newSaltDoc = await db.get('hoodiePluginCryptoStore/salt')
+    t.notEqual(newSaltDoc.check.tag, oldSaltDoc.check.tag, 'tag should not be equal')
+    t.notEqual(newSaltDoc.check.data, oldSaltDoc.check.data, 'data should not be equal')
+    t.notEqual(newSaltDoc.check.nonce, oldSaltDoc.check.nonce, 'nonce should not be equal')
   } catch (err) {
     t.end(err)
   }

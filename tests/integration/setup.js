@@ -9,6 +9,7 @@ const createKey = require('../../lib/create-key')
 const decrypt = require('../../lib/decrypt-doc')
 
 const createCryptoStore = require('../utils/createCryptoStore')
+const createPouchCryptoStore = require('../utils/createPouchCryptoStore')
 const PouchDB = require('../utils/pouchdb.js')
 const uniqueName = require('../utils/unique-name')
 
@@ -264,3 +265,65 @@ test('cryptoStore.setup(password) should save ten reset docs', async t => {
     t.end(err)
   }
 })
+
+test('cryptoStore.setup(password) should work with pouchdb-hoodie-api', async t => {
+  t.plan(7)
+
+  const { db, cryptoStore } = createPouchCryptoStore()
+
+  try {
+    const keys = await cryptoStore.setup('test')
+    t.ok(Array.isArray(keys), 'returns keys')
+
+    const docs = await db.allDocs({
+      startkey: 'hoodiePluginCryptoStore/pwReset',
+      endkey: 'hoodiePluginCryptoStore/pwReset\uffff',
+      include_docs: true
+    })
+
+    t.is(docs.rows.length, 10, 'did store 10 documents')
+
+    const saltDoc = await db.get('hoodiePluginCryptoStore/salt')
+    t.is(typeof saltDoc.salt, 'string', 'salt exists')
+    t.is(saltDoc.salt.length, 32, 'salt has correct length')
+    t.ok(saltDoc.check.tag.length === 32, 'tag part should have a length of 32')
+    t.ok(saltDoc.check.data.length > 0, 'encrypted data')
+    t.ok(saltDoc.check.nonce.length === 24, 'nonce should have a length of 24')
+  } catch (err) {
+    t.end(err)
+  }
+})
+
+test(
+  'cryptoStore.setup(password) with pouchdb-hoodie-api should throw if a salt doc exists',
+  async t => {
+    t.plan(2)
+
+    const { db, remote, cryptoStore } = createPouchCryptoStore()
+    const firstSaltDoc = await db.put({
+      _id: 'hoodiePluginCryptoStore/salt',
+      salt: 'bf11fa9bafca73586e103d60898989d4'
+    })
+
+    try {
+      await cryptoStore.setup('test')
+      t.fail('it should have failed, because a salt doc exists')
+    } catch (err) {
+      t.equal(err.name, pouchdbErrors.UNAUTHORIZED.name, 'fails with PouchDB unauthorized error')
+    }
+
+    try {
+      await db.remove(firstSaltDoc.id, firstSaltDoc.rev)
+
+      await remote.put({
+        _id: 'hoodiePluginCryptoStore/salt',
+        salt: 'bf11fa9bafca73586e103d60898989d4'
+      })
+
+      await cryptoStore.setup('test')
+      t.fail('it should have failed, because a salt doc exists on remote')
+    } catch (err) {
+      t.equal(err.name, pouchdbErrors.UNAUTHORIZED.name, 'fails with PouchDB unauthorized error')
+    }
+  }
+)

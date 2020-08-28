@@ -153,3 +153,30 @@ test('default export does not encrypt fields starting with _', async t => {
     t.is(err.name, 'doc_validation', 'value with _ was passed on')
   }
 })
+
+test('default export works with pouchdb-hoodie-api', async t => {
+  t.plan(3)
+
+  const name = uniqueName()
+
+  try {
+    const db = new PouchDB(name, { adapter: 'memory' })
+    const remote = new PouchDB('remote-' + name, { adapter: 'memory' })
+    const cryptoStore = new CryptoStore(db.hoodieApi(), { remote })
+
+    await cryptoStore.setup('test')
+    await cryptoStore.unlock('test')
+
+    const result = await cryptoStore.add({
+      value: 42
+    })
+    const obj = await cryptoStore.find(result._id)
+    const doc = await db.get(obj._id)
+
+    t.deepEqual(result, obj, 'did store object')
+    t.is(doc._id, obj._id, 'did save document')
+    t.is(doc.value, undefined, 'did encrypt document')
+  } catch (err) {
+    t.end(err)
+  }
+})
