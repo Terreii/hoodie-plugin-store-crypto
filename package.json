@@ -52,6 +52,7 @@
     "hoodie": "^28.2.10",
     "pouchdb-adapter-memory": "^7.2.2",
     "pouchdb-core": "^7.2.2",
+    "pouchdb-hoodie-api": "^2.0.0",
     "pouchdb-replication": "^7.2.2",
     "puppeteer": "^5.2.1",
     "puppeteer-firefox": "^0.5.1",
