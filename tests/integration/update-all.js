@@ -10,6 +10,7 @@ const test = require('tape')
 const pouchdbErrors = require('pouchdb-errors')
 
 const createCryptoStore = require('../utils/createCryptoStore')
+const createPouchCryptoStore = require('../utils/createPouchCryptoStore')
 const checkTime = require('../utils/checkTime')
 
 test('cryptoStore.updateAll(changedProperties)', async t => {
@@ -317,4 +318,36 @@ test('cryptoStore.updateAll() should throw if plugin isn\'t unlocked', async t =
   }
 
   t.end()
+})
+
+test('cryptoStore.updateAll() should work with pouchdb-hoodie-api', async t => {
+  t.plan(6)
+
+  const { db, cryptoStore } = createPouchCryptoStore()
+
+  try {
+    await cryptoStore.setup('test')
+    await cryptoStore.unlock('test')
+
+    await db.put({
+      _id: 'a',
+      foo: 'bar'
+    })
+    await cryptoStore.add({
+      _id: 'b',
+      foo: 'baz'
+    })
+
+    const moarObjects = await cryptoStore.updateAll({ other: 'moar' })
+    t.is(moarObjects.length, 2, 'resolves all')
+    t.is(moarObjects[0].foo, 'bar', 'decrypt value')
+    t.is(moarObjects[0].other, 'moar', 'decrypt new value')
+    t.is(moarObjects[1].foo, 'baz', 'decrypt value')
+    t.is(moarObjects[1].other, 'moar', 'decrypt new value')
+
+    const encrypted = await db.get('a')
+    t.is(encrypted.foo, undefined, 'did encrypt old doc')
+  } catch (err) {
+    t.end(err)
+  }
 })

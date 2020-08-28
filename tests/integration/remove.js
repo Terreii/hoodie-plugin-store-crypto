@@ -10,6 +10,7 @@ const test = require('tape')
 const pouchdbErrors = require('pouchdb-errors')
 
 const createCryptoStore = require('../utils/createCryptoStore')
+const createPouchCryptoStore = require('../utils/createPouchCryptoStore')
 const checkTime = require('../utils/checkTime')
 
 test('removes existing by id', async t => {
@@ -402,4 +403,29 @@ test('cryptoStore.remove() should throw if plugin isn\'t unlocked', async t => {
   }
 
   t.end()
+})
+
+test('cryptoStore.remove() should work with pouchdb-hoodie-api', async t => {
+  t.plan(3)
+
+  const { cryptoStore } = createPouchCryptoStore()
+
+  try {
+    await cryptoStore.setup('test')
+    await cryptoStore.unlock('test')
+
+    await cryptoStore.add({
+      _id: 'foo',
+      bar: 'baz'
+    })
+
+    const object = await cryptoStore.remove('foo')
+    t.is(object._id, 'foo', 'resolves value')
+    t.is(object.bar, 'baz', 'resolves value')
+
+    await cryptoStore.find('foo')
+    t.fail("find didn't fail")
+  } catch (error) {
+    t.ok(error instanceof Error, 'rejects error')
+  }
 })

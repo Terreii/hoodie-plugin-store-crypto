@@ -10,6 +10,7 @@ const test = require('tape')
 const pouchdbErrors = require('pouchdb-errors')
 
 const createCryptoStore = require('../utils/createCryptoStore')
+const createPouchCryptoStore = require('../utils/createPouchCryptoStore')
 
 test('cryptoStore.find(id)', async t => {
   t.plan(2)
@@ -228,6 +229,24 @@ test('cryptoStore.find() should throw if plugin isn\'t unlocked', async t => {
   }
 
   t.end()
+})
+
+test('cryptoStore.find() should work with pouchdb-hoodie-api', async t => {
+  t.plan(1)
+
+  const { cryptoStore } = createPouchCryptoStore()
+
+  try {
+    await cryptoStore.setup('test')
+    await cryptoStore.unlock('test')
+
+    const obj = await cryptoStore.add({ value: 'test' })
+    const found = await cryptoStore.find(obj._id)
+
+    t.deepEqual(obj, found, 'both decrypted objects match')
+  } catch (err) {
+    t.end(err)
+  }
 })
 
 // todo: check for timestamps
