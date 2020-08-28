@@ -3,6 +3,7 @@
 const test = require('tape')
 
 const createCryptoStore = require('../utils/createCryptoStore')
+const createPouchCryptoStore = require('../utils/createPouchCryptoStore')
 
 test('cryptoStore has a withPassword method', t => {
   t.plan(2)
@@ -275,5 +276,39 @@ test('cryptoStore.withPassword("test") should pass _ option on', async t => {
     t.fail(new Error('should have thrown with doc_validation'))
   } catch (err) {
     t.is(err.name, 'doc_validation', 'value with _ was passed on')
+  }
+})
+
+test('cryptoStore.withPassword("test/") should work with pouchdb-hoodie-api', async t => {
+  t.plan(3)
+
+  const { db, cryptoStore } = createPouchCryptoStore()
+
+  try {
+    await cryptoStore.setup('other')
+    await cryptoStore.unlock('other')
+
+    const api = cryptoStore.withPassword('test')
+    const addEvent = new Promise((resolve, reject) => {
+      api.on('add', (object) => {
+        try {
+          t.is(object._id, 'test/b')
+          resolve()
+        } catch (err) {
+          reject(err)
+        }
+      })
+    })
+
+    const obj = await api.add({ _id: 'b', test: 'value' })
+    t.is(obj._id, 'b', 'has correct id')
+
+    const encrypted = await db.get(obj._id)
+    t.is(encrypted.test, undefined, 'was encrypted')
+
+    await addEvent
+    t.end()
+  } catch (err) {
+    t.end(err)
   }
 })

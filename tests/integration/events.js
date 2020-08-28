@@ -9,6 +9,7 @@
 const test = require('tape')
 
 const createCryptoStore = require('../utils/createCryptoStore')
+const createPouchCryptoStore = require('../utils/createPouchCryptoStore')
 const CryptoStore = require('../../index')
 
 function noop () {}
@@ -910,6 +911,47 @@ test("cryptoStore shouldn't emit events for hoodiePluginCryptoStore/ docs", asyn
 
     t.equal(eventCount, 0, 'No events for hoodiePluginCryptoStore docs should be emitted.')
     t.end()
+  } catch (err) {
+    t.end(err)
+  }
+})
+
+test('cryptoStore events should work with pouchdb-hoodie-api', async t => {
+  t.plan(0)
+
+  const { cryptoStore } = createPouchCryptoStore()
+  let eventCount = 0
+
+  const eventPromise = new Promise((resolve, reject) => {
+    const events = ['add', 'update', 'remove']
+
+    cryptoStore.on('change', (eventName, object) => {
+      try {
+        t.is(eventName, events[eventCount], 'passes the event name')
+        t.is(object.foo, eventCount === 0 ? 'bar' : 'baz', 'event passes object')
+        eventCount += 1
+
+        if (eventCount === 3) {
+          resolve()
+        }
+      } catch (err) {
+        reject(err)
+      }
+    })
+  })
+
+  try {
+    await cryptoStore.setup('test')
+    await cryptoStore.unlock('test')
+
+    await cryptoStore.add({ _id: 'a', foo: 'bar' })
+    await cryptoStore.update({ _id: 'a', foo: 'bar' })
+    await cryptoStore.remove({ _id: 'a', foo: 'bar' })
+
+    t.timeoutAfter(100)
+    await eventPromise
+
+    t.is(eventCount, 3, 'number of events')
   } catch (err) {
     t.end(err)
   }
