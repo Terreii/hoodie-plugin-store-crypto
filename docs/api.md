@@ -205,6 +205,9 @@ hoodie.account.on('signout', () => {
 
 If you use Hoodie's plugin API, then locking on sign out is already setup for you.
 
+If used with [pouchdb-hoodie-api](http://hoodiehq.github.io/pouchdb-hoodie-api/) then the CryptoStore can't
+lock itself, too.
+
 ### cryptoStore.setup(password)
 
 ```javascript

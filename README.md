@@ -66,7 +66,7 @@ hoodie.cryptoStore.setup('secret')
 - Usage
   - [Add it to your Hoodie-Client](#add-it-to-your-hoodie-client)
     - [with the Hoodie Plugin API](#usage-with-the-hoodie-plugin-api)
-    - [with Browserify or Webpack](#usage-with-browserify-or-webpack)
+    - [with a Bundler](#usage-with-a-bundler)
     - [with PouchDB and pouchdb-hoodie-api](#usage-with-pouchdb-and-pouchdb-hoodie-api)
   - [Get started](#get-started)
     - [Sign up / setup / start of using encryption](#setup)
@@ -126,7 +126,7 @@ property on your client `hoodie` instance. You can access it with
 
 [Back to top](#table-of-contents)
 
-#### Usage with Browserify or Webpack
+#### Usage with a Bundler
 
 If you are using a client bundler (e.g. [Browserify](http://browserify.org/)
 or [Webpack](https://webpack.js.org)), then you can import it manually.
@@ -140,17 +140,17 @@ npm install --save-dev hoodie-plugin-store-crypto
 Then import it and set it up:
 
 ```javascript
-var Hoodie = require('@hoodie/client')
-var PouchDB = require('pouchdb')
-var CryptoStore = require('hoodie-plugin-store-crypto')
+import Hoodie from '@hoodie/client'
+import PouchDB from 'pouchdb'
+import CryptoStore from 'hoodie-plugin-store-crypto'
 
-var hoodie = new Hoodie({ // create an instance of the hoodie-client
+const hoodie = new Hoodie({ // create an instance of the hoodie-client
   url: window.location.origin,
   PouchDB: PouchDB
 })
 
 // sets up cryptoStore
-var cryptoStore = new CryptoStore(hoodie.store, { /* some options */})
+const cryptoStore = new CryptoStore(hoodie.store, { /* some options */})
 
 cryptoStore.setup('test')
   .then(function () {
@@ -174,7 +174,7 @@ To use this plugin with [PouchDB](https://pouchdb.com/) you must install the plu
 npm install --save-dev pouchdb-hoodie-api
 ```
 
-Setup is like the [usage with Bundler](#usage-with-browserify-or-webpack), but you must pass the
+Setup is like the [usage with Bundler](#usage-with-a-bundler), but you must pass the
 the `db.hoodieApi()` from __pouchdb-hoodie-api__. And optionally a remote PouchDB database (or its URL)
 for checking and fetching the existence of the encryption setup.
 
