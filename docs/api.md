@@ -168,8 +168,9 @@ Setup the __cryptoStore__ and adds it to hoodie.
 
 Argument | Type   | Description | Required
 ---------|--------|-------------|----------
-`store` | Object | Hoodie's client-store instance | Yes
+`store` | Object | Hoodie's client-store instance or hoodieApi instance from `pouchdb-hoodie-api` | Yes
 `options.noPasswordCheckAutoFix` | Boolean | [Deactivate password-check autofix](#v2-update-notes). Default is `false` | No
+`options.remote` | PouchDB | Remote database. Used to check and fetch the salt doc. | No
 
 Returns `cryptoStore` API.
 
@@ -179,14 +180,14 @@ Example
 ```javascript
 var Store = require('@hoodie/store-client')
 var PouchDB = require('pouchdb')
-var cryptoStore = require('hoodie-plugin-store-crypto')
+var CryptoStore = require('hoodie-plugin-store-crypto')
 
 var store = new Store('mydbname', {
   PouchDB: PouchDB,
   remote: 'http://localhost:5984/mydbname'
 })
 
-var cryptoStore = new CryptoStore(store, { /* some options */}) // sets up hoodie.cryptoStore
+var cryptoStore = new CryptoStore(store, { /* some options */}) // sets up the cryptoStore
 
 cryptoStore.setup('test')
   .then(function () {
@@ -203,6 +204,9 @@ hoodie.account.on('signout', () => {
 ```
 
 If you use Hoodie's plugin API, then locking on sign out is already setup for you.
+
+If used with [pouchdb-hoodie-api](http://hoodiehq.github.io/pouchdb-hoodie-api/) then the CryptoStore can't
+lock itself, too.
 
 ### cryptoStore.setup(password)
 

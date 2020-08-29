@@ -20,6 +20,9 @@ It does this by adding an object to your Hoodie-client, with similar methods
 to the client's store. Those methods encrypt and decrypt objects, while using the
 corresponding methods from Hoodie to save them.
 
+The [PouchDB](https://pouchdb.com/) plugin [pouchdb-hoodie-api](http://hoodiehq.github.io/pouchdb-hoodie-api/)
+is also supported!
+
 There is no server side to this plugin!
 
 **Everything of a doc will get encrypted. Except for `_id`, `_rev`, `_deleted`, `_attachments`, `_conflicts` and the `hoodie` object! And _all keys that start with an underscore (\_) will not get encrypted_!**
@@ -63,7 +66,8 @@ hoodie.cryptoStore.setup('secret')
 - Usage
   - [Add it to your Hoodie-Client](#add-it-to-your-hoodie-client)
     - [with the Hoodie Plugin API](#usage-with-the-hoodie-plugin-api)
-    - [with Browserify or Webpack](#usage-with-browserify-or-webpack)
+    - [with a Bundler](#usage-with-a-bundler)
+    - [with PouchDB and pouchdb-hoodie-api](#usage-with-pouchdb-and-pouchdb-hoodie-api)
   - [Get started](#get-started)
     - [Sign up / setup / start of using encryption](#setup)
     - [Sign in / unlocking](#sign-in)
@@ -122,7 +126,7 @@ property on your client `hoodie` instance. You can access it with
 
 [Back to top](#table-of-contents)
 
-#### Usage with Browserify or Webpack
+#### Usage with a Bundler
 
 If you are using a client bundler (e.g. [Browserify](http://browserify.org/)
 or [Webpack](https://webpack.js.org)), then you can import it manually.
@@ -136,17 +140,17 @@ npm install --save-dev hoodie-plugin-store-crypto
 Then import it and set it up:
 
 ```javascript
-var Hoodie = require('@hoodie/client')
-var PouchDB = require('pouchdb')
-var cryptoStore = require('hoodie-plugin-store-crypto')
+import Hoodie from '@hoodie/client'
+import PouchDB from 'pouchdb'
+import CryptoStore from 'hoodie-plugin-store-crypto'
 
-var hoodie = new Hoodie({ // create an instance of the hoodie-client
+const hoodie = new Hoodie({ // create an instance of the hoodie-client
   url: window.location.origin,
   PouchDB: PouchDB
 })
 
-// sets up hoodie.cryptoStore
-var cryptoStore = new CryptoStore(hoodie.store, { /* some options */})
+// sets up cryptoStore
+const cryptoStore = new CryptoStore(hoodie.store, { /* some options */})
 
 cryptoStore.setup('test')
   .then(function () {
@@ -157,6 +161,47 @@ cryptoStore.setup('test')
 hoodie.account.on('signout', () => {
   cryptoStore.lock()
 })
+```
+
+[Back to top](#table-of-contents)
+
+#### Usage with PouchDB and pouchdb-hoodie-api
+
+To use this plugin with [PouchDB](https://pouchdb.com/) you must install the plugin
+[pouchdb-hoodie-api](http://hoodiehq.github.io/pouchdb-hoodie-api/).
+
+```js
+npm install --save-dev pouchdb-hoodie-api
+```
+
+Setup is like the [usage with Bundler](#usage-with-a-bundler), but you must pass the
+the `db.hoodieApi()` from __pouchdb-hoodie-api__. And optionally a remote PouchDB database (or its URL)
+for checking and fetching the existence of the encryption setup.
+
+```javascript
+import PouchDB from 'pouchdb-browser'
+import hoodieApiPlugin from 'pouchdb-hoodie-api'
+import CryptoStore from 'hoodie-plugin-store-crypto'
+
+PouchDB.plugin(hoodieApiPlugin)
+
+const db = new PouchDB('local_db')
+const remoteDb = new PouchDB('https://example.com/my_db', {
+  auth: {
+    username: 'user',
+    password: 'geheim'
+  }
+})
+
+// sets up cryptoStore
+const cryptoStore = new CryptoStore(db.hoodieApi(), {
+  remote: remoteDb
+})
+
+cryptoStore.setup('test')
+  .then(() => {
+    console.log('done')
+  })
 ```
 
 [Back to top](#table-of-contents)

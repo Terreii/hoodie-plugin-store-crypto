@@ -10,6 +10,7 @@ const test = require('tape')
 const pouchdbErrors = require('pouchdb-errors')
 
 const createCryptoStore = require('../utils/createCryptoStore')
+const createPouchCryptoStore = require('../utils/createPouchCryptoStore')
 const checkTime = require('../utils/checkTime')
 
 test('cryptoStore.removeAll()', async t => {
@@ -279,4 +280,38 @@ test('cryptoStore.removeAll() should throw if plugin isn\'t unlocked', async t =
   }
 
   t.end()
+})
+
+test('cryptoStore.removeAll() should work with pouchdb-hoodie-api', async t => {
+  t.plan(6)
+
+  const { db, cryptoStore } = createPouchCryptoStore()
+
+  try {
+    await cryptoStore.setup('test')
+    await cryptoStore.unlock('test')
+
+    await db.put({ _id: 'notEncrypted', foo: 'bar' })
+    await cryptoStore.add([
+      { _id: 'encrypted', foo: 'bar' },
+      { foo: 'bar', bar: 'foo' }
+    ])
+
+    const objects = await cryptoStore.removeAll()
+
+    t.is(objects.length, 3, 'resolves all')
+    t.is(objects[0].foo, 'bar', 'resolves with properties')
+
+    objects.forEach(object => {
+      t.is(parseInt(object._rev, 10), 2, 'new revision')
+    })
+
+    const allDocs = await db.allDocs({ include_docs: true })
+    const filtered = allDocs.rows.filter(
+      row => !row.id.startsWith('hoodiePluginCryptoStore/')
+    )
+    t.is(filtered.length, 0, 'no objects can be found in store')
+  } catch (err) {
+    t.end(err)
+  }
 })

@@ -22,6 +22,7 @@ function CryptoStore (store, options) {
       withIdPrefixStore[prefix] = store.withIdPrefix(prefix)
       return withIdPrefixStore[prefix]
     },
+    remote: options && options.remote,
     noPasswordCheckAutoFix: options != null && Boolean(options.noPasswordCheckAutoFix)
   }
 

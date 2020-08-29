@@ -6,6 +6,7 @@ const pouchdbErrors = require('pouchdb-errors')
 
 const CryptoStore = require('../../index')
 const createCryptoStore = require('../utils/createCryptoStore')
+const createPouchCryptoStore = require('../utils/createPouchCryptoStore')
 const PouchDB = require('../utils/pouchdb.js')
 const uniqueName = require('../utils/unique-name')
 
@@ -104,7 +105,7 @@ test('cryptoStore.unlock(password) should fail if local and remote have no salt 
 
   try {
     await hoodie.cryptoStore.unlock('test')
-    t.fail("setUp didn't fail")
+    t.fail("unlock didn't fail")
   } catch (err) {
     t.equal(err.name, pouchdbErrors.MISSING_DOC.name, 'fails with PouchDBs missing doc error')
   }
@@ -577,6 +578,122 @@ test(
       t.notOk(updatedSaltDoc.check, "salt doc shouldn't have the check object")
     } catch (err) {
       t.end(err)
+    }
+  }
+)
+
+test('cryptoStore.setup(password) with pouchdb-hoodie-api should unlock', async t => {
+  t.plan(1)
+
+  const { db, cryptoStore } = createPouchCryptoStore()
+
+  try {
+    await db.put({
+      _id: 'hoodiePluginCryptoStore/salt',
+      salt: 'bf11fa9bafca73586e103d60898989d4',
+      check: {
+        nonce: '6e9cf8a4a6eee26f19ff8c70',
+        tag: '0d2cfd645fe49b8a29ce22dbbac26b1e',
+        data: '5481cf42b7e3f1d15477ed8f1d938bd9fd6103903be6dd4e146f69d9f124e34f33b7fa669305' +
+          '57ae6c882cc5f0e23ac4450a8a6653d5aa36ba531667b9cc6874fddf995efc50322bd1bfed19eb086a2ef' +
+          'c7732c7cb6f56efd6efe33d273f3e6f538a17d183bc1e9f160d0c080f25a17b863e6904fd0a1c8' +
+          'fd918a3bb79655fb1'
+      }
+    })
+
+    await cryptoStore.unlock('test')
+    t.pass('does unlock, and not fail')
+  } catch (err) {
+    t.end(err)
+  }
+})
+
+test(
+  'cryptoStore.setup(password) with pouchdb-hoodie-api should unlock with salt doc on remote',
+  async t => {
+    t.plan(1)
+
+    const { remote, cryptoStore } = createPouchCryptoStore()
+
+    try {
+      await remote.put({
+        _id: 'hoodiePluginCryptoStore/salt',
+        salt: 'bf11fa9bafca73586e103d60898989d4',
+        check: {
+          nonce: '6e9cf8a4a6eee26f19ff8c70',
+          tag: '0d2cfd645fe49b8a29ce22dbbac26b1e',
+          data: '5481cf42b7e3f1d15477ed8f1d938bd9fd6103903be6dd4e146f69d9f124e34f33b7fa669305' +
+            '57ae6c882cc5f0e23ac4450a8a6653d5aa36ba531667b9cc6874fddf995efc50322bd1bfed19eb08' +
+            '6a2efc7732c7cb6f56efd6efe33d273f3e6f538a17d183bc1e9f160d0c080f25a17b863e6904fd0a' +
+            '1c8fd918a3bb79655fb1'
+        }
+      })
+
+      await cryptoStore.unlock('test')
+      t.pass('does unlock, and not fail')
+    } catch (err) {
+      t.end(err)
+    }
+  }
+)
+
+test(
+  'cryptoStore.setup(password) with pouchdb-hoodie-api should fail if salt doc does not exist',
+  async t => {
+    t.plan(1)
+
+    const { cryptoStore } = createPouchCryptoStore()
+
+    try {
+      await cryptoStore.unlock('test')
+      t.fail("unlock didn't fail")
+    } catch (err) {
+      t.equal(err.name, pouchdbErrors.MISSING_DOC.name, 'fails with PouchDBs missing doc error')
+    }
+  }
+)
+
+test(
+  'cryptoStore.setup(password) with pouchdb-hoodie-api should work without a remote db',
+  async t => {
+    t.plan(1)
+
+    const { db, cryptoStore } = createPouchCryptoStore({ remote: null })
+
+    try {
+      await db.put({
+        _id: 'hoodiePluginCryptoStore/salt',
+        salt: 'bf11fa9bafca73586e103d60898989d4',
+        check: {
+          nonce: '6e9cf8a4a6eee26f19ff8c70',
+          tag: '0d2cfd645fe49b8a29ce22dbbac26b1e',
+          data: '5481cf42b7e3f1d15477ed8f1d938bd9fd6103903be6dd4e146f69d9f124e34f33b7fa669305' +
+            '57ae6c882cc5f0e23ac4450a8a6653d5aa36ba531667b9cc6874fddf995efc50322bd1bfed19eb08' +
+            '6a2efc7732c7cb6f56efd6efe33d273f3e6f538a17d183bc1e9f160d0c080f25a17b863e6904fd0a' +
+            '1c8fd918a3bb79655fb1'
+        }
+      })
+
+      await cryptoStore.unlock('test')
+      t.pass('does unlock, and not fail')
+    } catch (err) {
+      t.end(err)
+    }
+  }
+)
+
+test(
+  'cryptoStore.setup(password) with pouchdb-hoodie-api should fail without remote db and local salt',
+  async t => {
+    t.plan(1)
+
+    const { cryptoStore } = createPouchCryptoStore({ remote: null })
+
+    try {
+      await cryptoStore.unlock('test')
+      t.fail("unlock didn't fail")
+    } catch (err) {
+      t.equal(err.name, pouchdbErrors.MISSING_DOC.name, 'fails with PouchDBs missing doc error')
     }
   }
 )

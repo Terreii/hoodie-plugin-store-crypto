@@ -10,6 +10,7 @@ const test = require('tape')
 const pouchdbErrors = require('pouchdb-errors')
 
 const createCryptoStore = require('../utils/createCryptoStore')
+const createPouchCryptoStore = require('../utils/createPouchCryptoStore')
 
 test('cryptoStore.findAll()', async t => {
   t.plan(7)
@@ -180,4 +181,33 @@ test('cryptoStore.findAll() should throw if plugin isn\'t unlocked', async t => 
   }
 
   t.end()
+})
+
+test('cryptoStore.findAll() should work with pouchdb-hoodie-api', async t => {
+  t.plan(3)
+
+  const { cryptoStore } = createPouchCryptoStore()
+
+  try {
+    await cryptoStore.setup('test')
+    await cryptoStore.unlock('test')
+
+    await cryptoStore.add([
+      {
+        _id: 'a',
+        foo: 'bar'
+      },
+      {
+        _id: 'b',
+        foo: 'baz'
+      }
+    ])
+
+    const moarObjects = await cryptoStore.findAll()
+    t.is(moarObjects.length, 2, 'resolves all')
+    t.is(moarObjects[0].foo, 'bar', 'decrypt value')
+    t.is(moarObjects[1].foo, 'baz', 'decrypt value')
+  } catch (err) {
+    t.end(err)
+  }
 })

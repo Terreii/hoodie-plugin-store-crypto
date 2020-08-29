@@ -10,6 +10,7 @@ const test = require('tape')
 const pouchdbErrors = require('pouchdb-errors')
 
 const createCryptoStore = require('../utils/createCryptoStore')
+const createPouchCryptoStore = require('../utils/createPouchCryptoStore')
 const checkTime = require('../utils/checkTime')
 
 test('cryptoStore.update(id, changedProperties)', async t => {
@@ -508,4 +509,26 @@ test("cryptoStore.update() should throw if plugin isn't unlocked", async t => {
   }
 
   t.end()
+})
+
+test('cryptoStore.update() should work with pouchdb-hoodie-api', async t => {
+  t.plan(3)
+
+  const { db, cryptoStore } = createPouchCryptoStore()
+
+  try {
+    await cryptoStore.setup('test')
+    await cryptoStore.unlock('test')
+
+    await db.put({ _id: 'a', value: 'test' })
+
+    const updated = await cryptoStore.update({ _id: 'a', value: 'other' })
+    t.is(updated._id, 'a', 'id matches')
+    t.is(updated.value, 'other', 'value was updated')
+
+    const encrypted = await db.get('a')
+    t.is(encrypted.value, undefined, 'was encrypted')
+  } catch (err) {
+    t.end(err)
+  }
 })

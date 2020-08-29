@@ -52,16 +52,17 @@
     "hoodie": "^28.2.10",
     "pouchdb-adapter-memory": "^7.2.2",
     "pouchdb-core": "^7.2.2",
+    "pouchdb-hoodie-api": "^2.0.0",
     "pouchdb-replication": "^7.2.2",
     "puppeteer": "^5.2.1",
     "puppeteer-firefox": "^0.5.1",
     "semantic-release": "^17.1.1",
-    "snyk": "^1.381.1",
+    "snyk": "^1.385.2",
     "standard": "^14.3.4",
     "tap-spec": "^5.0.0",
     "tape": "^5.0.1",
     "textlint": "^11.7.6",
-    "textlint-rule-alex": "^2.1.0",
+    "textlint-rule-alex": "^3.0.0",
     "textlint-rule-common-misspellings": "^1.0.1",
     "textlint-rule-rousseau": "^1.4.6",
     "weallbehave": "^1.2.0",
@@ -75,7 +76,7 @@
     "pbkdf2": "^3.1.1",
     "pouchdb-errors": "^7.2.2",
     "randombytes": "^2.1.0",
-    "uuid": "^3.4.0"
+    "uuid": "^8.3.0"
   },
   "release": {
     "branches": [
