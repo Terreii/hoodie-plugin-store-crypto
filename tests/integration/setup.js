@@ -297,10 +297,10 @@ test('cryptoStore.setup(password) should work with pouchdb-hoodie-api', async t 
 test(
   'cryptoStore.setup(password) with pouchdb-hoodie-api should throw if a salt doc exists',
   async t => {
-    t.plan(2)
+    t.plan(1)
 
-    const { db, remote, cryptoStore } = createPouchCryptoStore()
-    const firstSaltDoc = await db.put({
+    const { db, cryptoStore } = createPouchCryptoStore()
+    await db.put({
       _id: 'hoodiePluginCryptoStore/salt',
       salt: 'bf11fa9bafca73586e103d60898989d4'
     })
@@ -311,10 +311,16 @@ test(
     } catch (err) {
       t.equal(err.name, pouchdbErrors.UNAUTHORIZED.name, 'fails with PouchDB unauthorized error')
     }
+  }
+)
 
+test(
+  'cryptoStore.setup(password) with pouchdb-hoodie-api should throw if a salt doc exists on remote',
+  async t => {
+    t.plan(1)
+
+    const { remote, cryptoStore } = createPouchCryptoStore()
     try {
-      await db.remove(firstSaltDoc.id, firstSaltDoc.rev)
-
       await remote.put({
         _id: 'hoodiePluginCryptoStore/salt',
         salt: 'bf11fa9bafca73586e103d60898989d4'

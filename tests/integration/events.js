@@ -917,7 +917,7 @@ test("cryptoStore shouldn't emit events for hoodiePluginCryptoStore/ docs", asyn
 })
 
 test('cryptoStore events should work with pouchdb-hoodie-api', async t => {
-  t.plan(0)
+  t.plan(7)
 
   const { cryptoStore } = createPouchCryptoStore()
   let eventCount = 0
@@ -945,8 +945,8 @@ test('cryptoStore events should work with pouchdb-hoodie-api', async t => {
     await cryptoStore.unlock('test')
 
     await cryptoStore.add({ _id: 'a', foo: 'bar' })
-    await cryptoStore.update({ _id: 'a', foo: 'bar' })
-    await cryptoStore.remove({ _id: 'a', foo: 'bar' })
+    await cryptoStore.update({ _id: 'a', foo: 'baz' })
+    await cryptoStore.remove('a')
 
     t.timeoutAfter(100)
     await eventPromise

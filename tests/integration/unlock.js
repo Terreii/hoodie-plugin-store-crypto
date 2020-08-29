@@ -601,7 +601,7 @@ test('cryptoStore.setup(password) with pouchdb-hoodie-api should unlock', async 
       }
     })
 
-    await cryptoStore.unlock()
+    await cryptoStore.unlock('test')
     t.pass('does unlock, and not fail')
   } catch (err) {
     t.end(err)
@@ -629,7 +629,7 @@ test(
         }
       })
 
-      await cryptoStore.unlock()
+      await cryptoStore.unlock('test')
       t.pass('does unlock, and not fail')
     } catch (err) {
       t.end(err)
@@ -645,7 +645,7 @@ test(
     const { cryptoStore } = createPouchCryptoStore()
 
     try {
-      await cryptoStore.unlock()
+      await cryptoStore.unlock('test')
       t.fail("unlock didn't fail")
     } catch (err) {
       t.equal(err.name, pouchdbErrors.MISSING_DOC.name, 'fails with PouchDBs missing doc error')
@@ -674,7 +674,7 @@ test(
         }
       })
 
-      await cryptoStore.unlock()
+      await cryptoStore.unlock('test')
       t.pass('does unlock, and not fail')
     } catch (err) {
       t.end(err)
@@ -690,7 +690,7 @@ test(
     const { cryptoStore } = createPouchCryptoStore({ remote: null })
 
     try {
-      await cryptoStore.unlock()
+      await cryptoStore.unlock('test')
       t.fail("unlock didn't fail")
     } catch (err) {
       t.equal(err.name, pouchdbErrors.MISSING_DOC.name, 'fails with PouchDBs missing doc error')

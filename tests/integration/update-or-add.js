@@ -303,7 +303,7 @@ test('cryptoStore.updateOrAdd() should throw if plugin isn\'t unlocked', async t
 })
 
 test('cryptoStore.updateOrAdd() should work with pouchdb-hoodie-api', async t => {
-  t.plan(3)
+  t.plan(4)
 
   const { db, cryptoStore } = createPouchCryptoStore()
 

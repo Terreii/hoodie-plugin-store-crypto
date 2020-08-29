@@ -288,11 +288,11 @@ test('cryptoStore.withPassword("test/") should work with pouchdb-hoodie-api', as
     await cryptoStore.setup('other')
     await cryptoStore.unlock('other')
 
-    const api = cryptoStore.withPassword('test')
+    const api = await cryptoStore.withPassword('test')
     const addEvent = new Promise((resolve, reject) => {
-      api.on('add', (object) => {
+      api.store.on('add', (object) => {
         try {
-          t.is(object._id, 'test/b')
+          t.is(object._id, 'b')
           resolve()
         } catch (err) {
           reject(err)
@@ -300,7 +300,7 @@ test('cryptoStore.withPassword("test/") should work with pouchdb-hoodie-api', as
       })
     })
 
-    const obj = await api.add({ _id: 'b', test: 'value' })
+    const obj = await api.store.add({ _id: 'b', test: 'value' })
     t.is(obj._id, 'b', 'has correct id')
 
     const encrypted = await db.get(obj._id)
