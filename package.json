@@ -48,7 +48,7 @@
     "lib"
   ],
   "devDependencies": {
-    "browserify": "^16.5.2",
+    "browserify": "^17.0.0",
     "hoodie": "^28.2.10",
     "pouchdb-adapter-memory": "^7.2.2",
     "pouchdb-core": "^7.2.2",
