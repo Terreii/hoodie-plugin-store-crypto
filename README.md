@@ -92,9 +92,10 @@ Thank you to those projects and their maintainers.
 
 ### Add it to your Hoodie-Client
 
-There are 2 ways to use this plugin in your app:
+There are 3 ways to use this plugin in your app:
 - Use it with the Hoodie Plugin API
 - Use it with a bundler (Webpack or Browserify)
+- Use it with PouchDB and [pouchdb-hoodie-api](http://hoodiehq.github.io/pouchdb-hoodie-api/)
 
 #### Usage with the Hoodie Plugin API
 
@@ -204,6 +205,30 @@ cryptoStore.setup('test')
   })
 ```
 
+To use it in combination with PouchDB's APIs like `db.query()` and `db.find()` use
+[cryptoStore.encrypt(jsonValue, aad)](docs/api.md#cryptostoreencryptjsonvalue-aad) and
+[cryptoStore.decrypt(encrypted, aad)](docs/api.md#cryptostoredecryptencrypted-aad):
+
+```javascript
+async function encryptedQuery (db, cryptoStore, viewName, options) {
+  const result = await db.query(viewName, {
+    ...options,
+    include_docs: true
+  })
+  const decrypt = result.rows.map(row => {
+    // hoodie-plugin-store-crypto uses the documents _id as an encryption-check (AAD).
+    // Which makes it required for decryption!
+    return cryptoStore.decrypt(row.doc, row.id)
+  })
+  return Promise.all(decrypt)
+}
+```
+
+Fields required for a view/search must get [stored un-encrypted](docs/api.md#select-fields-that-shouldnt-get-encrypted) to be usable for PouchDB.
+Tip: use random [UUIDs](https://www.npmjs.com/package/uuid)
+([v4](https://www.npmjs.com/package/uuid#uuidv4options-buffer-offset))
+for a key, and encrypt the human-readable version.
+
 [Back to top](#table-of-contents)
 
 ### Get started
@@ -224,7 +249,7 @@ There are 5 use-cases you must put in place:
 The first use of the cryptoStore. Setup can get done in your sign up function, but also if
 you newly added this plugin.
 
-Use [`cryptoStore.setup(password, [salt])`](#cryptostoresetuppassword) to set the
+Use [`cryptoStore.setup(password, [salt])`](docs/api.md#cryptostoresetuppassword) to set the
 encryption password. __`cryptoStore.setup(password, [salt])` will not unlock your cryptoStore instance__
 (like hoodie.account.signUp)!
 
@@ -252,7 +277,7 @@ async function signUp (username, password, cryptoPassword) {
 
 Every time your user signs in you also need to unlock the cryptoStore.
 
-Use [`cryptoStore.unlock(password)`](#cryptostoreunlockpassword) for unlocking.
+Use [`cryptoStore.unlock(password)`](docs/api.md#cryptostoreunlockpassword) for unlocking.
 
 `unlock` will try to pull `hoodiePluginCryptoStore/salt` from the server. To have the latest version of it.
 
@@ -276,7 +301,7 @@ async function signIn (username, password, cryptoPassword) {
 
 If you use hoodie's plugin system, then `cryptoStore` will automatically listen to [`account.on('signout')`](http://docs.hood.ie/en/latest/api/client/hoodie.account.html#events) events. And locks itself if it emits an event. You don't need to add any setup for it.
 
-Use-cases for the [`cryptoStore.lock()`](#cryptostorelock) method are:
+Use-cases for the [`cryptoStore.lock()`](docs/api.md#cryptostorelock) method are:
  - a lock after a timeout functionality
  - lock the store in a save way when closing an tab.
  - lock on sign out, if you didn't use hoodie's plugin system.
@@ -315,7 +340,7 @@ async function unlock (cryptoPassword) {
 
 #### Changing the password
 
-You can change the password and salt used for encryption with [`cryptoStore.changePassword(oldPassword, newPassword)`](#cryptostorechangepasswordoldpassword-newpassword).
+You can change the password and salt used for encryption with [`cryptoStore.changePassword(oldPassword, newPassword)`](docs/api.md#cryptostorechangepasswordoldpassword-newpassword).
 This method also updates all documents, that got encrypted with the old password!
 
 Please sync before the password change! To update all documents.
@@ -341,7 +366,7 @@ async function changePassword (oldPassword, newPassword) {
 
 #### Reset the password
 
-This works like [changing the password](#changing-the-password). With the difference of:
+This works like [changing the password](docs/api.md#changing-the-password). With the difference of:
 The user must enter a __reset-key__ not the old password, and calling `resetPassword()`!
 
 `setup()`, `changePassword()` and `resetPassword()` result 10 reset-keys. You should display them to your user.
