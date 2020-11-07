@@ -52,7 +52,7 @@ test(
       })
       const { salt: oldSalt } = await hoodie.store.find('hoodiePluginCryptoStore/salt')
 
-      hoodie.cryptoStore.lock()
+      await hoodie.cryptoStore.lock()
       const resetKey = getRandomItemOfArray(resetKeys)
       const report = await hoodie.cryptoStore.resetPassword(resetKey, 'newPassword')
 
@@ -108,7 +108,7 @@ test('cryptoStore.resetPassword(resetKey, newPassword) changes the encryption', 
       value: 'secret'
     })
 
-    hoodie.cryptoStore.lock()
+    await hoodie.cryptoStore.lock()
 
     const resetKey = getRandomItemOfArray(resetKeys)
 
