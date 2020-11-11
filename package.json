@@ -71,7 +71,7 @@
   "dependencies": {
     "@hoodie/store-client": "^8.3.0",
     "browserify-aes": "^1.2.0",
-    "buffer": "^6.0.1",
+    "buffer": "^6.0.2",
     "lie": "^3.3.0",
     "lodash": "^4.17.20",
     "pbkdf2": "^3.1.1",
