@@ -1,5 +1,5 @@
 const nativeCrypto = require('crypto')
-const subtle = require('../../lib/helpers/msrcrypto').subtle
+const subtle = require('../../lib/utils/msrcrypto').subtle
 
 // Translate the used Web-Crypto to node.js crypto module.
 // This will be removed once I test only in browsers.
