@@ -253,6 +253,8 @@ test(
         _id: 'test',
         foo: 'bar'
       })
+
+      await new Promise(resolve => setTimeout(resolve, 10))
     } catch (err) {
       t.error(err)
     } finally {
