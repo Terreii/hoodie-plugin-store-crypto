@@ -57,7 +57,7 @@
     "puppeteer": "^5.4.1",
     "puppeteer-firefox": "^0.5.1",
     "semantic-release": "^17.2.2",
-    "snyk": "^1.424.4",
+    "snyk": "^1.425.4",
     "standard": "^14.3.4",
     "tap-spec": "^5.0.0",
     "tape": "^5.0.1",
@@ -70,11 +70,9 @@
   },
   "dependencies": {
     "@hoodie/store-client": "^8.3.0",
-    "browserify-aes": "^1.2.0",
-    "buffer": "^6.0.1",
+    "buffer": "^6.0.2",
     "lie": "^3.3.0",
     "lodash": "^4.17.20",
-    "pbkdf2": "^3.1.1",
     "pouchdb-errors": "^7.2.2",
     "randombytes": "^2.1.0",
     "uuid": "^8.3.1"
