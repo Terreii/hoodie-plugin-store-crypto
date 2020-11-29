@@ -516,7 +516,7 @@ test('encryption works in Firefox', async t => {
   t.plan(9)
 
   try {
-    const encryptedDoc = await browserTest('firefox', './lib/encrypt-doc', 'encrypt', () => {
+    const { outcome: encryptedDoc } = await browserTest('firefox', './lib/encrypt-doc', 'encrypt', () => {
       const doc = {
         _id: 'hello',
         _rev: '1-1234567890',
