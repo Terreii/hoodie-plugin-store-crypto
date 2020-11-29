@@ -49,9 +49,7 @@
   ],
   "devDependencies": {
     "browserify": "^17.0.0",
-    "browserify-aes": "^1.2.0",
     "hoodie": "^28.2.10",
-    "pbkdf2": "^3.1.1",
     "pouchdb-adapter-memory": "^7.2.2",
     "pouchdb-core": "^7.2.2",
     "pouchdb-hoodie-api": "^2.0.0",
@@ -72,9 +70,11 @@
   },
   "dependencies": {
     "@hoodie/store-client": "^8.3.0",
+    "browserify-aes": "^1.2.0",
     "buffer": "^6.0.3",
     "lie": "^3.3.0",
     "lodash": "^4.17.20",
+    "pbkdf2": "^3.1.1",
     "pouchdb-errors": "^7.2.2",
     "randombytes": "^2.1.0",
     "uuid": "^8.3.1"
