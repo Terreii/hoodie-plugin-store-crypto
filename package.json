@@ -44,6 +44,7 @@
   "homepage": "https://github.com/Terreii/hoodie-plugin-store-crypto#readme",
   "files": [
     "index.js",
+    "index.d.ts",
     "hoodie",
     "lib"
   ],
