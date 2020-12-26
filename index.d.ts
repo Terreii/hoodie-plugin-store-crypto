@@ -548,6 +548,6 @@ export interface CryptoStoreConstructor {
   ): CryptoStore<Content>;
 }
 
-const CryptoStoreConstructor: CryptoStoreConstructor;
+declare const CryptoStoreConstructor: CryptoStoreConstructor;
 
 export default CryptoStoreConstructor;
