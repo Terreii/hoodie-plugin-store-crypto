@@ -38,6 +38,22 @@ test('cryptoStore.isEncrypted(doc) returns true for encrypted docs', async t => 
   }
 })
 
+test('cryptoStore.isEncrypted(object) works if the objects has no _id', async t => {
+  t.plan(1)
+
+  const hoodie = createCryptoStore()
+
+  try {
+    await hoodie.cryptoStore.setup('test')
+    await hoodie.cryptoStore.unlock('test')
+
+    const obj = await hoodie.cryptoStore.encrypt({ test: 'hello world' })
+    t.ok(hoodie.cryptoStore.isEncrypted(obj), 'works with objects from encrypt')
+  } catch (err) {
+    t.end(err)
+  }
+})
+
 test('cryptoStore.isEncrypted(null|undefined|string|number) throws', t => {
   t.plan(5)
 

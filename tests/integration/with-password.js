@@ -18,7 +18,7 @@ test('cryptoStore has a withPassword method', t => {
 })
 
 test('cryptoStore.withPassword returns scoped methods', async t => {
-  t.plan(15)
+  t.plan(16)
 
   const hoodie = createCryptoStore()
 
@@ -35,6 +35,7 @@ test('cryptoStore.withPassword returns scoped methods', async t => {
       'updateAll',
       'remove',
       'removeAll',
+      'isEncrypted',
       'encrypt',
       'decrypt',
       'withIdPrefix',
