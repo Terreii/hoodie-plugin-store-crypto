@@ -3,6 +3,7 @@
   "version": "0.0.0-development",
   "description": "End-to-end crypto plugin for the Hoodie client store.",
   "main": "index.js",
+  "types": "index.d.ts",
   "engines": {
     "node": ">=10"
   },
@@ -17,7 +18,7 @@
     "start": "hoodie",
     "semantic-release": "semantic-release",
     "snyk-protect": "snyk protect",
-    "prepublish": "npm run snyk-protect"
+    "prepare": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -58,11 +59,11 @@
     "puppeteer": "^5.5.0",
     "puppeteer-firefox": "^0.5.1",
     "semantic-release": "^17.3.0",
-    "snyk": "^1.437.2",
+    "snyk": "^1.437.3",
     "standard": "^14.3.4",
     "tap-spec": "^5.0.0",
     "tape": "^5.0.1",
-    "textlint": "^11.7.6",
+    "textlint": "^11.7.7",
     "textlint-rule-alex": "^3.0.0",
     "textlint-rule-common-misspellings": "^1.0.1",
     "textlint-rule-rousseau": "^1.4.6",
