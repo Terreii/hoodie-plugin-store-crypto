@@ -54,6 +54,13 @@ export declare type FilterFunction<T> = (
   array: (T & HoodieDoc)[]
 ) => boolean;
 
+export declare type AddEvent = "add";
+export declare type UpdateEvent = "update";
+export declare type RemoteEvent = "remove";
+export declare type Events = AddEvent | UpdateEvent | RemoteEvent;
+export declare type ChangeEvent = "change";
+export declare type AllEvents = ChangeEvent | Events;
+
 export interface PasswordChangeResult {
   /** New Salt */
   salt: Salt;
@@ -239,7 +246,7 @@ export interface Api<BaseType extends {} = {}> {
    * @param handler Event Handler function.
    */
   on<T extends BaseType>(
-    eventName: "add",
+    eventName: AddEvent,
     handler: (doc: T & HoodieDoc) => void
   ): this;
   /**
@@ -249,7 +256,7 @@ export interface Api<BaseType extends {} = {}> {
    * @param handler Event Handler function.
    */
   on<T extends BaseType>(
-    eventName: "update",
+    eventName: UpdateEvent,
     handler: (doc: T & HoodieDoc) => void
   ): this;
   /**
@@ -259,7 +266,7 @@ export interface Api<BaseType extends {} = {}> {
    * @param handler Event Handler function.
    */
   on<T extends BaseType>(
-    eventName: "remove",
+    eventName: RemoteEvent,
     handler: (doc: T & DeletedHoodieDoc) => void
   ): this;
   /**
@@ -269,11 +276,8 @@ export interface Api<BaseType extends {} = {}> {
    * @param handler Event Handler function.
    */
   on<T extends BaseType>(
-    eventName: "change",
-    handler: (
-      eventName: "add" | "update" | "remove",
-      doc: T & HoodieDoc
-    ) => void
+    eventName: ChangeEvent,
+    handler: (eventName: Events, doc: T & HoodieDoc) => void
   ): this;
   /**
    * Add an `add` event-handler. Events are only emitted for encrypted object/documents.
@@ -282,7 +286,7 @@ export interface Api<BaseType extends {} = {}> {
    * @param handler Event Handler function.
    */
   on<T extends BaseType>(
-    eventName: "add",
+    eventName: AddEvent,
     handler: (doc: T & HoodieDoc) => void
   ): this;
   /**
@@ -292,7 +296,7 @@ export interface Api<BaseType extends {} = {}> {
    * @param handler Event Handler function.
    */
   on<T extends BaseType>(
-    eventName: "update",
+    eventName: UpdateEvent,
     handler: (doc: T & HoodieDoc) => void
   ): this;
   /**
@@ -302,7 +306,7 @@ export interface Api<BaseType extends {} = {}> {
    * @param handler Event Handler function.
    */
   on<T extends BaseType>(
-    eventName: "remove",
+    eventName: RemoteEvent,
     handler: (doc: T & DeletedHoodieDoc) => void
   ): this;
   /**
@@ -312,11 +316,8 @@ export interface Api<BaseType extends {} = {}> {
    * @param handler Event Handler function.
    */
   on<T extends BaseType>(
-    eventName: "change",
-    handler: (
-      eventName: "add" | "update" | "remove",
-      doc: T & HoodieDoc
-    ) => void
+    eventName: ChangeEvent,
+    handler: (eventName: Events, doc: T & HoodieDoc) => void
   ): this;
 
   /**
@@ -325,7 +326,7 @@ export interface Api<BaseType extends {} = {}> {
    * @param handler Event Handler function.
    */
   off<T extends BaseType>(
-    eventName: "add",
+    eventName: AddEvent,
     handler: (doc: T & HoodieDoc) => void
   ): this;
   /**
@@ -334,7 +335,7 @@ export interface Api<BaseType extends {} = {}> {
    * @param handler Event Handler function.
    */
   off<T extends BaseType>(
-    eventName: "update",
+    eventName: UpdateEvent,
     handler: (doc: T & HoodieDoc) => void
   ): this;
   /**
@@ -343,7 +344,7 @@ export interface Api<BaseType extends {} = {}> {
    * @param handler Event Handler function.
    */
   off<T extends BaseType>(
-    eventName: "remove",
+    eventName: RemoteEvent,
     handler: (doc: T & DeletedHoodieDoc) => void
   ): this;
   /**
@@ -352,11 +353,8 @@ export interface Api<BaseType extends {} = {}> {
    * @param handler Event Handler function.
    */
   off<T extends BaseType>(
-    eventName: "change",
-    handler: (
-      eventName: "add" | "update" | "remove",
-      doc: T & HoodieDoc
-    ) => void
+    eventName: ChangeEvent,
+    handler: (eventName: Events, doc: T & HoodieDoc) => void
   ): this;
 
   /**
@@ -368,7 +366,7 @@ export interface Api<BaseType extends {} = {}> {
    * @param handler Event Handler function.
    */
   one<T extends BaseType>(
-    eventName: "add",
+    eventName: AddEvent,
     handler: (doc: T & HoodieDoc) => void
   ): this;
   /**
@@ -380,7 +378,7 @@ export interface Api<BaseType extends {} = {}> {
    * @param handler Event Handler function.
    */
   one<T extends BaseType>(
-    eventName: "update",
+    eventName: UpdateEvent,
     handler: (doc: T & HoodieDoc) => void
   ): this;
   /**
@@ -392,7 +390,7 @@ export interface Api<BaseType extends {} = {}> {
    * @param handler Event Handler function.
    */
   one<T extends BaseType>(
-    eventName: "remove",
+    eventName: RemoteEvent,
     handler: (doc: T & DeletedHoodieDoc) => void
   ): this;
   /**
@@ -404,11 +402,8 @@ export interface Api<BaseType extends {} = {}> {
    * @param handler Event Handler function.
    */
   one<T extends BaseType>(
-    eventName: "change",
-    handler: (
-      eventName: "add" | "update" | "remove",
-      doc: T & HoodieDoc
-    ) => void
+    eventName: ChangeEvent,
+    handler: (eventName: Events, doc: T & HoodieDoc) => void
   ): this;
 
   /**
