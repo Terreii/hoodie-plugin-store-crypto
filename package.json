@@ -79,7 +79,7 @@
     "lie": "^3.3.0",
     "lodash": "^4.17.20",
     "pbkdf2": "^3.1.1",
-    "pouchdb-errors": "^7.2.2",
+    "pouchdb-errors": "^7.3.0",
     "randombytes": "^2.1.0",
     "uuid": "^8.3.2"
   },
