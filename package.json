@@ -58,7 +58,7 @@
     "pouchdb-replication": "^7.2.2",
     "puppeteer": "^5.5.0",
     "puppeteer-firefox": "^0.5.1",
-    "semantic-release": "^17.3.0",
+    "semantic-release": "^19.0.3",
     "snyk": "^1.437.3",
     "standard": "^14.3.4",
     "tap-spec": "^5.0.0",
