@@ -78,7 +78,7 @@
     "buffer": "^6.0.3",
     "lie": "^3.3.0",
     "lodash": "^4.17.20",
-    "pbkdf2": "^3.1.1",
+    "pbkdf2": "^3.1.2",
     "pouchdb-errors": "^7.2.2",
     "randombytes": "^2.1.0",
     "uuid": "^8.3.2"
